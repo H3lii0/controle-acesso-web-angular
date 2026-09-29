@@ -1,5 +1,5 @@
 {
-  "name": "controle-acesso-web-angular",
+  "name": "school-access-control-web-angular",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -17,6 +17,7 @@
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@lucide/angular": "^1.43.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

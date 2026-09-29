@@ -4,6 +4,9 @@
     "angular-cli": {
       "command": "npx",
       "args": ["-y", "@angular/cli", "mcp"]
+    },
+    "penpot": {
+      "url": "https://design.penpot.app/mcp/stream?userToken=eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMjU2R0NNIn0.AHj53ybjRsx4szR57hKZsIKJzV1EIcyCJlxgSua82zLeP8qQyXrUXQ.1UPllMe1EZWALkqX.R6DFDETmUQFQ4ETC4wJ9bVnTKnLqtHbnxs7gp4fzjT1WN6i8p67YHaUfDKY8uldr6wIAVeGa3HR0b637P5WDMNT6RgXbirB0s3xs5qLZMdvkJsHoSjDfaRkziP4u7Cp5oRElhsiEyCTJPhF60xZp1jOQaZ1D535PD09nN17OvgDhThvb59eNCDCDysVpPKAbjl8TY8Oyy_Dv.FT1E3ANmU-ckumr-jqOL_A"
     }
   }
 }

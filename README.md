@@ -5,7 +5,7 @@ Aplicacao web do sistema de controle de acesso biometrico escolar.
 ## Areas previstas
 
 - `/admin`: painel administrativo
-- `/responsavel`: portal do responsavel
+- `/guardian`: portal do responsavel
 - `/terminal`: interface web/PWA do terminal no MVP
 
 ## Stack
@@ -43,3 +43,6 @@ URL local esperada:
 ```txt
 http://localhost:8000/api
 ```
+
+
+

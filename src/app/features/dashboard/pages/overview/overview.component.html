@@ -1,0 +1,25 @@
+<main class="page dashboard-overview">
+  <header class="page-header">
+    <div><h1>Visão geral</h1><p>Resumo operacional do controle de acesso escolar em tempo real.</p></div>
+    <div class="actions"><select class="control"><option>Hoje</option><option>Últimos 7 dias</option></select><select class="control"><option>Todas as turmas</option><option>7º Ano B</option></select><select class="control"><option>Manhã</option><option>Tarde</option></select></div>
+  </header>
+
+  <section class="kpi-grid" aria-label="Indicadores do dia">
+    <article class="card kpi"><div class="kpi-header"><span>Alunos na escola</span><svg [lucideIcon]="icons.students" size="17"></svg></div><strong>482 <small>/ 520</small></strong><small><b>92,7%</b> dos matriculados</small></article>
+    <article class="card kpi"><div class="kpi-header"><span>Acessos hoje</span><svg [lucideIcon]="icons.accessRecords" size="17"></svg></div><strong>514 <small>registros</small></strong><small>8,2% acima da média</small></article>
+    <article class="card kpi"><div class="kpi-header"><span>Atrasos</span><svg [lucideIcon]="icons.delays" size="17"></svg></div><strong class="warning-tone">14</strong><small>Entradas após 07:30</small></article>
+    <article class="card kpi"><div class="kpi-header"><span>Acessos negados</span><svg [lucideIcon]="icons.denied" size="17"></svg></div><strong class="danger-tone">3</strong><small>Bloqueios registrados</small></article>
+  </section>
+
+  <section class="operation-grid">
+    <article class="card chart"><div class="card-header"><div><h2>Curva de fluxo por horário</h2><p>Pico de 184 entradas registrado entre 07:00 e 07:15.</p></div><span class="badge info">Hoje</span></div><div class="card-body"><div class="chart-area"><div class="grid-line l1"></div><div class="grid-line l2"></div><div class="grid-line l3"></div><svg viewBox="0 0 700 220" preserveAspectRatio="none" aria-label="Gráfico de acessos por horário"><path class="area" d="M0 205 C80 200 95 190 125 70 C150 10 170 30 190 125 C220 200 280 210 325 170 C370 120 395 180 430 205 C500 210 540 155 580 145 C625 130 645 95 700 80 L700 220 L0 220 Z"/><path class="line" d="M0 205 C80 200 95 190 125 70 C150 10 170 30 190 125 C220 200 280 210 325 170 C370 120 395 180 430 205 C500 210 540 155 580 145 C625 130 645 95 700 80"/></svg><div class="axis"><span>06:00</span><span>07:00</span><span>08:00</span><span>09:00</span><span>10:00</span><span>11:00</span></div></div></div></article>
+    <aside class="status-column">
+      <article class="card"><div class="card-header"><h2>Status dos terminais</h2><span class="badge success">100% operacional</span></div><div class="status-list"><div><svg [lucideIcon]="icons.terminal" size="18"></svg><span><strong>Terminal 01 - Principal</strong><small>Sincronizado há 2 min</small></span><b>Online</b></div><div><svg [lucideIcon]="icons.terminal" size="18"></svg><span><strong>Terminal 02 - Lateral</strong><small>Sincronizado há 4 min</small></span><b>Online</b></div></div></article>
+      <article class="card"><div class="card-header"><h2>Atenção imediata</h2><span class="badge warning">2 pendências</span></div><div class="alert-list"><div><svg [lucideIcon]="icons.alert" size="17"></svg><span><strong>3 alunos do 8º Ano sem registro</strong><small>Verificar presença com a coordenação.</small></span></div><div><svg [lucideIcon]="icons.denied" size="17"></svg><span><strong>Tentativa não autorizada</strong><small>Terminal 02 às 08:14.</small></span></div></div></article>
+    </aside>
+  </section>
+
+  <section class="card"><div class="card-header"><div><h2>Fluxo de acessos recentes</h2><p>Atualização automática dos últimos registros.</p></div><div class="actions"><button class="button secondary"><svg [lucideIcon]="icons.filter" size="15"></svg>Filtrar</button><a class="button secondary" routerLink="/admin/access-records"><svg [lucideIcon]="icons.export" size="15"></svg>Ver histórico</a></div></div><div class="table-container"><table class="table"><thead><tr><th>Aluno</th><th>Matrícula</th><th>Turma</th><th>Horário</th><th>Movimento</th><th>Status</th><th></th></tr></thead><tbody>@for (event of events; track event.enrollment) {<tr><td><div class="person-cell"><span class="avatar">{{ event.initials }}</span><strong>{{ event.name }}</strong></div></td><td>{{ event.enrollment }}</td><td>{{ event.className }}</td><td class="strong-value">{{ event.time }}</td><td>{{ event.movement }}</td><td><span class="badge {{ event.tone }}">{{ event.status }}</span></td><td><a class="arrow-link" routerLink="/admin/students/lucas" title="Ver detalhes"><svg [lucideIcon]="icons.arrow" size="16"></svg></a></td></tr>}</tbody></table></div></section>
+</main>
+
+

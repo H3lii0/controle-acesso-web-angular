@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "controle-acesso-web-angular": {
+    "school-access-control-web-angular": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -61,10 +61,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "controle-acesso-web-angular:build:production"
+              "buildTarget": "school-access-control-web-angular:build:production"
             },
             "development": {
-              "buildTarget": "controle-acesso-web-angular:build:development"
+              "buildTarget": "school-access-control-web-angular:build:development"
             }
           },
           "defaultConfiguration": "development"
