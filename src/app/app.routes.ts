@@ -16,6 +16,8 @@ export const routes: Routes = [
       { path: 'students/new', loadComponent: () => import('./features/students/pages/form/student-form.component').then((m) => m.StudentFormComponent) },
       { path: 'students/:id', loadComponent: () => import('./features/students/pages/details/student-details.component').then((m) => m.StudentDetailsComponent) },
       { path: 'access-records', loadComponent: () => import('./features/access-records/pages/history/access-history.component').then((m) => m.AccessHistoryComponent) },
+      { path: 'employees', loadComponent: () => import('./features/administration/pages/employees/employee-list.component').then((m) => m.EmployeeListComponent) },
+      { path: 'employees/new', loadComponent: () => import('./features/administration/pages/employees/employee-form.component').then((m) => m.EmployeeFormComponent) },
     ],
   },
   { path: 'guardian', canActivate: [authGuard, guardianGuard], loadComponent: () => import('./features/guardian/pages/portal/guardian-portal.component').then((m) => m.GuardianPortalComponent) },

@@ -10,7 +10,7 @@
       <button type="button"><svg [lucideIcon]="icons.terminals" size="17"></svg><span>Terminais</span></button>
       <button type="button"><svg [lucideIcon]="icons.reports" size="17"></svg><span>Relatórios</span></button>
     </nav>
-    <nav class="admin-footer-nav"><button type="button"><svg [lucideIcon]="icons.team" size="17"></svg><span>Equipe e permissões</span></button><button type="button"><svg [lucideIcon]="icons.settings" size="17"></svg><span>Configurações</span></button></nav>
+    <nav class="admin-footer-nav"><a routerLink="/admin/employees" routerLinkActive="active"><svg [lucideIcon]="icons.team" size="17"></svg><span>Equipe e permissões</span></a><button type="button"><svg [lucideIcon]="icons.settings" size="17"></svg><span>Configurações</span></button></nav>
   </aside>
   <section class="admin-workspace">
     <header class="admin-topbar"><div class="admin-context"><span class="badge success">2 terminais ativos</span><span>24 de outubro de 2026</span></div><div class="admin-user"><button class="icon-button" title="Notificações"><svg [lucideIcon]="icons.notifications" size="17"></svg></button><div><strong>{{ userName }}</strong><small>Administração escolar</small></div><span class="avatar">{{ userName.slice(0, 2).toUpperCase() }}</span><button class="icon-button" title="Sair" (click)="signOut()"><svg [lucideIcon]="icons.signOut" size="17"></svg></button></div></header>
