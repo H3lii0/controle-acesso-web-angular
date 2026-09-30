@@ -2,15 +2,11 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from './auth.service';
 
-export const guestGuard: CanActivateFn = () => {
+export const guardianGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  if (!auth.isAuthenticated) {
-    return true;
-  }
-
-  return router.parseUrl(auth.sessionSnapshot?.user.account_type === 'guardian' ? '/guardian' : '/admin');
+  return auth.sessionSnapshot?.user.account_type === 'guardian'
+    ? true
+    : router.parseUrl('/login');
 };
-
-

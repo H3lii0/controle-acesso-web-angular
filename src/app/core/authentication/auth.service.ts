@@ -1,24 +1,16 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, catchError, finalize, map, of, tap, timeout } from 'rxjs';
-import { API_BASE_URL } from '../configuration/api.config';
-import {
-  ApiResponse,
-  AuthUser,
-  AuthSession,
-  CurrentUserResponse,
-  LoginCredentials,
-  LoginResponse,
-} from './auth.models';
-import { TokenStorageService } from './token-storage.service';
+import { BehaviorSubject, Observable, catchError, finalize, map, of, switchMap, tap, timeout } from 'rxjs';
+import { API_BASE_URL, SANCTUM_CSRF_URL } from '../configuration/api.config';
+import { ApiResponse, AuthSession, AuthUser, CurrentUserResponse, LoginCredentials } from './auth.models';
+import { SessionStateService } from './session-state.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly tokenStorage = inject(TokenStorageService);
-  private readonly sessionSubject = new BehaviorSubject<AuthSession | null>(
-    this.tokenStorage.getSession(),
-  );
+  private readonly sessionState = inject(SessionStateService);
+  private readonly sessionSubject = new BehaviorSubject<AuthSession | null>(null);
+  private initialized = false;
 
   readonly session$ = this.sessionSubject.asObservable();
 
@@ -27,31 +19,17 @@ export class AuthService {
   }
 
   get isAuthenticated(): boolean {
-    return !!this.tokenStorage.getToken();
+    return this.sessionSubject.value?.user.account_status === 'active';
   }
 
-  login(credentials: LoginCredentials): Observable<AuthSession> {
-    return this.http.post<ApiResponse<LoginResponse>>(`${API_BASE_URL}/auth/login`, credentials).pipe(
-      timeout(10000),
-      map((response) => response.data),
-      map((data) => this.createSessionFromLogin(data.token, data)),
-      tap((session) => this.setSession(session)),
-    );
-  }
-
-  loadCurrentUser(): Observable<AuthSession | null> {
-    const token = this.tokenStorage.getToken();
-
-    if (!token) {
-      this.clearSession();
-      return of(null);
+  initialize(): Observable<AuthSession | null> {
+    if (this.initialized) {
+      return of(this.sessionSnapshot);
     }
 
-    return this.http.get<ApiResponse<CurrentUserResponse>>(`${API_BASE_URL}/auth/me`).pipe(
-      timeout(10000),
-      map((response) => response.data),
-      map((user) => this.createSessionFromUser(token, user)),
-      tap((session) => this.setSession(session)),
+    this.initialized = true;
+
+    return this.loadCurrentUser().pipe(
       catchError(() => {
         this.clearSession();
         return of(null);
@@ -59,52 +37,49 @@ export class AuthService {
     );
   }
 
-  logout(): Observable<void> {
-    if (!this.tokenStorage.getToken()) {
-      this.clearSession();
-      return of(undefined);
-    }
+  login(credentials: LoginCredentials): Observable<AuthSession> {
+    return this.http.get<void>(SANCTUM_CSRF_URL).pipe(
+      switchMap(() => this.http.post<ApiResponse<AuthUser>>(`${API_BASE_URL}/auth/login`, credentials)),
+      timeout(10000),
+      map((response) => this.createSession(response.data)),
+      tap((session) => this.setSession(session)),
+    );
+  }
 
-    return this.http.post<void>(`${API_BASE_URL}/auth/logout`, {}).pipe(
-      finalize(() => {
-        this.clearSession();
+  loadCurrentUser(): Observable<AuthSession | null> {
+    return this.http.get<CurrentUserResponse>(`${API_BASE_URL}/auth/me`).pipe(
+      timeout(10000),
+      map((user) => this.createSession(user)),
+      tap((session) => this.setSession(session)),
+      catchError((error: unknown) => {
+        if (error instanceof HttpErrorResponse && error.status === 401) {
+          this.clearSession();
+          return of(null);
+        }
+
+        throw error;
       }),
     );
   }
 
+  logout(): Observable<void> {
+    return this.http.post<void>(`${API_BASE_URL}/auth/logout`, {}).pipe(
+      finalize(() => this.clearSession()),
+      map(() => undefined),
+    );
+  }
+
   clearSession(): void {
-    this.tokenStorage.clear();
+    this.sessionState.clear();
     this.sessionSubject.next(null);
   }
 
   private setSession(session: AuthSession): void {
-    this.tokenStorage.save(session);
+    this.sessionState.set(session);
     this.sessionSubject.next(session);
   }
 
-  private createSessionFromLogin(token: string, response: LoginResponse): AuthSession {
-    return this.createSessionFromUser(token, {
-      ...response.user,
-      current_school: response.current_school ?? response.user.current_school,
-      schools: response.schools ?? response.user.schools,
-    });
-  }
-
-  private createSessionFromUser(token: string, user: AuthUser): AuthSession {
-    const currentSchool = user.current_school ?? null;
-    const schools = user.schools ?? [];
-
-    return {
-      token,
-      user: {
-        ...user,
-        current_school: currentSchool,
-        schools,
-      },
-      currentSchool,
-      schools,
-    };
+  private createSession(user: AuthUser): AuthSession {
+    return { user };
   }
 }
-
-

@@ -31,7 +31,7 @@ export class AccessTerminalComponent implements OnDestroy {
 
   protected readonly currentTime = signal(this.formatTime());
   protected readonly state = signal<TerminalState>('waiting');
-  protected readonly currentSchoolName = this.auth.sessionSnapshot?.currentSchool?.name ?? 'Colégio Horizonte';
+  protected readonly currentSchoolName = 'Colégio Horizonte';
   protected readonly icons = {
     fingerprint: LucideFingerprint,
     reading: LucideScanLine,

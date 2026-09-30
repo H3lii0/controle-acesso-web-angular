@@ -29,7 +29,7 @@ export class GuardianPortalComponent {
   private readonly router = inject(Router);
 
   protected readonly view = signal<PortalView>('home');
-  protected readonly currentSchoolName = this.auth.sessionSnapshot?.currentSchool?.name ?? 'Colégio Horizonte';
+  protected readonly currentSchoolName = 'Colégio Horizonte';
   protected readonly icons = {
     school: LucideSchool,
     bell: LucideBell,

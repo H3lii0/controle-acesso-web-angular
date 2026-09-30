@@ -1,39 +1,20 @@
-export interface School {
-  id: number;
-  name: string;
-  slug: string;
-  status?: string;
-  is_owner?: boolean;
-}
-
 export interface AuthUser {
   id: number;
-  name: string;
+  full_name: string;
   email: string;
-  type: string;
-  status: string;
-  current_school?: School | null;
-  schools?: School[];
+  phone: string | null;
+  account_type: 'central_administrator' | 'employee' | 'guardian';
+  account_status: 'pending_activation' | 'active' | 'disabled';
+  permissions: string[];
 }
 
 export interface AuthSession {
-  token: string;
   user: AuthUser;
-  currentSchool: School | null;
-  schools: School[];
 }
 
 export interface LoginCredentials {
   email: string;
   password: string;
-}
-
-export interface LoginResponse {
-  token: string;
-  token_type?: string;
-  user: AuthUser;
-  current_school?: School | null;
-  schools?: School[];
 }
 
 export type CurrentUserResponse = AuthUser;

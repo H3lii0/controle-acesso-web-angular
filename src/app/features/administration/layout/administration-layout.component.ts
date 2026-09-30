@@ -26,8 +26,8 @@ export class AdministrationLayoutComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly schoolName = this.auth.sessionSnapshot?.currentSchool?.name ?? 'Colégio Horizonte';
-  protected readonly userName = this.auth.sessionSnapshot?.user?.name ?? 'Mariana Rios';
+  protected readonly schoolName = 'Colégio Horizonte';
+  protected readonly userName = this.auth.sessionSnapshot?.user.full_name ?? 'Administrador';
   protected readonly icons = {
     dashboard: LucideLayoutDashboard,
     students: LucideGraduationCap,
