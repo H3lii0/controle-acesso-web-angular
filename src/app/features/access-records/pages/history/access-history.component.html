@@ -1,6 +1,93 @@
-<main class="page history-page"><header class="page-header"><div><h1>Histórico de acessos</h1><p>Consulte ocorrências, filtre registros e acompanhe a movimentação escolar.</p></div><div class="actions"><button class="button secondary"><svg [lucideIcon]="icons.export" size="15"></svg>Exportar CSV</button><button class="icon-button" title="Atualizar"><svg [lucideIcon]="icons.refresh" size="16"></svg></button></div></header>
-<section class="kpi-grid"><article class="card kpi"><div class="kpi-header"><span>Total de records</span></div><strong>1.042</strong><small>Período selecionado</small></article><article class="card kpi"><div class="kpi-header"><span>Entradas</span><svg [lucideIcon]="icons.entry" size="17"></svg></div><strong>502</strong><small>48,2% do total</small></article><article class="card kpi"><div class="kpi-header"><span>Saídas</span><svg [lucideIcon]="icons.exit" size="17"></svg></div><strong>498</strong><small>47,8% do total</small></article><article class="card kpi"><div class="kpi-header"><span>Ocorrências</span><svg [lucideIcon]="icons.denied" size="17"></svg></div><strong>42</strong><small>31 atrasos e 11 negativas</small></article></section>
-<section class="card"><div class="card-header"><div><h2>Filtros de auditoria</h2><p>Refine a consulta pelos dados do evento.</p></div></div><div class="card-body history-filters"><label class="field"><span>Data inicial</span><input class="control" type="date" value="2026-10-17"></label><label class="field"><span>Data final</span><input class="control" type="date" value="2026-10-24"></label><label class="field"><span>Aluno ou matrícula</span><span class="search"><svg [lucideIcon]="icons.search" size="16"></svg><input class="control" placeholder="Buscar aluno"></span></label><label class="field"><span>Turma</span><select class="control"><option>Todas as turmas</option></select></label><label class="field"><span>Movimento</span><select class="control"><option>Todos</option><option>Entrada</option><option>Saída</option></select></label><label class="field"><span>Status</span><select class="control"><option>Todos os registros</option><option>Autorizado</option><option>Negado</option></select></label></div></section>
-<section class="card"><div class="card-header"><div><h2>Registro detalhado de tráfego</h2><p>Eventos ordenados do mais recente para o mais antigo.</p></div><span class="badge info">Atualizado agora</span></div><div class="table-container"><table class="table"><thead><tr><th>Data e hora</th><th>Aluno e matrícula</th><th>Turma</th><th>Movimento</th><th>Status</th><th>Terminal</th></tr></thead><tbody>@for(record of records;track record.date+record.time){<tr><td><strong>{{record.date}}</strong><br><span class="muted-text">{{record.time}}</span></td><td><div class="person-cell"><span class="avatar">{{record.name.slice(0,2).toUpperCase()}}</span><span><strong>{{record.name}}</strong><small>{{record.enrollment}}</small></span></div></td><td>{{record.className}}</td><td>{{record.movement}}</td><td><span class="badge {{record.tone}}">{{record.status}}</span></td><td class="muted-text">{{record.terminal}}</td></tr>}</tbody></table></div></section></main>
+<main class="page history-page">
+  <header class="page-header">
+    <div>
+      <h1>Histórico de acessos</h1>
+      <p>Consulte as entradas e saídas registradas para os alunos.</p>
+    </div>
+    <div class="actions">
+      <button class="button secondary" type="button" (click)="exportCsv()" [disabled]="loading || records.length === 0">
+        <svg [lucideIcon]="icons.export" size="15"></svg>Exportar CSV
+      </button>
+      <button class="icon-button" type="button" title="Atualizar" aria-label="Atualizar histórico" (click)="load()" [disabled]="loading">
+        <svg [lucideIcon]="icons.refresh" size="16"></svg>
+      </button>
+    </div>
+  </header>
 
+  <section class="kpi-grid">
+    <article class="card kpi">
+      <div class="kpi-header"><span>Leituras registradas</span></div>
+      <strong>{{ totalReadings }}</strong>
+      <small>Entradas e saídas no dia</small>
+    </article>
+    <article class="card kpi">
+      <div class="kpi-header"><span>Entradas</span><svg [lucideIcon]="icons.entry" size="17"></svg></div>
+      <strong>{{ summary.entries }}</strong>
+      <small>Alunos com entrada registrada</small>
+    </article>
+    <article class="card kpi">
+      <div class="kpi-header"><span>Saídas</span><svg [lucideIcon]="icons.exit" size="17"></svg></div>
+      <strong>{{ summary.exits }}</strong>
+      <small>Saídas registradas no dia</small>
+    </article>
+    <article class="card kpi">
+      <div class="kpi-header"><span>Ainda na escola</span><svg [lucideIcon]="icons.delay" size="17"></svg></div>
+      <strong>{{ summary.inside }}</strong>
+      <small>Sem saída registrada</small>
+    </article>
+  </section>
 
+  <section class="card">
+    <div class="card-header">
+      <div><h2>Filtros de consulta</h2><p>Os resultados são atualizados conforme os filtros.</p></div>
+    </div>
+    <div class="card-body history-filters">
+      <label class="field">
+        <span>Data</span>
+        <input class="control" type="date" [value]="date" (change)="onDateChange($any($event.target).value)">
+      </label>
+      <label class="field">
+        <span>Aluno ou matrícula</span>
+        <span class="search"><svg [lucideIcon]="icons.search" size="16"></svg><input class="control" placeholder="Buscar aluno" [value]="search" (input)="onSearch($any($event.target).value)"></span>
+      </label>
+      <label class="field">
+        <span>Situação</span>
+        <select class="control" [value]="status" (change)="onStatusChange($any($event.target).value)">
+          @for(option of statusOptions; track option.value) { <option [value]="option.value">{{ option.label }}</option> }
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <div><h2>Registros do dia</h2><p>Uma linha por aluno, com os horários de entrada e saída.</p></div>
+      <span class="badge info">{{ loading ? 'Atualizando...' : formatDate(date) }}</span>
+    </div>
+    @if (error) {
+      <div class="history-state error-state" role="alert">{{ error }} <button class="button secondary" type="button" (click)="load()">Tentar novamente</button></div>
+    } @else if (loading && records.length === 0) {
+      <div class="history-state" role="status">Carregando registros...</div>
+    } @else if (records.length === 0) {
+      <div class="history-state">Nenhum acesso encontrado para os filtros selecionados.</div>
+    } @else {
+      <div class="table-container">
+        <table class="table">
+          <thead><tr><th>Data e entrada</th><th>Aluno e matrícula</th><th>Turma</th><th>Movimentação</th><th>Situação</th><th>Saída</th></tr></thead>
+          <tbody>
+            @for (record of records; track record.id) {
+              <tr>
+                <td><strong>{{ formatDate(record.access_date) }}</strong><br><span class="muted-text">{{ formatTime(record.entered_at) }}</span></td>
+                <td><div class="person-cell"><span class="avatar">{{ record.student.full_name.slice(0, 2).toUpperCase() }}</span><span><strong>{{ record.student.full_name }}</strong><small>{{ record.student.enrollment_number }}</small></span></div></td>
+                <td>{{ record.student.school_class.name }}</td>
+                <td>{{ record.exited_at ? 'Entrada e saída' : 'Entrada registrada' }}</td>
+                <td><span class="badge {{ record.status === 'inside' ? 'warning' : 'success' }}">{{ record.status === 'inside' ? 'Ainda na escola' : 'Dia concluído' }}</span></td>
+                <td class="muted-text">{{ formatTime(record.exited_at) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</main>

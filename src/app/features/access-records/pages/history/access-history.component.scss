@@ -1,3 +1,1 @@
-:host{display:block}.history-page{max-width:1500px;margin:0 auto}.history-filters{display:grid;grid-template-columns:repeat(6,minmax(130px,1fr));gap:10px}.history-filters .search{display:block}.history-page .kpi:nth-child(4) strong{color:var(--color-danger)}@media(max-width:1150px){.history-filters{grid-template-columns:repeat(3,1fr)}}@media(max-width:650px){.history-filters{grid-template-columns:1fr}}
-
-
+:host{display:block}.history-page{max-width:1500px;margin:0 auto}.history-filters{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:10px}.history-filters .search{display:block}.history-state{display:flex;min-height:150px;align-items:center;justify-content:center;gap:12px;padding:24px;color:var(--color-text-secondary);text-align:center}.error-state{color:var(--color-danger)}@media(max-width:850px){.history-filters{grid-template-columns:repeat(2,minmax(160px,1fr))}}@media(max-width:650px){.history-filters{grid-template-columns:1fr}}
