@@ -28,6 +28,18 @@ export class EmployeeService {
     return this.http.post<{ data: Employee; message: string }>(this.endpoint, payload);
   }
 
+  update(id: number, payload: EmployeePayload): Observable<{ data: Employee; message: string }> {
+    return this.http.put<{ data: Employee; message: string }>(`${this.endpoint}/${id}`, payload);
+  }
+
+  updateStatus(id: number, status: 'active' | 'disabled'): Observable<{ data: Employee; message: string }> {
+    return this.http.patch<{ data: Employee; message: string }>(`${this.endpoint}/${id}/status`, { status });
+  }
+
+  resendInvitation(id: number): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.endpoint}/${id}/resend-invitation`, {});
+  }
+
   permissions(): Observable<{ data: Permission[] }> {
     return this.http.get<{ data: Permission[] }>(`${API_BASE_URL}/admin/permissions`);
   }

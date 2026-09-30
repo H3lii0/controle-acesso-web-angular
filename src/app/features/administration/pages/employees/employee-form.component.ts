@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { EmployeeService } from '../../../../core/administration/employee.service';
@@ -15,6 +15,7 @@ export class EmployeeFormComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly employeeService = inject(EmployeeService);
   private readonly router = inject(Router);
+  private readonly changeDetector = inject(ChangeDetectorRef);
 
   protected readonly form = this.formBuilder.nonNullable.group({
     full_name: ['', [Validators.required, Validators.maxLength(150)]],
@@ -29,8 +30,8 @@ export class EmployeeFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.employeeService.permissions().subscribe({
-      next: (response) => { this.permissions = response.data; this.loading = false; },
-      error: () => { this.errorMessage = 'Não foi possível carregar as permissões.'; this.loading = false; },
+      next: (response) => { this.permissions = response.data; this.loading = false; this.changeDetector.markForCheck(); },
+      error: () => { this.errorMessage = 'Não foi possível carregar as permissões.'; this.loading = false; this.changeDetector.markForCheck(); },
     });
   }
 
@@ -51,7 +52,7 @@ export class EmployeeFormComponent implements OnInit {
     const value = this.form.getRawValue();
     this.employeeService.create({ ...value, phone: value.phone.trim() || null }).subscribe({
       next: () => this.router.navigateByUrl('/admin/employees'),
-      error: () => { this.errorMessage = 'Não foi possível cadastrar o funcionário. Verifique os dados informados.'; this.saving = false; },
+      error: () => { this.errorMessage = 'Não foi possível cadastrar o funcionário. Verifique os dados informados.'; this.saving = false; this.changeDetector.markForCheck(); },
     });
   }
 }

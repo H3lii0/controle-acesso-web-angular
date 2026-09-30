@@ -38,7 +38,7 @@
           <td>{{ employee.phone || 'Não informado' }}</td>
           <td><span class="status" [class]="'status ' + employee.account_status">{{ statusLabel(employee.account_status) }}</span></td>
           <td>{{ employee.permissions.length }}</td>
-          <td><button type="button" class="text-action">Visualizar</button></td>
+          <td><a class="text-action" [routerLink]="['/admin/employees', employee.id]">Visualizar</a></td>
         </tr>
       </tbody>
     </table>

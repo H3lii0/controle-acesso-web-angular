@@ -43,6 +43,10 @@ export class LoginComponent {
     password: ['password', [Validators.required]],
   });
 
+  ngOnInit(): void {
+    this.auth.prepareCsrfCookie().subscribe();
+  }
+
   protected submit(): void {
     if (this.form.invalid || this.submitting) {
       this.form.markAllAsTouched();

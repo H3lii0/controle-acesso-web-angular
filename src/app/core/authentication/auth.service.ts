@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, catchError, finalize, map, of, switchMap, tap, timeout } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, finalize, map, of, shareReplay, switchMap, tap, timeout } from 'rxjs';
 import { API_BASE_URL, SANCTUM_CSRF_URL } from '../configuration/api.config';
 import { ApiResponse, AuthSession, AuthUser, CurrentUserResponse, LoginCredentials } from './auth.models';
 import { SessionStateService } from './session-state.service';
@@ -11,6 +11,7 @@ export class AuthService {
   private readonly sessionState = inject(SessionStateService);
   private readonly sessionSubject = new BehaviorSubject<AuthSession | null>(null);
   private initialized = false;
+  private csrfRequest$: Observable<void> | null = null;
 
   readonly session$ = this.sessionSubject.asObservable();
 
@@ -38,7 +39,7 @@ export class AuthService {
   }
 
   login(credentials: LoginCredentials): Observable<AuthSession> {
-    return this.http.get<void>(SANCTUM_CSRF_URL).pipe(
+    return this.prepareCsrfCookie().pipe(
       switchMap(() => this.http.post<ApiResponse<AuthUser>>(`${API_BASE_URL}/auth/login`, credentials)),
       timeout(10000),
       map((response) => this.createSession(response.data)),
@@ -46,10 +47,15 @@ export class AuthService {
     );
   }
 
+  prepareCsrfCookie(): Observable<void> {
+    this.csrfRequest$ ??= this.http.get<void>(SANCTUM_CSRF_URL).pipe(shareReplay({ bufferSize: 1, refCount: false }));
+    return this.csrfRequest$;
+  }
+
   loadCurrentUser(): Observable<AuthSession | null> {
-    return this.http.get<CurrentUserResponse>(`${API_BASE_URL}/auth/me`).pipe(
+    return this.http.get<ApiResponse<CurrentUserResponse>>(`${API_BASE_URL}/auth/me`).pipe(
       timeout(10000),
-      map((user) => this.createSession(user)),
+      map((response) => this.createSession(response.data)),
       tap((session) => this.setSession(session)),
       catchError((error: unknown) => {
         if (error instanceof HttpErrorResponse && error.status === 401) {

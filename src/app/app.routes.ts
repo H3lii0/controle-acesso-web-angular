@@ -18,6 +18,7 @@ export const routes: Routes = [
       { path: 'access-records', loadComponent: () => import('./features/access-records/pages/history/access-history.component').then((m) => m.AccessHistoryComponent) },
       { path: 'employees', loadComponent: () => import('./features/administration/pages/employees/employee-list.component').then((m) => m.EmployeeListComponent) },
       { path: 'employees/new', loadComponent: () => import('./features/administration/pages/employees/employee-form.component').then((m) => m.EmployeeFormComponent) },
+      { path: 'employees/:id', loadComponent: () => import('./features/administration/pages/employees/employee-details.component').then((m) => m.EmployeeDetailsComponent) },
     ],
   },
   { path: 'guardian', canActivate: [authGuard, guardianGuard], loadComponent: () => import('./features/guardian/pages/portal/guardian-portal.component').then((m) => m.GuardianPortalComponent) },
