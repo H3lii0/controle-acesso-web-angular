@@ -77,41 +77,46 @@ export class AccessHistoryComponent {
       per_page: 100,
     };
 
-    this.request = forkJoin({
-      firstPage: this.accessRecordService.list({ ...filters, page: 1 }),
-      summary: this.accessRecordService.summary(filters),
-    })
-      .pipe(
-        switchMap(({ firstPage, summary }) => {
-          const remainingPages = Array.from(
-            { length: firstPage.meta.last_page - 1 },
-            (_, index) => this.accessRecordService.list({ ...filters, page: index + 2 }),
-          );
+    const firstPage$ = this.accessRecordService.list({ ...filters, page: 1 }).pipe(
+      switchMap((firstPage) => {
+        const remainingPages = Array.from(
+          { length: firstPage.meta.last_page - 1 },
+          (_, index) => this.accessRecordService.list({ ...filters, page: index + 2 }),
+        );
 
-          if (remainingPages.length === 0) {
-            return of({ records: firstPage.data, summary: summary.data });
-          }
-
-          return forkJoin(remainingPages).pipe(
-            map((pages) => ({
-              records: [firstPage, ...pages].flatMap((page) => page.data),
-              summary: summary.data,
-            })),
-          );
-        }),
-        catchError(() => {
-          this.error = 'Não foi possível carregar o histórico. Tente novamente.';
-          this.changeDetector.markForCheck();
-          return of({ records: [], summary: { date: this.dateFrom, classes: [], entries: 0, exits: 0, inside: 0 } });
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(({ records, summary }) => {
-        this.records = records;
-        this.summary = summary;
+        return remainingPages.length === 0
+          ? of(firstPage.data)
+          : forkJoin(remainingPages).pipe(map((pages) => [firstPage, ...pages].flatMap((page) => page.data)));
+      }),
+      catchError(() => {
+        this.error = 'Não foi possível carregar o histórico. Tente novamente.';
         this.loading = false;
         this.changeDetector.markForCheck();
-      });
+        return of([] as AccessRecord[]);
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    );
+    const summary$ = this.accessRecordService.summary(filters).pipe(
+      catchError(() => {
+        this.error = 'Não foi possível carregar os indicadores. Tente novamente.';
+        this.loading = false;
+        this.changeDetector.markForCheck();
+        return of({ data: { date: this.dateFrom, classes: [], entries: 0, exits: 0, inside: 0 } });
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    );
+
+    // Render each response independently so the table does not wait for the KPI summary.
+    this.request = new Subscription();
+    this.request.add(firstPage$.subscribe((records) => {
+      this.records = records;
+      this.changeDetector.markForCheck();
+    }));
+    this.request.add(summary$.subscribe((response) => {
+      this.summary = response.data;
+      this.loading = false;
+      this.changeDetector.markForCheck();
+    }));
   }
 
   protected onSearch(value: string): void {
