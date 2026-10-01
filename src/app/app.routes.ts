@@ -122,6 +122,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'settings',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/administration/pages/settings/settings.component').then(
+            (m) => m.SettingsComponent,
+          ),
+      },
+      {
         path: 'guardians',
         canActivate: [permissionGuard],
         data: { permissions: ['students.create'] },

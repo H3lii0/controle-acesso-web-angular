@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, catchError, finalize, map, of, shareReplay
 import { API_BASE_URL, SANCTUM_CSRF_URL } from '../configuration/api.config';
 import { ApiResponse, AuthSession, AuthUser, CurrentUserResponse, LoginCredentials, PasswordResetCredentials, PasswordResetRequest } from './auth.models';
 import { SessionStateService } from './session-state.service';
+import { ProfilePayload } from '../settings/settings.models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -96,6 +97,12 @@ export class AuthService {
     return this.http.post<void>(`${API_BASE_URL}/auth/logout`, {}).pipe(
       finalize(() => this.clearSession()),
       map(() => undefined),
+    );
+  }
+
+  updateProfile(payload: ProfilePayload): Observable<ApiResponse<AuthUser> & { message: string }> {
+    return this.http.put<ApiResponse<AuthUser> & { message: string }>(`${API_BASE_URL}/auth/profile`, payload).pipe(
+      tap((response) => this.setSession(this.createSession(response.data))),
     );
   }
 

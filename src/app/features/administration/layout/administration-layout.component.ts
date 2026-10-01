@@ -1,20 +1,18 @@
 import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
-  LucideChartNoAxesColumn,
   LucideDynamicIcon,
   LucideGraduationCap,
   LucideLayoutDashboard,
   LucideLogOut,
-  LucideMonitor,
   LucideScanLine,
   LucideSchool,
   LucideSettings,
   LucideShieldCheck,
-  LucideTriangleAlert,
   LucideUsers,
 } from '@lucide/angular';
 import { AuthService } from '../../../core/authentication/auth.service';
+import { SettingsService } from '../../../core/settings/settings.service';
 
 @Component({
   selector: 'app-administration-layout',
@@ -25,8 +23,9 @@ import { AuthService } from '../../../core/authentication/auth.service';
 export class AdministrationLayoutComponent implements OnDestroy {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly settingsService = inject(SettingsService);
 
-  protected readonly schoolName = 'Colégio Horizonte';
+  protected readonly schoolName = this.settingsService.schoolName;
   protected readonly userName = this.auth.sessionSnapshot?.user.full_name ?? 'Administrador';
   protected readonly currentDateTime = signal(new Date());
   private readonly clock = setInterval(() => this.currentDateTime.set(new Date()), 1000);
@@ -35,14 +34,15 @@ export class AdministrationLayoutComponent implements OnDestroy {
     students: LucideGraduationCap,
     schoolClasses: LucideSchool,
     accessRecords: LucideScanLine,
-    alerts: LucideTriangleAlert,
     guardians: LucideUsers,
-    terminals: LucideMonitor,
-    reports: LucideChartNoAxesColumn,
     settings: LucideSettings,
     team: LucideShieldCheck,
     signOut: LucideLogOut,
   };
+
+  constructor() {
+    this.settingsService.school().subscribe();
+  }
 
   ngOnDestroy(): void { clearInterval(this.clock); }
 

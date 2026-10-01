@@ -3,7 +3,7 @@
     <div class="admin-brand">
       <span class="brand-symbol"><svg [lucideIcon]="icons.team" size="18"></svg></span>
       <div>
-        <strong>Acesso Escolar</strong><small>{{ schoolName }}</small>
+        <strong>Acesso Escolar</strong><small>{{ schoolName() }}</small>
       </div>
     </div>
     <nav aria-label="Navegação administrativa">
@@ -27,20 +27,11 @@
           ><svg [lucideIcon]="icons.accessRecords" size="17"></svg><span>Acessos</span></a
         >
       }
-      <button type="button">
-        <svg [lucideIcon]="icons.alerts" size="17"></svg><span>Alertas</span>
-      </button>
       @if (can('students.create')) {
         <a routerLink="/admin/guardians" routerLinkActive="active">
           <svg [lucideIcon]="icons.guardians" size="17"></svg><span>Responsáveis</span>
         </a>
       }
-      <button type="button">
-        <svg [lucideIcon]="icons.terminals" size="17"></svg><span>Terminais</span>
-      </button>
-      <button type="button">
-        <svg [lucideIcon]="icons.reports" size="17"></svg><span>Relatórios</span>
-      </button>
     </nav>
     <nav class="admin-footer-nav">
       @if (isCentralAdministrator()) {
@@ -48,9 +39,9 @@
           ><svg [lucideIcon]="icons.team" size="17"></svg><span>Equipe e permissões</span></a
         >
       }
-      <button type="button">
+      <a routerLink="/admin/settings" routerLinkActive="active">
         <svg [lucideIcon]="icons.settings" size="17"></svg><span>Configurações</span>
-      </button>
+      </a>
     </nav>
   </aside>
   <section class="admin-workspace">

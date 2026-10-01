@@ -1,0 +1,85 @@
+<main class="page settings-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">Administração</span>
+      <h1>Configurações</h1>
+      <p>Consulte os dados principais e as regras atuais do sistema.</p>
+    </div>
+  </header>
+
+  @if (error) { <p class="feedback error" role="alert">{{ error }}</p> }
+  @if (success) { <p class="feedback success" role="status">{{ success }}</p> }
+
+  <section class="settings-grid">
+    <form class="card settings-card" [formGroup]="schoolForm" (ngSubmit)="saveSchool()">
+      <div class="card-header">
+        <div class="section-title">
+          <span class="section-icon"><svg [lucideIcon]="icons.school" size="18"></svg></span>
+          <div>
+            <h2>Dados da escola</h2>
+            <p>Identidade utilizada nas telas do sistema.</p>
+          </div>
+        </div>
+        <span class="badge info">MVP</span>
+      </div>
+      <div class="settings-fields">
+        <label class="setting-field"><span>Nome da escola</span><input class="control" formControlName="name" /></label>
+        <div class="setting-field"><span>Modelo de operação</span><strong>Uma escola</strong></div>
+        <label class="setting-field"><span>E-mail de contato</span><input class="control" type="email" formControlName="contact_email" /></label>
+        <label class="setting-field"><span>Telefone</span><input class="control" formControlName="phone" /></label>
+        <label class="setting-field wide-field"><span>Endereço</span><input class="control" formControlName="address" /></label>
+        <div class="setting-field"><span>Fuso horário</span><strong>{{ schoolForm.controls.timezone.value }}</strong></div>
+        <div class="setting-field"><span>Ambiente</span><strong>Desenvolvimento local</strong></div>
+      </div>
+      <div class="settings-actions"><span>{{ schoolLoading ? 'Carregando dados...' : 'Alterações salvas no banco.' }}</span><button class="button" type="submit" [disabled]="schoolLoading || savingSchool">{{ savingSchool ? 'Salvando...' : 'Salvar escola' }}</button></div>
+    </form>
+
+    <form class="card settings-card" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+      <div class="card-header">
+        <div class="section-title">
+          <span class="section-icon"><svg [lucideIcon]="icons.user" size="18"></svg></span>
+          <div>
+            <h2>Minha conta</h2>
+            <p>Dados do usuário autenticado nesta sessão.</p>
+          </div>
+        </div>
+        <span class="badge success">Ativa</span>
+      </div>
+      <div class="settings-fields">
+        <label class="setting-field"><span>Nome completo</span><input class="control" formControlName="full_name" /></label>
+        <div class="setting-field"><span>E-mail</span><strong>{{ user?.email }}</strong></div>
+        <label class="setting-field"><span>Telefone</span><input class="control" formControlName="phone" /></label>
+        <div class="setting-field"><span>Perfil</span><strong>Administrador central</strong></div>
+        <div class="setting-field"><span>Permissões</span><strong>Acesso administrativo completo</strong></div>
+      </div>
+      <div class="settings-actions"><span>E-mail somente para consulta</span><button class="button" type="submit" [disabled]="savingProfile">{{ savingProfile ? 'Salvando...' : 'Salvar perfil' }}</button></div>
+    </form>
+  </section>
+
+  <section class="card settings-card rules-card">
+    <div class="card-header">
+      <div class="section-title">
+        <span class="section-icon"><svg [lucideIcon]="icons.security" size="18"></svg></span>
+        <div>
+          <h2>Regras operacionais</h2>
+          <p>Parâmetros que orientam o funcionamento atual do MVP.</p>
+        </div>
+      </div>
+      <span class="badge warning">Fixas</span>
+    </div>
+    <div class="rules-list">
+      <div class="rule-item">
+        <span class="rule-icon"><svg [lucideIcon]="icons.clock" size="17"></svg></span>
+        <div><strong>Controle diário</strong><small>Um registro de entrada e um registro de saída por aluno ao dia.</small></div>
+      </div>
+      <div class="rule-item">
+        <span class="rule-icon"><svg [lucideIcon]="icons.biometric" size="17"></svg></span>
+        <div><strong>Biometria</strong><small>Modo simulado para desenvolvimento, sem leitor físico integrado.</small></div>
+      </div>
+      <div class="rule-item">
+        <span class="rule-icon"><svg [lucideIcon]="icons.school" size="17"></svg></span>
+        <div><strong>Unidade escolar</strong><small>O sistema opera com uma única escola neste MVP.</small></div>
+      </div>
+    </div>
+  </section>
+</main>
