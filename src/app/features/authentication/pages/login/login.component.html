@@ -17,6 +17,10 @@
         <p>Entre com suas credenciais para continuar.</p>
       </div>
 
+      @if (infoMessage) {
+        <p class="form-success" role="status">{{ infoMessage }}</p>
+      }
+
       <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
         <label class="field">
           <span>E-mail</span>
@@ -59,7 +63,7 @@
 
         <div class="login-options">
           <label class="remember"><input type="checkbox" /> <span>Lembrar de mim</span></label>
-          <button type="button" class="link">Esqueci minha senha</button>
+          <a class="link" routerLink="/recuperar-senha">Esqueci minha senha</a>
         </div>
 
         @if (errorMessage) {

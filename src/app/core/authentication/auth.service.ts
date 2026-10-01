@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, finalize, map, of, shareReplay, switchMap, tap, timeout } from 'rxjs';
 import { API_BASE_URL, SANCTUM_CSRF_URL } from '../configuration/api.config';
-import { ApiResponse, AuthSession, AuthUser, CurrentUserResponse, LoginCredentials } from './auth.models';
+import { ApiResponse, AuthSession, AuthUser, CurrentUserResponse, LoginCredentials, PasswordResetCredentials, PasswordResetRequest } from './auth.models';
 import { SessionStateService } from './session-state.service';
 
 @Injectable({ providedIn: 'root' })
@@ -57,6 +57,18 @@ export class AuthService {
       password,
       password_confirmation: passwordConfirmation,
     });
+  }
+
+  requestPasswordReset(credentials: PasswordResetRequest): Observable<{ message: string }> {
+    return this.prepareCsrfCookie().pipe(
+      switchMap(() => this.http.post<{ message: string }>(`${API_BASE_URL}/auth/forgot-password`, credentials)),
+    );
+  }
+
+  resetPassword(credentials: PasswordResetCredentials): Observable<{ message: string }> {
+    return this.prepareCsrfCookie().pipe(
+      switchMap(() => this.http.post<{ message: string }>(`${API_BASE_URL}/auth/reset-password`, credentials)),
+    );
   }
 
   prepareCsrfCookie(): Observable<void> {

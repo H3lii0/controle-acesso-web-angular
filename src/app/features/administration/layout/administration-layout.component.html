@@ -7,24 +7,34 @@
       </div>
     </div>
     <nav aria-label="Navegação administrativa">
-      <a routerLink="/admin" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active"
-        ><svg [lucideIcon]="icons.dashboard" size="17"></svg><span>Visão geral</span></a
-      >
-      <a routerLink="/admin/students" routerLinkActive="active"
-        ><svg [lucideIcon]="icons.students" size="17"></svg><span>Alunos</span></a
-      >
-      <a routerLink="/admin/school-classes" routerLinkActive="active" title="Turmas"
-        ><svg [lucideIcon]="icons.schoolClasses" size="17"></svg><span>Turmas</span></a
-      >
-      <a routerLink="/admin/access-records" routerLinkActive="active"
-        ><svg [lucideIcon]="icons.accessRecords" size="17"></svg><span>Acessos</span></a
-      >
+      @if (can('dashboard.view')) {
+        <a routerLink="/admin" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active"
+          ><svg [lucideIcon]="icons.dashboard" size="17"></svg><span>Visão geral</span></a
+        >
+      }
+      @if (can('students.view')) {
+        <a routerLink="/admin/students" routerLinkActive="active"
+          ><svg [lucideIcon]="icons.students" size="17"></svg><span>Alunos</span></a
+        >
+      }
+      @if (isCentralAdministrator()) {
+        <a routerLink="/admin/school-classes" routerLinkActive="active" title="Turmas"
+          ><svg [lucideIcon]="icons.schoolClasses" size="17"></svg><span>Turmas</span></a
+        >
+      }
+      @if (can('access_records.view')) {
+        <a routerLink="/admin/access-records" routerLinkActive="active"
+          ><svg [lucideIcon]="icons.accessRecords" size="17"></svg><span>Acessos</span></a
+        >
+      }
       <button type="button">
         <svg [lucideIcon]="icons.alerts" size="17"></svg><span>Alertas</span>
       </button>
-      <a routerLink="/admin/guardians" routerLinkActive="active">
-        <svg [lucideIcon]="icons.guardians" size="17"></svg><span>Responsáveis</span>
-      </a>
+      @if (can('students.create')) {
+        <a routerLink="/admin/guardians" routerLinkActive="active">
+          <svg [lucideIcon]="icons.guardians" size="17"></svg><span>Responsáveis</span>
+        </a>
+      }
       <button type="button">
         <svg [lucideIcon]="icons.terminals" size="17"></svg><span>Terminais</span>
       </button>
@@ -33,9 +43,12 @@
       </button>
     </nav>
     <nav class="admin-footer-nav">
-      <a routerLink="/admin/employees" routerLinkActive="active"
-        ><svg [lucideIcon]="icons.team" size="17"></svg><span>Equipe e permissões</span></a
-      ><button type="button">
+      @if (isCentralAdministrator()) {
+        <a routerLink="/admin/employees" routerLinkActive="active"
+          ><svg [lucideIcon]="icons.team" size="17"></svg><span>Equipe e permissões</span></a
+        >
+      }
+      <button type="button">
         <svg [lucideIcon]="icons.settings" size="17"></svg><span>Configurações</span>
       </button>
     </nav>

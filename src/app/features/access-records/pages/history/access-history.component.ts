@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   LucideClockAlert,
@@ -23,6 +23,7 @@ import { AccessRecordService } from '../../../../core/access-records/access-reco
 export class AccessHistoryComponent {
   private readonly accessRecordService = inject(AccessRecordService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly searchChanges = new Subject<string>();
   private request?: Subscription;
 
@@ -96,6 +97,7 @@ export class AccessHistoryComponent {
         }),
         catchError(() => {
           this.error = 'Não foi possível carregar o histórico. Tente novamente.';
+          this.changeDetector.markForCheck();
           return of({ records: [], summary: { date: this.date, entries: 0, exits: 0, inside: 0 } });
         }),
         takeUntilDestroyed(this.destroyRef),
@@ -104,6 +106,7 @@ export class AccessHistoryComponent {
         this.records = records;
         this.summary = summary;
         this.loading = false;
+        this.changeDetector.markForCheck();
       });
   }
 

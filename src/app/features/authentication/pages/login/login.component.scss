@@ -164,6 +164,14 @@ form {
   background: var(--color-danger-background);
   font-size: 12px;
 }
+.form-success {
+  margin: 0 0 16px;
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  color: var(--color-success);
+  background: var(--color-success-background);
+  font-size: 12px;
+}
 .demo-environment {
   display: flex;
   align-items: center;

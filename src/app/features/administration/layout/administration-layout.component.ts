@@ -44,6 +44,15 @@ export class AdministrationLayoutComponent {
     signOut: LucideLogOut,
   };
 
+  protected can(permission: string): boolean {
+    const user = this.auth.sessionSnapshot?.user;
+    return user?.account_type === 'central_administrator' || user?.permissions.includes(permission) === true;
+  }
+
+  protected isCentralAdministrator(): boolean {
+    return this.auth.sessionSnapshot?.user.account_type === 'central_administrator';
+  }
+
   protected signOut(): void {
     this.auth.logout().subscribe({
       next: () => this.router.navigateByUrl('/login'),

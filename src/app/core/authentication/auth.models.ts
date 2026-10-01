@@ -17,6 +17,16 @@ export interface LoginCredentials {
   password: string;
 }
 
+export interface PasswordResetRequest {
+  email: string;
+}
+
+export interface PasswordResetCredentials extends PasswordResetRequest {
+  token: string;
+  password: string;
+  password_confirmation: string;
+}
+
 export type CurrentUserResponse = AuthUser;
 
 export interface ApiResponse<T> {

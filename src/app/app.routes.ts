@@ -3,6 +3,9 @@ import { authGuard } from './core/authentication/auth.guard';
 import { guestGuard } from './core/authentication/guest.guard';
 import { adminGuard } from './core/authentication/admin.guard';
 import { guardianGuard } from './core/authentication/guardian.guard';
+import { administrationLandingGuard } from './core/authentication/administration-landing.guard';
+import { permissionGuard } from './core/authentication/permission.guard';
+import { staffGuard } from './core/authentication/staff.guard';
 import { terminalGuard } from './core/authentication/terminal.guard';
 
 export const routes: Routes = [
@@ -21,8 +24,22 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'recuperar-senha',
+    loadComponent: () =>
+      import('./features/authentication/pages/password-recovery/forgot-password.component').then(
+        (m) => m.ForgotPasswordComponent,
+      ),
+  },
+  {
+    path: 'redefinir-senha',
+    loadComponent: () =>
+      import('./features/authentication/pages/password-recovery/reset-password.component').then(
+        (m) => m.ResetPasswordComponent,
+      ),
+  },
+  {
     path: 'admin',
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, staffGuard],
     loadComponent: () =>
       import('./features/administration/layout/administration-layout.component').then(
         (m) => m.AdministrationLayoutComponent,
@@ -30,6 +47,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
+        canActivate: [administrationLandingGuard],
         loadComponent: () =>
           import('./features/dashboard/pages/overview/overview.component').then(
             (m) => m.OverviewComponent,
@@ -37,6 +55,8 @@ export const routes: Routes = [
       },
       {
         path: 'students',
+        canActivate: [permissionGuard],
+        data: { permissions: ['students.view'] },
         loadComponent: () =>
           import('./features/students/pages/list/student-list.component').then(
             (m) => m.StudentListComponent,
@@ -44,6 +64,8 @@ export const routes: Routes = [
       },
       {
         path: 'students/new',
+        canActivate: [permissionGuard],
+        data: { permissions: ['students.create'] },
         loadComponent: () =>
           import('./features/students/pages/form/student-form.component').then(
             (m) => m.StudentFormComponent,
@@ -51,6 +73,8 @@ export const routes: Routes = [
       },
       {
         path: 'students/:id',
+        canActivate: [permissionGuard],
+        data: { permissions: ['students.view'] },
         loadComponent: () =>
           import('./features/students/pages/details/student-details.component').then(
             (m) => m.StudentDetailsComponent,
@@ -58,6 +82,8 @@ export const routes: Routes = [
       },
       {
         path: 'access-records',
+        canActivate: [permissionGuard],
+        data: { permissions: ['access_records.view'] },
         loadComponent: () =>
           import('./features/access-records/pages/history/access-history.component').then(
             (m) => m.AccessHistoryComponent,
@@ -65,6 +91,7 @@ export const routes: Routes = [
       },
       {
         path: 'school-classes',
+        canActivate: [adminGuard],
         loadComponent: () =>
           import('./features/school-classes/pages/list/school-class-list.component').then(
             (m) => m.SchoolClassListComponent,
@@ -72,6 +99,7 @@ export const routes: Routes = [
       },
       {
         path: 'employees',
+        canActivate: [adminGuard],
         loadComponent: () =>
           import('./features/administration/pages/employees/list/employee-list.component').then(
             (m) => m.EmployeeListComponent,
@@ -79,6 +107,7 @@ export const routes: Routes = [
       },
       {
         path: 'employees/new',
+        canActivate: [adminGuard],
         loadComponent: () =>
           import('./features/administration/pages/employees/form/employee-form.component').then(
             (m) => m.EmployeeFormComponent,
@@ -86,6 +115,7 @@ export const routes: Routes = [
       },
       {
         path: 'employees/:id',
+        canActivate: [adminGuard],
         loadComponent: () =>
           import('./features/administration/pages/employees/details/employee-details.component').then(
             (m) => m.EmployeeDetailsComponent,
@@ -93,6 +123,8 @@ export const routes: Routes = [
       },
       {
         path: 'guardians',
+        canActivate: [permissionGuard],
+        data: { permissions: ['students.create'] },
         loadComponent: () =>
           import('./features/administration/pages/guardians/list/guardian-list.component').then(
             (m) => m.GuardianListComponent,
@@ -100,6 +132,8 @@ export const routes: Routes = [
       },
       {
         path: 'guardians/new',
+        canActivate: [permissionGuard],
+        data: { permissions: ['students.create'] },
         loadComponent: () =>
           import('./features/administration/pages/guardians/form/guardian-form.component').then(
             (m) => m.GuardianFormComponent,
@@ -107,6 +141,8 @@ export const routes: Routes = [
       },
       {
         path: 'guardians/:id',
+        canActivate: [permissionGuard],
+        data: { permissions: ['students.create'] },
         loadComponent: () =>
           import('./features/administration/pages/guardians/details/guardian-details.component').then(
             (m) => m.GuardianDetailsComponent,

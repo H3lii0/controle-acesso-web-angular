@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   LucideDynamicIcon,
   LucideEye,
@@ -17,7 +17,7 @@ import { AuthService } from '../../../../core/authentication/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, ReactiveFormsModule, LucideDynamicIcon],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideDynamicIcon],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
@@ -29,6 +29,7 @@ export class LoginComponent {
 
   protected submitting = false;
   protected errorMessage = '';
+  protected infoMessage = '';
   protected readonly showPassword = signal(false);
   protected readonly icons = {
     shield: LucideShieldCheck,
@@ -48,6 +49,12 @@ export class LoginComponent {
     this.auth.prepareCsrfCookie().subscribe();
     const token = this.route.snapshot.queryParamMap.get('token');
     if (token) this.router.navigate(['/ativar-conta'], { queryParams: { token } });
+    if (this.route.snapshot.queryParamMap.get('activated') === '1') {
+      this.infoMessage = 'Conta ativada. Agora você já pode entrar com sua senha.';
+    }
+    if (this.route.snapshot.queryParamMap.get('reset') === '1') {
+      this.infoMessage = 'Senha redefinida com sucesso. Entre com a nova senha.';
+    }
   }
 
   protected submit(): void {
