@@ -6,6 +6,7 @@ import {
   PaginatedAccessRecords,
   PaginatedGuardians,
   PaginatedStudents,
+  GuardianStudent,
   SchoolClass,
   Student,
   StudentAccessRecord,
@@ -84,5 +85,25 @@ export class StudentService {
   accessRecords(date: string, search: string): Observable<PaginatedAccessRecords> {
     const params = new HttpParams().set('date', date).set('search', search).set('per_page', 100);
     return this.http.get<PaginatedAccessRecords>(`${API_BASE_URL}/access-records`, { params });
+  }
+
+  guardianStudents(): Observable<{ data: GuardianStudent[] }> {
+    return this.http.get<{ data: GuardianStudent[] }>(`${API_BASE_URL}/guardian/students`);
+  }
+
+  guardianAccessRecords(
+    studentId: number,
+    dateFrom: string,
+    dateTo: string,
+  ): Observable<PaginatedAccessRecords> {
+    const params = new HttpParams()
+      .set('date_from', dateFrom)
+      .set('date_to', dateTo)
+      .set('per_page', 100);
+
+    return this.http.get<PaginatedAccessRecords>(
+      `${API_BASE_URL}/guardian/students/${studentId}/access-records`,
+      { params },
+    );
   }
 }

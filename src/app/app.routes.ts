@@ -13,6 +13,13 @@ export const routes: Routes = [
       import('./features/authentication/pages/login/login.component').then((m) => m.LoginComponent),
   },
   {
+    path: 'ativar-conta',
+    loadComponent: () =>
+      import('./features/authentication/pages/activation/account-activation.component').then(
+        (m) => m.AccountActivationComponent,
+      ),
+  },
+  {
     path: 'admin',
     canActivate: [authGuard, adminGuard],
     loadComponent: () =>
@@ -81,6 +88,27 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/administration/pages/employees/details/employee-details.component').then(
             (m) => m.EmployeeDetailsComponent,
+          ),
+      },
+      {
+        path: 'guardians',
+        loadComponent: () =>
+          import('./features/administration/pages/guardians/list/guardian-list.component').then(
+            (m) => m.GuardianListComponent,
+          ),
+      },
+      {
+        path: 'guardians/new',
+        loadComponent: () =>
+          import('./features/administration/pages/guardians/form/guardian-form.component').then(
+            (m) => m.GuardianFormComponent,
+          ),
+      },
+      {
+        path: 'guardians/:id',
+        loadComponent: () =>
+          import('./features/administration/pages/guardians/details/guardian-details.component').then(
+            (m) => m.GuardianDetailsComponent,
           ),
       },
     ],

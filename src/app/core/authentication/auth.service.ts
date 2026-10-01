@@ -51,6 +51,14 @@ export class AuthService {
     );
   }
 
+  activateAccount(token: string, password: string, passwordConfirmation: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${API_BASE_URL}/auth/activate`, {
+      token,
+      password,
+      password_confirmation: passwordConfirmation,
+    });
+  }
+
   prepareCsrfCookie(): Observable<void> {
     this.csrfRequest$ ??= this.http.get<void>(SANCTUM_CSRF_URL).pipe(shareReplay({ bufferSize: 1, refCount: false }));
     return this.csrfRequest$;

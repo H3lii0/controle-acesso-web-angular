@@ -3,12 +3,13 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize, debounceTime, distinctUntilChanged, startWith, switchMap } from 'rxjs';
+import { LucideDynamicIcon, LucideEye } from '@lucide/angular';
 import { Employee, EmployeeStatus } from '../../../../../core/administration/administration.models';
 import { EmployeeService } from '../../../../../core/administration/employee.service';
 
 @Component({
   selector: 'app-employee-list',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideDynamicIcon],
   templateUrl: './employee-list.component.html',
   styleUrl: './employee-list.component.scss',
 })
@@ -27,6 +28,7 @@ export class EmployeeListComponent implements OnInit {
   protected currentPage = 1;
   protected lastPage = 1;
   protected total = 0;
+  protected readonly icons = { view: LucideEye };
 
   ngOnInit(): void {
     this.filters.valueChanges

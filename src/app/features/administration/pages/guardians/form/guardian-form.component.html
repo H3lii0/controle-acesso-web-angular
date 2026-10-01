@@ -1,0 +1,13 @@
+<main class="page guardian-form-page">
+  <header class="page-header"><div><a class="back-link" routerLink="/admin/guardians">Voltar para responsáveis</a><span class="eyebrow">Administração</span><h1>Novo responsável</h1><p>Cadastre uma conta para acompanhar os acessos dos alunos vinculados.</p></div></header>
+  <form class="form-layout" [formGroup]="form" (ngSubmit)="submit()">
+    <section class="card form-card"><div class="card-heading"><strong>Dados do responsável</strong><span>Convite por e-mail</span></div><div class="card-body">
+      <label class="full"><span>Nome completo</span><input class="control" formControlName="full_name" placeholder="Nome do responsável" />@if (form.controls.full_name.touched && form.controls.full_name.invalid) { <small class="field-error">Informe o nome completo.</small> }</label>
+      <label><span>E-mail</span><input class="control" type="email" formControlName="email" placeholder="responsavel@escola.com" />@if (form.controls.email.touched && form.controls.email.invalid) { <small class="field-error">Informe um e-mail válido.</small> }</label>
+      <label><span>Telefone <small>(opcional)</small></span><input class="control" formControlName="phone" placeholder="(00) 00000-0000" /></label>
+    </div></section>
+    <section class="card info-card"><strong>Como funciona</strong><p>A conta será criada como pendente. O responsável receberá um convite para confirmar o e-mail e criar a própria senha.</p></section>
+    @if (errorMessage) { <div class="feedback error">{{ errorMessage }}</div> }
+    <div class="form-actions"><a class="button secondary" routerLink="/admin/guardians">Cancelar</a><button class="button" type="submit" [disabled]="saving">{{ saving ? 'Enviando convite...' : 'Cadastrar e enviar convite' }}</button></div>
+  </form>
+</main>

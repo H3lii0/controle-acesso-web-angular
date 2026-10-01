@@ -1,0 +1,22 @@
+<main class="page guardian-details-page">
+  @if (loading) { <div class="feedback">Carregando responsável...</div> }
+  @else if (errorMessage && !guardian) { <div class="feedback error">{{ errorMessage }}</div> }
+  @else if (guardian) {
+    <header class="page-header"><div><a class="back-link" routerLink="/admin/guardians">Voltar para responsáveis</a><span class="eyebrow">Responsável</span><h1>{{ guardian.full_name }}</h1><p>{{ guardian.email }} · <span class="status" [class]="'status ' + guardian.account_status">{{ statusLabel() }}</span></p></div><button class="button" type="button" (click)="submit()" [disabled]="saving">{{ saving ? 'Salvando...' : 'Salvar alterações' }}</button></header>
+    @if (feedbackMessage) { <div class="feedback success">{{ feedbackMessage }}</div> }
+    @if (errorMessage) { <div class="feedback error">{{ errorMessage }}</div> }
+    <form class="details-grid" [formGroup]="form" (ngSubmit)="submit()">
+      <section class="card form-card"><div class="card-heading"><strong>Dados cadastrais</strong><span>Conta do responsável</span></div><div class="card-body">
+        <label class="full"><span>Nome completo</span><input class="control" formControlName="full_name" />@if (form.controls.full_name.touched && form.controls.full_name.invalid) { <small class="field-error">Informe o nome completo.</small> }</label>
+        <label><span>E-mail</span><input class="control" type="email" formControlName="email" />@if (form.controls.email.touched && form.controls.email.invalid) { <small class="field-error">Informe um e-mail válido.</small> }</label>
+        <label><span>Telefone</span><input class="control" formControlName="phone" placeholder="Não informado" /></label>
+      </div></section>
+      <section class="card account-card"><div class="card-heading"><strong>Convite e acesso</strong></div><div class="card-body"><p>A conta é ativada pelo próprio responsável por meio do convite enviado ao e-mail cadastrado.</p>@if (guardian.account_status === 'pending_activation') { <button class="button secondary" type="button" (click)="resendInvitation()" [disabled]="resending">{{ resending ? 'Reenviando...' : 'Reenviar convite' }}</button> }</div></section>
+      <section class="card linked-card"><div class="card-heading"><strong>Alunos vinculados</strong><span>{{ guardian.students_count }} aluno(s)</span></div><div class="card-body">
+        @if (!guardian.students?.length) { <p>Nenhum aluno está vinculado a este responsável.</p> }
+        @if (guardian.students?.length) { <div class="student-list">@for (student of guardian.students; track student.id) { <a class="student-row" [routerLink]="['/admin/students', student.id]"><span class="student-avatar">{{ student.full_name.slice(0, 1).toUpperCase() }}</span><span><strong>{{ student.full_name }}</strong><small>{{ student.enrollment_number }} · {{ student.school_class?.name || 'Sem turma' }}</small></span><span class="student-status" [class.inactive]="!student.is_active">{{ student.is_active ? 'Ativo' : 'Inativo' }}</span></a> }</div> }
+        <a class="text-action" routerLink="/admin/students">Ir para alunos</a>
+      </div></section>
+    </form>
+  }
+</main>

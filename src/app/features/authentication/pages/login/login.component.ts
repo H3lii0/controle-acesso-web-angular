@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   LucideDynamicIcon,
   LucideEye,
@@ -25,6 +25,7 @@ export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   protected submitting = false;
   protected errorMessage = '';
@@ -45,6 +46,8 @@ export class LoginComponent {
 
   ngOnInit(): void {
     this.auth.prepareCsrfCookie().subscribe();
+    const token = this.route.snapshot.queryParamMap.get('token');
+    if (token) this.router.navigate(['/ativar-conta'], { queryParams: { token } });
   }
 
   protected submit(): void {
@@ -60,7 +63,10 @@ export class LoginComponent {
       .login(this.form.getRawValue())
       .pipe(finalize(() => (this.submitting = false)))
       .subscribe({
-        next: () => this.router.navigateByUrl('/admin'),
+        next: (session) => {
+          const destination = session.user.account_type === 'guardian' ? '/guardian' : '/admin';
+          this.router.navigateByUrl(destination);
+        },
         error: (error: unknown) => {
           this.errorMessage = this.resolveErrorMessage(error);
         },

@@ -68,9 +68,9 @@
               </td>
               <td>{{ employee.permissions.length }}</td>
               <td>
-                <a class="text-action" [routerLink]="['/admin/employees', employee.id]"
-                  >Visualizar</a
-                >
+                <a class="icon-button" [routerLink]="['/admin/employees', employee.id]" title="Ver detalhes"
+                  ><svg [lucideIcon]="icons.view" size="16"></svg
+                ></a>
               </td>
             </tr>
           </tbody>

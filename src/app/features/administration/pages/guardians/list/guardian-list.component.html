@@ -1,0 +1,22 @@
+<main class="page guardians-page">
+  <header class="page-header">
+    <div><span class="eyebrow">Administração</span><h1>Responsáveis</h1><p>Gerencie as contas e os alunos vinculados a cada responsável.</p></div>
+    <a class="button" routerLink="/admin/guardians/new">Novo responsável</a>
+  </header>
+  <section class="card guardian-filters" aria-label="Filtros de responsáveis">
+    <label><span>Buscar</span><input class="control" type="search" [(ngModel)]="search" (keyup.enter)="load()" placeholder="Nome ou e-mail" /></label>
+    <button class="button secondary" type="button" (click)="load()">Buscar</button>
+  </section>
+  <section class="card table-panel">
+    <div class="table-heading"><strong>Responsáveis cadastrados</strong><span>{{ total }} responsável(is)</span></div>
+    @if (loading) { <div class="feedback">Carregando responsáveis...</div> }
+    @if (!loading && errorMessage) { <div class="feedback error">{{ errorMessage }}</div> }
+    @if (!loading && !errorMessage && guardians.length === 0) { <div class="feedback">Nenhum responsável encontrado.</div> }
+    @if (!loading && !errorMessage && guardians.length > 0) {
+      <div class="table-wrap"><table><thead><tr><th>Responsável</th><th>Contato</th><th>Alunos vinculados</th><th>Situação</th><th>Ações</th></tr></thead><tbody>
+        @for (guardian of guardians; track guardian.id) { <tr><td><strong>{{ guardian.full_name }}</strong><small>{{ guardian.email }}</small></td><td>{{ guardian.phone || 'Não informado' }}</td><td>{{ guardian.students_count }}</td><td><span class="status" [class]="'status ' + guardian.account_status">{{ statusLabel(guardian.account_status) }}</span></td><td><a class="icon-button" [routerLink]="['/admin/guardians', guardian.id]" title="Ver detalhes"><svg [lucideIcon]="icons.view" size="16"></svg></a></td></tr> }
+      </tbody></table></div>
+    }
+    @if (lastPage > 1) { <div class="pagination"><button type="button" (click)="load(currentPage - 1)" [disabled]="currentPage === 1">Anterior</button><span>Página {{ currentPage }} de {{ lastPage }}</span><button type="button" (click)="load(currentPage + 1)" [disabled]="currentPage === lastPage">Próxima</button></div> }
+  </section>
+</main>

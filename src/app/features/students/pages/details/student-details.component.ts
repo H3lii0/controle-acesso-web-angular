@@ -17,6 +17,7 @@ import {
 } from '@lucide/angular';
 import { forkJoin } from 'rxjs';
 import {
+  GuardianSummary,
   SchoolClass,
   Student,
   StudentAccessRecord,
@@ -73,6 +74,9 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
   protected todayRecord: StudentAccessRecord | null = null;
   protected activeTab: StudentTab = 'overview';
   protected form = { full_name: '', enrollment_number: '', date_of_birth: '', school_class_id: 0 };
+  protected guardianSearch = '';
+  protected guardianResults: GuardianSummary[] = [];
+  protected selectedGuardianId = 0;
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -89,6 +93,7 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
           date_of_birth: student.data.date_of_birth,
           school_class_id: student.data.school_class.id,
         };
+        this.selectedGuardianId = student.data.guardian.id;
         this.loading = false;
         this.loadAccessRecords(student.data);
         this.changeDetector.markForCheck();
@@ -117,6 +122,9 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
         date_of_birth: this.student.date_of_birth,
         school_class_id: this.student.school_class.id,
       };
+      this.selectedGuardianId = this.student.guardian.id;
+      this.guardianSearch = this.student.guardian.full_name;
+      this.guardianResults = [];
   }
 
   protected save(): void {
@@ -126,6 +134,7 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
       !this.form.enrollment_number.trim() ||
       !this.form.date_of_birth ||
       !this.form.school_class_id ||
+      !this.selectedGuardianId ||
       this.saving
     ) {
       this.errorMessage = 'Preencha todos os campos obrigatórios.';
@@ -142,7 +151,7 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
           date_of_birth: this.form.date_of_birth,
           school_class_id: Number(this.form.school_class_id),
         },
-        guardian: { mode: 'existing', id: this.student.guardian.id },
+        guardian: { mode: 'existing', id: this.selectedGuardianId },
       })
       .subscribe({
         next: (response) => {
@@ -182,6 +191,23 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
     this.activeTab = tab;
     this.editing = false;
     this.errorMessage = '';
+  }
+
+  protected searchExistingGuardian(): void {
+    if (this.guardianSearch.trim().length < 2) {
+      this.guardianResults = [];
+      return;
+    }
+    this.studentsApi.searchGuardians(this.guardianSearch.trim()).subscribe({
+      next: (response) => { this.guardianResults = response.data; this.changeDetector.markForCheck(); },
+      error: () => { this.errorMessage = 'Não foi possível buscar os responsáveis.'; this.changeDetector.markForCheck(); },
+    });
+  }
+
+  protected chooseGuardian(guardian: GuardianSummary): void {
+    this.selectedGuardianId = guardian.id;
+    this.guardianSearch = guardian.full_name;
+    this.guardianResults = [];
   }
 
   protected captureBiometric(): void {

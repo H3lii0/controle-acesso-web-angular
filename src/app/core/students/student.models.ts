@@ -38,6 +38,15 @@ export interface StudentAccessRecord {
   student: { id: number; enrollment_number: string; full_name: string; is_active: boolean; school_class: SchoolClass };
 }
 
+export interface GuardianStudent {
+  id: number;
+  enrollment_number: string;
+  full_name: string;
+  date_of_birth: string;
+  is_active: boolean;
+  school_class: SchoolClass;
+}
+
 export interface PaginatedAccessRecords {
   data: StudentAccessRecord[];
   meta: { current_page: number; last_page: number; total: number };

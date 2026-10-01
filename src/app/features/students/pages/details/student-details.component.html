@@ -299,6 +299,13 @@
             </span>
           </div>
           <div class="card-body guardian-details">
+            @if (editing) {
+              <div class="guardian-editor">
+                <label><span>Buscar responsável existente</span><input class="control" [(ngModel)]="guardianSearch" (ngModelChange)="searchExistingGuardian()" placeholder="Nome ou e-mail" /></label>
+                @if (guardianResults.length) { <div class="guardian-results">@for (guardian of guardianResults; track guardian.id) { <button type="button" (click)="chooseGuardian(guardian)"><strong>{{ guardian.full_name }}</strong><small>{{ guardian.email }}</small></button> }</div> }
+                <small>O aluno deve permanecer vinculado a um responsável.</small>
+              </div>
+            } @else {
             <div class="guardian">
               <span class="avatar large">{{ initials(currentStudent.guardian.full_name) }}</span>
               <div>
@@ -312,6 +319,7 @@
               <svg [lucideIcon]="icons.guardians" size="18"></svg>
               <span>O responsável acompanha os acessos deste aluno pelo portal próprio.</span>
             </div>
+            }
           </div>
         </article>
       </section>

@@ -344,6 +344,14 @@
   font-size: 11px;
   text-decoration: none;
 }
+.guardian-editor { display: grid; gap: 8px; position: relative; }
+.guardian-editor label { display: grid; gap: 6px; color: var(--color-text-muted); font-size: 11px; font-weight: 700; }
+.guardian-editor > small { color: var(--color-text-muted); font-size: 10px; }
+.guardian-results { display: grid; gap: 4px; }
+.guardian-results button { display: grid; gap: 2px; border: 1px solid var(--color-border); border-radius: var(--radius); padding: 9px 10px; color: var(--color-text); background: var(--color-surface); text-align: left; cursor: pointer; }
+.guardian-results button:hover { border-color: var(--color-primary); background: var(--color-primary-light); }
+.guardian-results strong { font-size: 12px; }
+.guardian-results small { color: var(--color-text-muted); font-size: 10px; }
 @media (max-width: 950px) {
   .details-grid {
     grid-template-columns: 1fr;
