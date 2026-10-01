@@ -81,6 +81,7 @@ export class AccessTerminalComponent implements OnDestroy {
     }
 
     this.state.set(state);
+    this.errorMessage.set('');
   }
 
   protected simulateReading(): void {

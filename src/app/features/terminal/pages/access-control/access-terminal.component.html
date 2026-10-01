@@ -35,7 +35,7 @@
         {{ state() === 'waiting' ? 'Terminal pronto' : 'Processando acesso' }}
       </p>
       <h1>{{ messages[state()].title }}</h1>
-      <p>{{ messages[state()].text }}</p>
+      <p>{{ errorMessage() || messages[state()].text }}</p>
     </div>
 
     @if (state() === 'entry' || state() === 'exit') {
