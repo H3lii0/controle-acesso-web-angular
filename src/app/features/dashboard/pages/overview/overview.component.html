@@ -5,15 +5,16 @@
       <p>Resumo operacional do controle de acesso escolar em tempo real.</p>
     </div>
     <div class="actions">
-      <select class="control">
-        <option>Hoje</option>
-        <option>Últimos 7 dias</option></select
-      ><select class="control">
-        <option>Todas as turmas</option>
-        <option>7º Ano B</option></select
-      ><select class="control">
-        <option>Manhã</option>
-        <option>Tarde</option>
+      <select class="control" [value]="period" (change)="period = $any($event.target).value; load()">
+        <option value="today">Hoje</option>
+        <option value="last_7_days">Últimos 7 dias</option>
+      </select><select class="control" [value]="schoolClassId" (change)="schoolClassId = $any($event.target).value; load()">
+        <option value="">Todas as turmas</option>
+        @for (schoolClass of summary?.classes ?? []; track schoolClass.id) { <option [value]="schoolClass.id">{{ schoolClass.name }}</option> }
+      </select><select class="control" [value]="shift" (change)="shift = $any($event.target).value; load()">
+        <option value="">Todos os turnos</option>
+        <option value="morning">Manhã</option>
+        <option value="afternoon">Tarde</option>
       </select>
     </div>
   </header>
@@ -23,27 +24,27 @@
       <div class="kpi-header">
         <span>Alunos na escola</span><svg [lucideIcon]="icons.students" size="17"></svg>
       </div>
-      <strong>482 <small>/ 520</small></strong
-      ><small><b>92,7%</b> dos matriculados</small>
+      <strong>{{ summary?.students?.inside ?? 0 }} <small>/ {{ summary?.students?.total ?? 0 }}</small></strong
+      ><small><b>{{ percentage(summary?.students?.inside ?? 0, summary?.students?.total ?? 0) }}</b> dos matriculados</small>
     </article>
     <article class="card kpi">
       <div class="kpi-header">
         <span>Acessos hoje</span><svg [lucideIcon]="icons.accessRecords" size="17"></svg>
       </div>
-      <strong>514 <small>registros</small></strong
-      ><small>8,2% acima da média</small>
+      <strong>{{ summary?.accesses?.readings ?? 0 }} <small>registros</small></strong
+      ><small>{{ summary?.accesses?.entries ?? 0 }} entradas e {{ summary?.accesses?.exits ?? 0 }} saídas</small>
     </article>
     <article class="card kpi">
       <div class="kpi-header">
         <span>Atrasos</span><svg [lucideIcon]="icons.delays" size="17"></svg>
       </div>
-      <strong class="warning-tone">14</strong><small>Entradas após 07:30</small>
+      <strong class="warning-tone">{{ summary?.delays ?? '—' }}</strong><small>{{ summary?.delays === null ? 'Regra não configurada' : 'Entradas fora do horário' }}</small>
     </article>
     <article class="card kpi">
       <div class="kpi-header">
         <span>Acessos negados</span><svg [lucideIcon]="icons.denied" size="17"></svg>
       </div>
-      <strong class="danger-tone">3</strong><small>Bloqueios registrados</small>
+      <strong class="danger-tone">{{ summary?.denied ?? '—' }}</strong><small>{{ summary?.denied === null ? 'Não registrado no MVP' : 'Bloqueios registrados' }}</small>
     </article>
   </section>
 
@@ -52,33 +53,13 @@
       <div class="card-header">
         <div>
           <h2>Curva de fluxo por horário</h2>
-          <p>Pico de 184 entradas registrado entre 07:00 e 07:15.</p>
+          <p>Distribuição real dos registros por faixa horária.</p>
         </div>
         <span class="badge info">Hoje</span>
       </div>
       <div class="card-body">
         <div class="chart-area">
-          <div class="grid-line l1"></div>
-          <div class="grid-line l2"></div>
-          <div class="grid-line l3"></div>
-          <svg
-            viewBox="0 0 700 220"
-            preserveAspectRatio="none"
-            aria-label="Gráfico de acessos por horário"
-          >
-            <path
-              class="area"
-              d="M0 205 C80 200 95 190 125 70 C150 10 170 30 190 125 C220 200 280 210 325 170 C370 120 395 180 430 205 C500 210 540 155 580 145 C625 130 645 95 700 80 L700 220 L0 220 Z"
-            />
-            <path
-              class="line"
-              d="M0 205 C80 200 95 190 125 70 C150 10 170 30 190 125 C220 200 280 210 325 170 C370 120 395 180 430 205 C500 210 540 155 580 145 C625 130 645 95 700 80"
-            />
-          </svg>
-          <div class="axis">
-            <span>06:00</span><span>07:00</span><span>08:00</span><span>09:00</span
-            ><span>10:00</span><span>11:00</span>
-          </div>
+          <div class="chart-canvas"><canvas #flowChart aria-label="Gráfico de acessos por horário"></canvas></div>
         </div>
       </div>
     </article>
@@ -86,41 +67,20 @@
       <article class="card">
         <div class="card-header">
           <h2>Status dos terminais</h2>
-          <span class="badge success">100% operacional</span>
+          <span class="badge success">{{ summary?.terminals?.length ?? 0 }} ativo(s)</span>
         </div>
         <div class="status-list">
-          <div>
-            <svg [lucideIcon]="icons.terminal" size="18"></svg
-            ><span
-              ><strong>Terminal 01 - Principal</strong><small>Sincronizado há 2 min</small></span
-            ><b>Online</b>
-          </div>
-          <div>
-            <svg [lucideIcon]="icons.terminal" size="18"></svg
-            ><span><strong>Terminal 02 - Lateral</strong><small>Sincronizado há 4 min</small></span
-            ><b>Online</b>
-          </div>
+          @for (terminal of summary?.terminals ?? []; track terminal.name) { <div><svg [lucideIcon]="icons.terminal" size="18"></svg><span><strong>{{ terminal.name }}</strong><small>Sincronizado agora</small></span><b>Online</b></div> }
         </div>
       </article>
       <article class="card">
         <div class="card-header">
           <h2>Atenção imediata</h2>
-          <span class="badge warning">2 pendências</span>
+          <span class="badge info">Dados disponíveis</span>
         </div>
         <div class="alert-list">
-          <div>
-            <svg [lucideIcon]="icons.alert" size="17"></svg
-            ><span
-              ><strong>3 alunos do 8º Ano sem registro</strong
-              ><small>Verificar presença com a coordenação.</small></span
-            >
-          </div>
-          <div>
-            <svg [lucideIcon]="icons.denied" size="17"></svg
-            ><span
-              ><strong>Tentativa não autorizada</strong><small>Terminal 02 às 08:14.</small></span
-            >
-          </div>
+          <div><svg [lucideIcon]="icons.alert" size="17"></svg><span><strong>{{ summary?.students?.without_access ?? 0 }} aluno(s) sem registro hoje</strong><small>Consulte a presença antes de encerrar o turno.</small></span></div>
+          <div><svg [lucideIcon]="icons.denied" size="17"></svg><span><strong>Acessos negados</strong><small>{{ summary?.denied === null ? 'O registro de negações ainda não faz parte do MVP.' : summary?.denied + ' bloqueio(s) registrado(s).' }}</small></span></div>
         </div>
       </article>
     </aside>
@@ -133,7 +93,7 @@
         <p>Atualização automática dos últimos registros.</p>
       </div>
       <div class="actions">
-        <button class="button secondary">
+        <button class="button secondary" type="button" (click)="load()" [disabled]="loading">
           <svg [lucideIcon]="icons.filter" size="15"></svg>Filtrar</button
         ><a class="button secondary" routerLink="/admin/access-records"
           ><svg [lucideIcon]="icons.export" size="15"></svg>Ver histórico</a
@@ -154,23 +114,23 @@
           </tr>
         </thead>
         <tbody>
-          @for (event of events; track event.enrollment) {
+          @for (event of summary?.recent_events ?? []; track event.student_id + event.timestamp) {
             <tr>
               <td>
                 <div class="person-cell">
-                  <span class="avatar">{{ event.initials }}</span
+                  <span class="avatar">{{ initials(event.name) }}</span
                   ><strong>{{ event.name }}</strong>
                 </div>
               </td>
               <td>{{ event.enrollment }}</td>
-              <td>{{ event.className }}</td>
-              <td class="strong-value">{{ event.time }}</td>
+              <td>{{ event.class_name }}</td>
+              <td class="strong-value">{{ formatTime(event.timestamp) }}</td>
               <td>{{ event.movement }}</td>
               <td>
                 <span class="badge {{ event.tone }}">{{ event.status }}</span>
               </td>
               <td>
-                <a class="arrow-link" routerLink="/admin/students/lucas" title="Ver detalhes"
+                <a class="arrow-link" [routerLink]="['/admin/students', event.student_id]" title="Ver detalhes"
                   ><svg [lucideIcon]="icons.arrow" size="16"></svg
                 ></a>
               </td>

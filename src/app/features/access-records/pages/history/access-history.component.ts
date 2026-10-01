@@ -44,9 +44,11 @@ export class AccessHistoryComponent {
   ];
 
   protected records: AccessRecord[] = [];
-  protected summary: AccessRecordSummary = { date: '', entries: 0, exits: 0, inside: 0 };
-  protected date = this.todayInRecife();
+  protected summary: AccessRecordSummary = { date: '', classes: [], entries: 0, exits: 0, inside: 0 };
+  protected dateFrom = this.todayInRecife();
+  protected dateTo = this.dateFrom;
   protected search = '';
+  protected schoolClassId = '';
   protected status: '' | AccessRecordStatus = '';
   protected loading = false;
   protected error = '';
@@ -67,8 +69,10 @@ export class AccessHistoryComponent {
     this.loading = true;
     this.error = '';
     const filters = {
-      date: this.date,
+      date_from: this.dateFrom,
+      date_to: this.dateTo,
       search: this.search,
+      school_class_id: this.schoolClassId ? Number(this.schoolClassId) : undefined,
       status: this.status || undefined,
       per_page: 100,
     };
@@ -98,7 +102,7 @@ export class AccessHistoryComponent {
         catchError(() => {
           this.error = 'Não foi possível carregar o histórico. Tente novamente.';
           this.changeDetector.markForCheck();
-          return of({ records: [], summary: { date: this.date, entries: 0, exits: 0, inside: 0 } });
+          return of({ records: [], summary: { date: this.dateFrom, classes: [], entries: 0, exits: 0, inside: 0 } });
         }),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -114,13 +118,39 @@ export class AccessHistoryComponent {
     this.searchChanges.next(value);
   }
 
-  protected onDateChange(value: string): void {
-    this.date = value;
-    this.load();
+  protected onDateFromChange(value: string): void {
+    this.dateFrom = value;
+    this.loadDateRange();
+  }
+
+  protected onDateToChange(value: string): void {
+    this.dateTo = value;
+    this.loadDateRange();
   }
 
   protected onStatusChange(value: string): void {
     this.status = value as '' | AccessRecordStatus;
+    this.load();
+  }
+
+  protected onClassChange(value: string): void {
+    this.schoolClassId = value;
+    this.load();
+  }
+
+  protected get dateRangeError(): string {
+    return this.dateFrom && this.dateTo && this.dateTo < this.dateFrom
+      ? 'A data final deve ser igual ou posterior à data inicial.'
+      : '';
+  }
+
+  private loadDateRange(): void {
+    if (this.dateRangeError) {
+      this.records = [];
+      this.summary = { date: this.dateFrom, classes: [], entries: 0, exits: 0, inside: 0 };
+      this.changeDetector.markForCheck();
+      return;
+    }
     this.load();
   }
 
@@ -160,7 +190,7 @@ export class AccessHistoryComponent {
     const url = URL.createObjectURL(new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' }));
     const link = document.createElement('a');
     link.href = url;
-    link.download = `historico-acessos-${this.date}.csv`;
+    link.download = `historico-acessos-${this.dateFrom}-${this.dateTo}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   }
@@ -174,5 +204,11 @@ export class AccessHistoryComponent {
     }).formatToParts(new Date());
     const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((item) => item.type === type)?.value ?? '';
     return `${part('year')}-${part('month')}-${part('day')}`;
+  }
+
+  protected formatPeriod(): string {
+    return this.dateFrom === this.dateTo
+      ? this.formatDate(this.dateFrom)
+      : `${this.formatDate(this.dateFrom)} a ${this.formatDate(this.dateTo)}`;
   }
 }

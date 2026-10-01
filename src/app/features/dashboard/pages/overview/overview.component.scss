@@ -30,35 +30,14 @@
   position: relative;
   padding: 8px 0 24px;
 }
-.chart-area svg {
-  position: absolute;
-  inset: 8px 0 24px;
+.chart-canvas {
+  position: relative;
   width: 100%;
-  height: calc(100% - 32px);
-  overflow: visible;
+  height: 100%;
 }
-.chart-area .area {
-  fill: rgba(15, 118, 110, 0.1);
-}
-.chart-area .line {
-  fill: none;
-  stroke: var(--color-primary);
-  stroke-width: 2.5;
-}
-.grid-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  border-top: 1px dashed #e5e9ed;
-}
-.l1 {
-  top: 25%;
-}
-.l2 {
-  top: 50%;
-}
-.l3 {
-  top: 75%;
+.chart-canvas canvas {
+  width: 100%;
+  height: 100%;
 }
 .axis {
   position: absolute;

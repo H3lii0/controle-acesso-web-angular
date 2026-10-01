@@ -1,7 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
-  LucideBell,
   LucideChartNoAxesColumn,
   LucideDynamicIcon,
   LucideGraduationCap,
@@ -23,12 +22,14 @@ import { AuthService } from '../../../core/authentication/auth.service';
   templateUrl: './administration-layout.component.html',
   styleUrl: './administration-layout.component.scss',
 })
-export class AdministrationLayoutComponent {
+export class AdministrationLayoutComponent implements OnDestroy {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
   protected readonly schoolName = 'Colégio Horizonte';
   protected readonly userName = this.auth.sessionSnapshot?.user.full_name ?? 'Administrador';
+  protected readonly currentDateTime = signal(new Date());
+  private readonly clock = setInterval(() => this.currentDateTime.set(new Date()), 1000);
   protected readonly icons = {
     dashboard: LucideLayoutDashboard,
     students: LucideGraduationCap,
@@ -40,9 +41,22 @@ export class AdministrationLayoutComponent {
     reports: LucideChartNoAxesColumn,
     settings: LucideSettings,
     team: LucideShieldCheck,
-    notifications: LucideBell,
     signOut: LucideLogOut,
   };
+
+  ngOnDestroy(): void { clearInterval(this.clock); }
+
+  protected formatDateTime(value: Date): string {
+    return new Intl.DateTimeFormat('pt-BR', {
+      timeZone: 'America/Recife',
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }).format(value);
+  }
 
   protected can(permission: string): boolean {
     const user = this.auth.sessionSnapshot?.user;

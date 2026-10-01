@@ -66,12 +66,21 @@
     </div>
     <div class="card-body history-filters">
       <label class="field">
-        <span>Data</span>
+        <span>Data inicial</span>
         <input
           class="control"
           type="date"
-          [value]="date"
-          (change)="onDateChange($any($event.target).value)"
+          [value]="dateFrom"
+          (change)="onDateFromChange($any($event.target).value)"
+        />
+      </label>
+      <label class="field">
+        <span>Data final</span>
+        <input
+          class="control"
+          type="date"
+          [value]="dateTo"
+          (change)="onDateToChange($any($event.target).value)"
         />
       </label>
       <label class="field">
@@ -87,6 +96,15 @@
         </span>
       </label>
       <label class="field">
+        <span>Turma</span>
+        <select class="control" [value]="schoolClassId" (change)="onClassChange($any($event.target).value)">
+          <option value="">Todas as turmas</option>
+          @for (schoolClass of summary.classes; track schoolClass.id) {
+            <option [value]="schoolClass.id">{{ schoolClass.name }}</option>
+          }
+        </select>
+      </label>
+      <label class="field">
         <span>Situação</span>
         <select
           class="control"
@@ -99,15 +117,18 @@
         </select>
       </label>
     </div>
+    @if (dateRangeError) {
+      <div class="history-state error-state" role="alert">{{ dateRangeError }}</div>
+    }
   </section>
 
   <section class="card">
     <div class="card-header">
       <div>
-        <h2>Registros do dia</h2>
+        <h2>Registros do período</h2>
         <p>Uma linha por aluno, com os horários de entrada e saída.</p>
       </div>
-      <span class="badge info">{{ loading ? 'Atualizando...' : formatDate(date) }}</span>
+      <span class="badge info">{{ loading ? 'Atualizando...' : formatPeriod() }}</span>
     </div>
     @if (error) {
       <div class="history-state error-state" role="alert">

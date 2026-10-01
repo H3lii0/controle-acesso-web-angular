@@ -56,12 +56,9 @@
   <section class="admin-workspace">
     <header class="admin-topbar">
       <div class="admin-context">
-        <span class="badge success">2 terminais ativos</span><span>24 de outubro de 2026</span>
+        <time>{{ formatDateTime(currentDateTime()) }}</time>
       </div>
       <div class="admin-user">
-        <button class="icon-button" title="Notificações">
-          <svg [lucideIcon]="icons.notifications" size="17"></svg>
-        </button>
         <div>
           <strong>{{ userName }}</strong
           ><small>Administração escolar</small>

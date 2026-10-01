@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   LucideArrowRight,
@@ -12,6 +12,12 @@ import {
   LucideTriangleAlert,
   LucideUsers,
 } from '@lucide/angular';
+import { DashboardFilters, DashboardPeriod, DashboardShift, DashboardSummary } from '../../../../core/dashboard/dashboard.models';
+import { DashboardService } from '../../../../core/dashboard/dashboard.service';
+import { finalize } from 'rxjs';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-overview',
@@ -19,7 +25,9 @@ import {
   templateUrl: './overview.component.html',
   styleUrl: './overview.component.scss',
 })
-export class OverviewComponent {
+export class OverviewComponent implements AfterViewInit, OnDestroy {
+  private readonly dashboardService = inject(DashboardService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   protected readonly icons = {
     students: LucideUsers,
     accessRecords: LucideScanLine,
@@ -32,13 +40,112 @@ export class OverviewComponent {
     filter: LucideFilter,
   };
 
-  protected readonly events = [
-    { initials: 'LM', name: 'Lucas Martins', enrollment: '2024-0042', className: '7º Ano B', time: '07:26:14', movement: 'Entrada', status: 'Autorizado', tone: 'success' },
-    { initials: 'BS', name: 'Beatriz Souza', enrollment: '2023-0314', className: '8º Ano A', time: '07:29:02', movement: 'Entrada', status: 'Atraso de 1 min', tone: 'warning' },
-    { initials: 'GL', name: 'Gabriel Lima', enrollment: '2024-0421', className: '6º Ano B', time: '07:16:42', movement: 'Saída', status: 'Autorizado', tone: 'info' },
-    { initials: 'SA', name: 'Sofia Albuquerque', enrollment: '2022-0128', className: '9º Ano C', time: '08:22:18', movement: 'Entrada', status: 'Acesso negado', tone: 'danger' },
-    { initials: 'CC', name: 'Carlos Eduardo Santos', enrollment: '2024-0187', className: '7º Ano A', time: '08:15:50', movement: 'Entrada', status: 'Autorizado', tone: 'success' },
-  ];
+  protected summary: DashboardSummary | null = null;
+  protected loading = true;
+  protected error = '';
+  protected period: DashboardPeriod = 'today';
+  protected schoolClassId = '';
+  protected shift: '' | DashboardShift = '';
+  protected readonly date = this.todayInRecife();
+  @ViewChild('flowChart') private flowChart?: ElementRef<HTMLCanvasElement>;
+  private chart?: Chart<'line'>;
+
+  constructor() { this.load(); }
+
+  ngAfterViewInit(): void { this.renderChart(); }
+
+  ngOnDestroy(): void { this.chart?.destroy(); }
+
+  protected load(): void {
+    this.loading = true;
+    this.error = '';
+    const filters: DashboardFilters = { date: this.date, period: this.period };
+    if (this.schoolClassId) filters.school_class_id = Number(this.schoolClassId);
+    if (this.shift) filters.shift = this.shift;
+    this.dashboardService.summary(filters).pipe(finalize(() => { this.loading = false; this.changeDetector.markForCheck(); })).subscribe({
+      next: (response) => { this.summary = response.data; this.changeDetector.markForCheck(); setTimeout(() => this.renderChart()); },
+      error: () => { this.error = 'Não foi possível carregar os indicadores do dashboard.'; this.changeDetector.markForCheck(); },
+    });
+  }
+
+  protected formatTime(timestamp: string): string {
+    return new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Recife', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(new Date(timestamp));
+  }
+
+  protected initials(name: string): string { return name.split(' ').slice(0, 2).map((part) => part[0]).join('').toUpperCase(); }
+  protected percentage(value: number, total: number): string { return total ? `${((value / total) * 100).toFixed(1).replace('.', ',')}%` : '0%'; }
+  private renderChart(): void {
+    const canvas = this.flowChart?.nativeElement;
+    const flow = this.summary?.flow ?? [];
+    if (!canvas || !flow.length) return;
+
+    this.chart?.destroy();
+    this.chart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: flow.map((point) => point.label),
+        datasets: [
+          {
+            label: 'Entradas',
+            data: flow.map((point) => point.entries),
+            borderColor: '#0f766e',
+            backgroundColor: 'rgba(15, 118, 110, 0.10)',
+            pointBackgroundColor: '#0f766e',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            tension: 0.35,
+            fill: true,
+          },
+          {
+            label: 'Saídas',
+            data: flow.map((point) => point.exits),
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37, 99, 235, 0.06)',
+            pointBackgroundColor: '#2563eb',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            tension: 0.35,
+            fill: true,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            position: 'top',
+            align: 'end',
+            labels: { boxWidth: 8, boxHeight: 8, usePointStyle: true, color: '#526173', font: { size: 10 } },
+          },
+          tooltip: { displayColors: true, padding: 10 },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#8290a3', maxTicksLimit: 12, font: { size: 9 } },
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { precision: 0, stepSize: 1, color: '#8290a3', font: { size: 9 } },
+            grid: { color: '#e5e9ed', drawTicks: false },
+          },
+        },
+      },
+    });
+  }
+  protected todayInRecife(): string {
+    const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Recife', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+    const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((item) => item.type === type)?.value ?? '';
+    return `${part('year')}-${part('month')}-${part('day')}`;
+  }
 }
 
 
