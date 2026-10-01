@@ -331,6 +331,21 @@
             >
               {{ currentStudent.biometric.captured ? 'Capturada' : 'Pendente' }}
             </span>
+            <button
+              class="button secondary"
+              type="button"
+              (click)="captureBiometric()"
+              [disabled]="capturingBiometric"
+            >
+              <svg [lucideIcon]="icons.biometric" size="15"></svg>
+              {{
+                capturingBiometric
+                  ? 'Capturando...'
+                  : currentStudent.biometric.captured
+                    ? 'Substituir captura'
+                    : 'Cadastrar captura'
+              }}
+            </button>
           </div>
           <div class="card-body biometric-details">
             <svg [lucideIcon]="icons.biometric" size="34"></svg>
@@ -394,6 +409,81 @@
           }
         </article>
       </section>
+    }
+    @if (biometricModalOpen) {
+      <div class="modal-backdrop" role="presentation" (click)="closeBiometricModal()">
+        <section
+          class="biometric-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="biometric-modal-title"
+          (click)="$event.stopPropagation()"
+        >
+          <header class="biometric-modal-header">
+            <div>
+              <span class="eyebrow">Cadastro biométrico</span>
+              <h2 id="biometric-modal-title">{{ currentStudent.full_name }}</h2>
+            </div>
+            <button
+              class="icon-button"
+              type="button"
+              aria-label="Fechar captura biométrica"
+              title="Fechar"
+              (click)="closeBiometricModal()"
+              [disabled]="capturingBiometric"
+            >
+              <svg [lucideIcon]="icons.close" size="18"></svg>
+            </button>
+          </header>
+          <div class="biometric-modal-body">
+            <div
+              class="modal-reading-icon"
+              [class.animating]="biometricCaptureState === 'reading'"
+              [class.success]="biometricCaptureState === 'captured'"
+              [class.error]="biometricCaptureState === 'error'"
+            >
+              <span class="ring ring-1"></span>
+              <span class="ring ring-2"></span>
+              <svg
+                [lucideIcon]="biometricCaptureState === 'reading' ? icons.reading : icons.biometric"
+                size="68"
+                strokeWidth="1.35"
+              ></svg>
+            </div>
+            <h3>
+              {{
+                biometricCaptureState === 'ready'
+                  ? 'Pronto para capturar'
+                  : biometricCaptureState === 'reading'
+                    ? 'Lendo biometria...'
+                    : biometricCaptureState === 'captured'
+                      ? 'Biometria cadastrada'
+                      : 'Não foi possível capturar'
+              }}
+            </h3>
+            <p>
+              {{
+                biometricCaptureState === 'ready'
+                  ? 'Clique em iniciar e aguarde a confirmação da leitura simulada.'
+                  : biometricCaptureState === 'reading'
+                    ? 'Mantenha o dedo no leitor até a confirmação.'
+                    : biometricCaptureState === 'captured'
+                      ? 'A credencial foi atualizada e já pode ser usada no terminal.'
+                      : biometricModalError
+              }}
+            </p>
+            @if (biometricCaptureState === 'ready' || biometricCaptureState === 'error') {
+              <button class="button" type="button" (click)="startBiometricCapture()">
+                <svg [lucideIcon]="icons.biometric" size="17"></svg>
+                {{ biometricCaptureState === 'error' ? 'Tentar novamente' : 'Iniciar captura' }}
+              </button>
+            }
+            @if (biometricCaptureState === 'captured') {
+              <button class="button" type="button" (click)="closeBiometricModal()">Concluir</button>
+            }
+          </div>
+        </section>
+      </div>
     }
   }
 </main>

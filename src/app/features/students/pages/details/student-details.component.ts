@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
@@ -13,6 +13,7 @@ import {
   LucidePencil,
   LucideScanLine,
   LucideUsers,
+  LucideX,
 } from '@lucide/angular';
 import { forkJoin } from 'rxjs';
 import {
@@ -30,6 +31,7 @@ interface TimelineEvent {
   timestamp: number;
 }
 type StudentTab = 'overview' | 'guardian' | 'biometric' | 'accesses';
+type BiometricCaptureState = 'ready' | 'reading' | 'captured' | 'error';
 
 @Component({
   selector: 'app-student-details',
@@ -37,7 +39,7 @@ type StudentTab = 'overview' | 'guardian' | 'biometric' | 'accesses';
   templateUrl: './student-details.component.html',
   styleUrl: './student-details.component.scss',
 })
-export class StudentDetailsComponent implements OnInit {
+export class StudentDetailsComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly studentsApi = inject(StudentService);
   private readonly changeDetector = inject(ChangeDetectorRef);
@@ -52,6 +54,8 @@ export class StudentDetailsComponent implements OnInit {
     clock: LucideClock,
     check: LucideCheck,
     arrow: LucideArrowRight,
+    reading: LucideScanLine,
+    close: LucideX,
   };
   protected student: Student | null = null;
   protected schoolClasses: SchoolClass[] = [];
@@ -59,6 +63,11 @@ export class StudentDetailsComponent implements OnInit {
   protected loading = true;
   protected editing = false;
   protected saving = false;
+  protected capturingBiometric = false;
+  protected biometricModalOpen = false;
+  protected biometricCaptureState: BiometricCaptureState = 'ready';
+  protected biometricModalError = '';
+  private biometricTimer?: number;
   protected errorMessage = '';
   protected feedbackMessage = '';
   protected todayRecord: StudentAccessRecord | null = null;
@@ -90,6 +99,10 @@ export class StudentDetailsComponent implements OnInit {
         this.changeDetector.markForCheck();
       },
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.biometricTimer) window.clearTimeout(this.biometricTimer);
   }
 
   protected toggleEdit(): void {
@@ -169,6 +182,47 @@ export class StudentDetailsComponent implements OnInit {
     this.activeTab = tab;
     this.editing = false;
     this.errorMessage = '';
+  }
+
+  protected captureBiometric(): void {
+    if (!this.student || this.capturingBiometric) return;
+    this.biometricModalOpen = true;
+    this.biometricCaptureState = 'ready';
+    this.biometricModalError = '';
+  }
+
+  protected startBiometricCapture(): void {
+    if (!this.student || this.capturingBiometric || this.biometricCaptureState === 'reading')
+      return;
+    this.capturingBiometric = true;
+    this.biometricCaptureState = 'reading';
+    this.biometricModalError = '';
+    this.biometricTimer = window.setTimeout(() => this.completeBiometricCapture(), 1800);
+  }
+
+  protected closeBiometricModal(): void {
+    if (this.capturingBiometric) return;
+    this.biometricModalOpen = false;
+    this.biometricModalError = '';
+  }
+
+  private completeBiometricCapture(): void {
+    if (!this.student) return;
+    this.studentsApi.captureBiometric(this.student.id).subscribe({
+      next: (response) => {
+        this.student = response.data;
+        this.capturingBiometric = false;
+        this.biometricCaptureState = 'captured';
+        this.feedbackMessage = response.message;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        this.capturingBiometric = false;
+        this.biometricCaptureState = 'error';
+        this.biometricModalError = 'Não foi possível concluir a captura. Tente novamente.';
+        this.changeDetector.markForCheck();
+      },
+    });
   }
 
   protected initials(name: string): string {

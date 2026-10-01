@@ -113,6 +113,101 @@
   color: var(--color-text-muted);
   font-size: 11px;
 }
+.modal-backdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(29, 39, 51, 0.42);
+}
+.biometric-modal {
+  width: min(440px, 100%);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-2);
+}
+.biometric-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border);
+  padding: 18px 20px;
+}
+.biometric-modal-header h2 {
+  margin: 4px 0 0;
+  font-size: 17px;
+}
+.biometric-modal-body {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 28px 24px 30px;
+  text-align: center;
+}
+.biometric-modal-body h3,
+.biometric-modal-body p {
+  margin: 0;
+}
+.biometric-modal-body h3 {
+  font-size: 16px;
+}
+.biometric-modal-body p {
+  max-width: 320px;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.modal-reading-icon {
+  position: relative;
+  display: grid;
+  width: 132px;
+  height: 132px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+.modal-reading-icon .ring {
+  position: absolute;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  opacity: 0.35;
+}
+.modal-reading-icon .ring-1 {
+  width: 154px;
+  height: 154px;
+}
+.modal-reading-icon .ring-2 {
+  width: 178px;
+  height: 178px;
+  opacity: 0.18;
+}
+.modal-reading-icon.animating .ring {
+  animation: biometric-pulse 1.2s ease-in-out infinite;
+}
+.modal-reading-icon.success {
+  color: var(--color-success);
+  background: var(--color-success-background);
+}
+.modal-reading-icon.error {
+  color: var(--color-danger);
+  background: var(--color-danger-background);
+}
+@keyframes biometric-pulse {
+  0%,
+  100% {
+    transform: scale(0.94);
+    opacity: 0.2;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.65;
+  }
+}
 .details-column,
 .activity-column {
   display: grid;

@@ -2,7 +2,16 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../configuration/api.config';
-import { PaginatedAccessRecords, PaginatedGuardians, PaginatedStudents, SchoolClass, Student, StudentAccessRecord, StudentFilters, StudentPayload } from './student.models';
+import {
+  PaginatedAccessRecords,
+  PaginatedGuardians,
+  PaginatedStudents,
+  SchoolClass,
+  Student,
+  StudentAccessRecord,
+  StudentFilters,
+  StudentPayload,
+} from './student.models';
 
 @Injectable({ providedIn: 'root' })
 export class StudentService {
@@ -36,18 +45,40 @@ export class StudentService {
   }
 
   update(id: number, payload: StudentPayload): Observable<{ data: Student; message?: string }> {
-    return this.http.put<{ data: Student; message?: string }>(`${API_BASE_URL}/students/${id}`, payload);
+    return this.http.put<{ data: Student; message?: string }>(
+      `${API_BASE_URL}/students/${id}`,
+      payload,
+    );
   }
 
   updateStatus(id: number, isActive: boolean): Observable<{ data: Student; message?: string }> {
-    return this.http.patch<{ data: Student; message?: string }>(`${API_BASE_URL}/students/${id}/status`, { is_active: isActive });
+    return this.http.patch<{ data: Student; message?: string }>(
+      `${API_BASE_URL}/students/${id}/status`,
+      { is_active: isActive },
+    );
   }
 
-  readAccess(identifier: string): Observable<{ code: string; message: string; retry_after_seconds: number | null; data: StudentAccessRecord }> {
-    return this.http.post<{ code: string; message: string; retry_after_seconds: number | null; data: StudentAccessRecord }>(
-      `${API_BASE_URL}/access-records/read`,
-      { credential_identifier: identifier },
+  captureBiometric(id: number): Observable<{ data: Student; message: string }> {
+    return this.http.post<{ data: Student; message: string }>(
+      `${API_BASE_URL}/students/${id}/biometric`,
+      {},
     );
+  }
+
+  readAccess(
+    identifier: string,
+  ): Observable<{
+    code: string;
+    message: string;
+    retry_after_seconds: number | null;
+    data: StudentAccessRecord;
+  }> {
+    return this.http.post<{
+      code: string;
+      message: string;
+      retry_after_seconds: number | null;
+      data: StudentAccessRecord;
+    }>(`${API_BASE_URL}/access-records/read`, { credential_identifier: identifier });
   }
 
   accessRecords(date: string, search: string): Observable<PaginatedAccessRecords> {
