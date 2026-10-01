@@ -1,9 +1,20 @@
-<div class="admin-shell">
+<div class="admin-shell" [class.is-collapsed]="sidebarCollapsed()">
   <aside class="admin-sidebar">
     <div class="admin-brand">
-      <span class="brand-symbol"><svg [lucideIcon]="icons.team" size="18"></svg></span>
-      <div>
-        <strong>Acesso Escolar</strong><small>{{ schoolName() }}</small>
+      <button
+        class="sidebar-toggle"
+        type="button"
+        [attr.aria-label]="sidebarCollapsed() ? 'Expandir menu' : 'Minimizar menu'"
+        [title]="sidebarCollapsed() ? 'Expandir menu' : 'Minimizar menu'"
+        (click)="toggleSidebar()"
+      >
+        <svg [lucideIcon]="sidebarCollapsed() ? icons.panelOpen : icons.panelClose" size="16"></svg>
+      </button>
+      <div class="brand-lockup">
+        <span class="brand-symbol"><svg [lucideIcon]="icons.team" size="18"></svg></span>
+        <div class="admin-brand-copy">
+          <strong>Acesso Escolar</strong><small>{{ schoolName() }}</small>
+        </div>
       </div>
     </div>
     <nav aria-label="Navegação administrativa">

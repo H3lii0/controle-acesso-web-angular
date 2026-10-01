@@ -133,16 +133,13 @@
                 @if (!editing) {
                   <strong>{{ classLabel(currentStudent.school_class) }}</strong>
                 } @else {
-                  <select class="control" [(ngModel)]="form.school_class_id">
-                    @if (!currentStudent.school_class.is_active) {
-                      <option [ngValue]="currentStudent.school_class.id">
-                        {{ classLabel(currentStudent.school_class) }} · turma inativa atual
-                      </option>
-                    }
-                    <option *ngFor="let schoolClass of schoolClasses" [ngValue]="schoolClass.id">
-                      {{ classLabel(schoolClass) }}
-                    </option>
-                  </select>
+                  <app-custom-select
+                    ariaLabel="Selecionar turma"
+                    emptyMessage="Nenhuma turma disponível"
+                    [options]="classOptions()"
+                    [value]="form.school_class_id"
+                    (valueChange)="selectClass($event)"
+                  />
                 }
               </div>
               <div>
@@ -301,24 +298,40 @@
           <div class="card-body guardian-details">
             @if (editing) {
               <div class="guardian-editor">
-                <label><span>Buscar responsável existente</span><input class="control" [(ngModel)]="guardianSearch" (ngModelChange)="searchExistingGuardian()" placeholder="Nome ou e-mail" /></label>
-                @if (guardianResults.length) { <div class="guardian-results">@for (guardian of guardianResults; track guardian.id) { <button type="button" (click)="chooseGuardian(guardian)"><strong>{{ guardian.full_name }}</strong><small>{{ guardian.email }}</small></button> }</div> }
+                <label
+                  ><span>Buscar responsável existente</span
+                  ><input
+                    class="control"
+                    [(ngModel)]="guardianSearch"
+                    (ngModelChange)="searchExistingGuardian()"
+                    placeholder="Nome ou e-mail"
+                /></label>
+                @if (guardianResults.length) {
+                  <div class="guardian-results">
+                    @for (guardian of guardianResults; track guardian.id) {
+                      <button type="button" (click)="chooseGuardian(guardian)">
+                        <strong>{{ guardian.full_name }}</strong
+                        ><small>{{ guardian.email }}</small>
+                      </button>
+                    }
+                  </div>
+                }
                 <small>O aluno deve permanecer vinculado a um responsável.</small>
               </div>
             } @else {
-            <div class="guardian">
-              <span class="avatar large">{{ initials(currentStudent.guardian.full_name) }}</span>
-              <div>
-                <strong>{{ currentStudent.guardian.full_name }}</strong>
-                <small>{{ currentStudent.guardian.email }}</small>
-                <small>{{ currentStudent.guardian.phone || 'Telefone não informado' }}</small>
+              <div class="guardian">
+                <span class="avatar large">{{ initials(currentStudent.guardian.full_name) }}</span>
+                <div>
+                  <strong>{{ currentStudent.guardian.full_name }}</strong>
+                  <small>{{ currentStudent.guardian.email }}</small>
+                  <small>{{ currentStudent.guardian.phone || 'Telefone não informado' }}</small>
+                </div>
+                <span class="badge info">Responsável principal</span>
               </div>
-              <span class="badge info">Responsável principal</span>
-            </div>
-            <div class="message">
-              <svg [lucideIcon]="icons.guardians" size="18"></svg>
-              <span>O responsável acompanha os acessos deste aluno pelo portal próprio.</span>
-            </div>
+              <div class="message">
+                <svg [lucideIcon]="icons.guardians" size="18"></svg>
+                <span>O responsável acompanha os acessos deste aluno pelo portal próprio.</span>
+              </div>
             }
           </div>
         </article>

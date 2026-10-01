@@ -71,6 +71,165 @@
 .wide-field {
   grid-column: 1/-1;
 }
+.birth-date-picker {
+  position: relative;
+}
+.birth-date-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+}
+.birth-date-trigger svg {
+  color: var(--color-primary);
+}
+.birth-date-picker.open .birth-date-trigger {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
+}
+.birth-calendar {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 286px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  padding: 12px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-2);
+}
+.birth-calendar-header,
+.birth-calendar-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.birth-calendar-header strong {
+  color: var(--color-text);
+  font-size: 13px;
+  text-transform: capitalize;
+}
+.birth-calendar-heading {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.birth-calendar-title {
+  border: 0;
+  border-radius: var(--radius);
+  padding: 4px 6px;
+  color: var(--color-primary-dark);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+.birth-calendar-title:hover {
+  background: var(--color-primary-light);
+}
+.birth-calendar-title.year {
+  color: var(--color-text-muted);
+}
+.birth-calendar-header div {
+  display: flex;
+  gap: 4px;
+}
+.birth-calendar-header button,
+.birth-calendar-footer button {
+  border: 0;
+  color: var(--color-primary);
+  background: transparent;
+  cursor: pointer;
+}
+.birth-calendar-header button {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius);
+  font-size: 22px;
+  line-height: 1;
+}
+.birth-calendar-header .birth-calendar-title {
+  width: auto;
+  height: auto;
+  padding: 4px 6px;
+  font-size: 13px;
+  line-height: normal;
+  white-space: nowrap;
+}
+.birth-calendar-header button:hover,
+.birth-calendar-footer button:hover {
+  background: var(--color-primary-light);
+}
+.birth-calendar-weekdays,
+.birth-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-top: 10px;
+  text-align: center;
+}
+.birth-calendar-weekdays span {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+.birth-calendar-grid button {
+  width: 30px;
+  height: 30px;
+  justify-self: center;
+  border: 0;
+  border-radius: 50%;
+  color: var(--color-text);
+  background: transparent;
+  font-size: 11px;
+  cursor: pointer;
+}
+.birth-calendar-grid button:hover,
+.birth-calendar-grid button.today {
+  color: var(--color-primary-dark);
+  background: var(--color-primary-light);
+}
+.birth-calendar-grid button.outside-month {
+  color: #a6afb9;
+}
+.birth-calendar-grid button.selected {
+  color: #fff;
+  background: var(--color-primary);
+  font-weight: 700;
+}
+.birth-calendar-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+}
+.birth-calendar-choice-grid button {
+  min-height: 36px;
+  border: 0;
+  border-radius: var(--radius);
+  color: var(--color-text);
+  background: transparent;
+  font-size: 11px;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+.birth-calendar-choice-grid button:hover,
+.birth-calendar-choice-grid button.selected {
+  color: var(--color-primary-dark);
+  background: var(--color-primary-light);
+  font-weight: 700;
+}
+.birth-calendar-choice-grid.years {
+  grid-template-columns: repeat(3, 1fr);
+}
+.birth-calendar-footer {
+  margin-top: 10px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 10px;
+}
 .status {
   grid-column: 1/-1;
   display: grid;

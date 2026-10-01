@@ -37,22 +37,24 @@
           maxlength="100"
           placeholder="Nome da turma" /></span
     ></label>
-    <label class="field"
-      ><span>Turno</span
-      ><select class="control" formControlName="shift">
-        <option value="">Todos os turnos</option>
-        <option value="morning">Manhã</option>
-        <option value="afternoon">Tarde</option>
-      </select></label
-    >
-    <label class="field"
-      ><span>Situação</span
-      ><select class="control" formControlName="status">
-        <option value="">Todas as situações</option>
-        <option value="active">Ativas</option>
-        <option value="inactive">Inativas</option>
-      </select></label
-    >
+    <div class="field"><span>Turno</span><div class="list-filter" [class.open]="openFilter() === 'shift'" (click)="$event.stopPropagation()">
+      <span class="list-filter-icon"><svg [lucideIcon]="icons.clock" size="16"></svg></span><strong>{{ shiftFilterLabel() }}</strong>
+      <button class="list-filter-trigger" type="button" aria-label="Selecionar turno" [attr.aria-expanded]="openFilter() === 'shift'" (click)="toggleFilter('shift')"><svg [lucideIcon]="icons.chevron" size="16"></svg></button>
+      @if (openFilter() === 'shift') { <div class="list-filter-menu" role="listbox" aria-label="Turno">
+        <button class="list-filter-option" type="button" [class.active]="filters.controls.shift.value === ''" (click)="selectShift('')"><span>Todos os turnos</span>@if (filters.controls.shift.value === '') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+        <button class="list-filter-option" type="button" [class.active]="filters.controls.shift.value === 'morning'" (click)="selectShift('morning')"><span>Manhã</span>@if (filters.controls.shift.value === 'morning') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+        <button class="list-filter-option" type="button" [class.active]="filters.controls.shift.value === 'afternoon'" (click)="selectShift('afternoon')"><span>Tarde</span>@if (filters.controls.shift.value === 'afternoon') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+      </div> }
+    </div></div>
+    <div class="field"><span>Situação</span><div class="list-filter" [class.open]="openFilter() === 'status'" (click)="$event.stopPropagation()">
+      <span class="list-filter-icon"><svg [lucideIcon]="icons.status" size="16"></svg></span><strong>{{ statusFilterLabel() }}</strong>
+      <button class="list-filter-trigger" type="button" aria-label="Selecionar situação" [attr.aria-expanded]="openFilter() === 'status'" (click)="toggleFilter('status')"><svg [lucideIcon]="icons.chevron" size="16"></svg></button>
+      @if (openFilter() === 'status') { <div class="list-filter-menu" role="listbox" aria-label="Situação">
+        <button class="list-filter-option" type="button" [class.active]="filters.controls.status.value === ''" (click)="selectStatus('')"><span>Todas as situações</span>@if (filters.controls.status.value === '') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+        <button class="list-filter-option" type="button" [class.active]="filters.controls.status.value === 'active'" (click)="selectStatus('active')"><span>Ativas</span>@if (filters.controls.status.value === 'active') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+        <button class="list-filter-option" type="button" [class.active]="filters.controls.status.value === 'inactive'" (click)="selectStatus('inactive')"><span>Inativas</span>@if (filters.controls.status.value === 'inactive') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+      </div> }
+    </div></div>
   </section>
 
   <section class="card">
@@ -135,27 +137,9 @@
       <footer class="pagination">
         <span>Exibindo {{ schoolClasses().length }} de {{ total() }} turmas</span>
         <div>
-          <button
-            class="icon-button"
-            type="button"
-            title="Página anterior"
-            aria-label="Página anterior"
-            (click)="changePage(currentPage() - 1)"
-            [disabled]="currentPage() === 1"
-          >
-            <svg [lucideIcon]="icons.previous" size="16"></svg>
-          </button>
+          <button type="button" (click)="changePage(currentPage() - 1)" [disabled]="currentPage() === 1">Anterior</button>
           <span>Página {{ currentPage() }} de {{ lastPage() }}</span>
-          <button
-            class="icon-button"
-            type="button"
-            title="Próxima página"
-            aria-label="Próxima página"
-            (click)="changePage(currentPage() + 1)"
-            [disabled]="currentPage() === lastPage()"
-          >
-            <svg [lucideIcon]="icons.next" size="16"></svg>
-          </button>
+          <button type="button" (click)="changePage(currentPage() + 1)" [disabled]="currentPage() === lastPage()">Próxima</button>
         </div>
       </footer>
     }
@@ -200,21 +184,19 @@
             <small class="error" id="class-name-error">{{ fieldError('name') }}</small>
           }
         </label>
-        <label class="field"
-          ><span>Turno</span
-          ><select
-            class="control"
-            formControlName="shift"
-            [attr.aria-invalid]="!!fieldError('shift')"
-            aria-describedby="class-shift-error"
-          >
-            <option value="morning">Manhã</option>
-            <option value="afternoon">Tarde</option>
-          </select>
-          @if (fieldError('shift')) {
-            <small class="error" id="class-shift-error">{{ fieldError('shift') }}</small>
-          }
-        </label>
+        <div class="field"><span>Turno</span>
+          <div class="form-shift-select" [class.open]="openFormShift()" (click)="$event.stopPropagation()">
+            <span>{{ formShiftLabel() }}</span>
+            <button class="form-shift-trigger" type="button" aria-label="Selecionar turno da turma" [attr.aria-expanded]="openFormShift()" [attr.aria-invalid]="!!fieldError('shift')" (click)="toggleFormShift()"><svg [lucideIcon]="icons.chevron" size="16"></svg></button>
+            @if (openFormShift()) {
+              <div class="list-filter-menu" role="listbox" aria-label="Turno da turma">
+                <button class="list-filter-option" type="button" [class.active]="form.controls.shift.value === 'morning'" (click)="selectFormShift('morning')"><span>Manhã</span>@if (form.controls.shift.value === 'morning') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+                <button class="list-filter-option" type="button" [class.active]="form.controls.shift.value === 'afternoon'" (click)="selectFormShift('afternoon')"><span>Tarde</span>@if (form.controls.shift.value === 'afternoon') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+              </div>
+            }
+          </div>
+          @if (fieldError('shift')) { <small class="error" id="class-shift-error">{{ fieldError('shift') }}</small> }
+        </div>
       </div>
       <footer class="dialog-footer">
         <button class="button secondary" type="button" (click)="closeForm()" [disabled]="saving()">

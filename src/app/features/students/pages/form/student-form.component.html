@@ -77,35 +77,131 @@
           ><input class="control" [(ngModel)]="student.name" placeholder="Nome do aluno" /></label
         ><label class="field"
           ><span>Matrícula</span
-          ><input
-            class="control"
-            [(ngModel)]="student.enrollment"
-            placeholder="Ex.: 2026-0495" /></label
-        ><label class="field"
-          ><span>Data de nascimento</span
-          ><input class="control" type="date" [(ngModel)]="student.birthDate" /></label
-        ><label class="field wide-field"
-          ><span>Turma</span
-          ><select
-            class="control"
-            [ngModel]="student.classId"
-            (ngModelChange)="selectClass($event)"
-            [disabled]="loading() || !!classOptionsError() || schoolClasses().length === 0"
+          ><input class="control" [(ngModel)]="student.enrollment" placeholder="Ex.: 2026-0495"
+        /></label>
+        <div class="field">
+          <span>Data de nascimento</span>
+          <div
+            class="birth-date-picker"
+            [class.open]="birthDateCalendarOpen()"
+            (click)="$event.stopPropagation()"
           >
-            <option [ngValue]="0">
-              {{
-                loading()
-                  ? 'Carregando turmas...'
-                  : schoolClasses().length === 0
-                    ? 'Nenhuma turma ativa disponível'
-                    : 'Selecione a turma'
-              }}
-            </option>
-            <option *ngFor="let schoolClass of schoolClasses()" [ngValue]="schoolClass.id">
-              {{ schoolClass.name }} · {{ schoolClass.shift === 'morning' ? 'Manhã' : 'Tarde' }}
-            </option>
-          </select></label
-        >
+            <button
+              class="control birth-date-trigger"
+              type="button"
+              aria-label="Selecionar data de nascimento"
+              [attr.aria-expanded]="birthDateCalendarOpen()"
+              (click)="toggleBirthDateCalendar()"
+            >
+              <span>{{ birthDateLabel() }}</span
+              ><svg [lucideIcon]="icons.calendar" size="16"></svg>
+            </button>
+            @if (birthDateCalendarOpen()) {
+              <div
+                class="birth-calendar"
+                role="dialog"
+                aria-label="Calendário da data de nascimento"
+              >
+                <div class="birth-calendar-header">
+                  <div class="birth-calendar-heading">
+                    <button
+                      class="birth-calendar-title"
+                      type="button"
+                      (click)="showBirthDateCalendarView('months')"
+                    >
+                      {{ birthDateCalendarLabel().split(' de ')[0] }}</button
+                    ><button
+                      class="birth-calendar-title year"
+                      type="button"
+                      (click)="showBirthDateCalendarView('years')"
+                    >
+                      {{ birthDateCalendarMonth.getFullYear() }}
+                    </button>
+                  </div>
+                  @if (birthDateCalendarView() === 'days') {
+                    <div>
+                      <button
+                        type="button"
+                        aria-label="Mês anterior"
+                        (click)="moveBirthDateCalendar(-1)"
+                      >
+                        ‹</button
+                      ><button
+                        type="button"
+                        aria-label="Próximo mês"
+                        (click)="moveBirthDateCalendar(1)"
+                      >
+                        ›
+                      </button>
+                    </div>
+                  }
+                </div>
+                @if (birthDateCalendarView() === 'days') {
+                  <div class="birth-calendar-weekdays">
+                    @for (weekday of weekdays; track $index) {
+                      <span>{{ weekday }}</span>
+                    }
+                  </div>
+                  <div class="birth-calendar-grid">
+                    @for (calendarDay of birthDateCalendarDays(); track calendarDay.date) {
+                      <button
+                        type="button"
+                        [class.outside-month]="!calendarDay.currentMonth"
+                        [class.selected]="isBirthDateSelected(calendarDay.date)"
+                        [class.today]="isToday(calendarDay.date)"
+                        (click)="selectBirthDate(calendarDay.date)"
+                      >
+                        {{ calendarDay.day }}
+                      </button>
+                    }
+                  </div>
+                } @else if (birthDateCalendarView() === 'months') {
+                  <div class="birth-calendar-choice-grid">
+                    @for (month of birthDateCalendarMonthOptions(); track month.value) {
+                      <button
+                        type="button"
+                        [class.selected]="birthDateCalendarMonth.getMonth() === month.value"
+                        (click)="selectBirthDateCalendarMonth(month.value)"
+                      >
+                        {{ month.label }}
+                      </button>
+                    }
+                  </div>
+                } @else {
+                  <div class="birth-calendar-choice-grid years">
+                    @for (year of birthDateCalendarYearOptions(); track year) {
+                      <button
+                        type="button"
+                        [class.selected]="birthDateCalendarMonth.getFullYear() === year"
+                        (click)="selectBirthDateCalendarYear(year)"
+                      >
+                        {{ year }}
+                      </button>
+                    }
+                  </div>
+                }
+                <div class="birth-calendar-footer">
+                  <button type="button" (click)="clearBirthDate()">Limpar</button
+                  ><button type="button" (click)="selectTodayBirthDate()">Hoje</button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+        <label class="field wide-field">
+          <span>Turma</span>
+          <app-custom-select
+            ariaLabel="Selecionar turma"
+            emptyMessage="Nenhuma turma ativa disponível"
+            placeholder="Selecione a turma"
+            [options]="classOptions()"
+            [value]="student.classId"
+            [loading]="loading()"
+            [disabled]="!!classOptionsError()"
+            [icon]="icons.school"
+            (valueChange)="selectClass($event)"
+          />
+        </label>
         <fieldset class="status">
           <legend>Situação de acesso inicial</legend>
           <label
@@ -198,13 +294,12 @@
                   placeholder="Nome do responsável" /></label
               ><label class="field"
                 ><span>Parentesco</span
-                ><select class="control" [(ngModel)]="guardian.relationship">
-                  <option value="">Selecione</option>
-                  <option>Mãe</option>
-                  <option>Pai</option>
-                  <option>Avó ou avô</option>
-                  <option>Outro</option>
-                </select></label
+                ><app-custom-select
+                  ariaLabel="Selecionar parentesco"
+                  placeholder="Selecione"
+                  [options]="relationshipOptions"
+                  [value]="guardian.relationship"
+                  (valueChange)="guardian.relationship = $event.toString()" /></label
               ><label class="field"
                 ><span>Telefone <small>opcional</small></span
                 ><input
@@ -313,7 +408,9 @@
           </div>
           <div class="message">
             <svg [lucideIcon]="icons.info" size="18"></svg
-            ><span>Uma única credencial simulada será criada e usada nas leituras do terminal.</span>
+            ><span
+              >Uma única credencial simulada será criada e usada nas leituras do terminal.</span
+            >
           </div>
         </div>
       </aside>
@@ -416,7 +513,13 @@
     } @else {
       <button
         class="button"
-        [disabled]="saving() || loading() || !!classOptionsError() || schoolClasses().length === 0 || biometric() !== 'captured'"
+        [disabled]="
+          saving() ||
+          loading() ||
+          !!classOptionsError() ||
+          schoolClasses().length === 0 ||
+          biometric() !== 'captured'
+        "
         (click)="complete()"
       >
         <svg [lucideIcon]="icons.check" size="16"></svg

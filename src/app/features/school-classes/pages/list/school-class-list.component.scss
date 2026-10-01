@@ -14,6 +14,20 @@
 .class-filters .search {
   display: block;
 }
+.list-filter { position: relative; min-height: 40px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0 34px 0 10px; background: var(--color-surface); box-shadow: var(--shadow-1); }
+.list-filter.open { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14); }
+.list-filter-icon { display: grid; color: var(--color-primary); }
+.list-filter strong { overflow: hidden; font-size: 12px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.list-filter-trigger { position: absolute; inset: 0; width: 100%; border: 0; background: transparent; cursor: pointer; }
+.list-filter-trigger svg { position: absolute; top: 50%; right: 10px; color: var(--color-primary); transform: translateY(-50%); }
+.list-filter-menu { position: absolute; z-index: 20; top: calc(100% + 6px); right: 0; left: 0; display: grid; gap: 3px; border: 1px solid var(--color-border); border-radius: var(--radius); padding: 5px; background: var(--color-surface); box-shadow: var(--shadow-2); }
+.list-filter-option { min-height: 34px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 0; border-radius: 4px; padding: 0 8px; color: var(--color-text); background: transparent; font-size: 12px; text-align: left; cursor: pointer; }
+.list-filter-option:hover, .list-filter-option.active { color: var(--color-primary-dark); background: var(--color-primary-light); }
+.list-filter-option svg { color: var(--color-primary); }
+.form-shift-select { position: relative; min-height: 40px; display: flex; align-items: center; border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0 34px 0 12px; color: var(--color-text); background: var(--color-surface); box-shadow: var(--shadow-1); }
+.form-shift-select.open { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14); }
+.form-shift-trigger { position: absolute; inset: 0; width: 100%; border: 0; background: transparent; cursor: pointer; }
+.form-shift-trigger svg { position: absolute; top: 50%; right: 10px; color: var(--color-primary); transform: translateY(-50%); }
 .card-header .muted-text {
   font-size: 12px;
 }
@@ -61,7 +75,20 @@
 .pagination > div {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 4px;
+}
+.pagination button {
+  min-width: 30px;
+  height: 30px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.pagination button:disabled {
+  opacity: .45;
+  cursor: default;
 }
 .class-dialog {
   width: min(480px, calc(100vw - 32px));

@@ -18,15 +18,22 @@
         [formControl]="filters.controls.search"
       />
     </label>
-    <label>
+    <div class="employee-status-field">
       <span>Situação</span>
-      <select class="control" [formControl]="filters.controls.status">
-        <option value="">Todas as situações</option>
-        <option value="active">Ativo</option>
-        <option value="pending_activation">Pendente</option>
-        <option value="disabled">Desativado</option>
-      </select>
-    </label>
+      <div class="employee-status-filter" [class.open]="openFilter()" (click)="$event.stopPropagation()">
+        <span class="employee-status-icon"><svg [lucideIcon]="icons.status" size="16"></svg></span>
+        <strong>{{ statusFilterLabel() }}</strong>
+        <button class="employee-status-trigger" type="button" aria-label="Selecionar situação" [attr.aria-expanded]="openFilter()" (click)="toggleFilter()"><svg [lucideIcon]="icons.chevron" size="16"></svg></button>
+        @if (openFilter()) {
+          <div class="employee-status-menu" role="listbox" aria-label="Situação">
+            <button class="employee-status-option" type="button" [class.active]="filters.controls.status.value === ''" (click)="selectStatus('')"><span>Todas as situações</span>@if (filters.controls.status.value === '') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+            <button class="employee-status-option" type="button" [class.active]="filters.controls.status.value === 'active'" (click)="selectStatus('active')"><span>Ativo</span>@if (filters.controls.status.value === 'active') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+            <button class="employee-status-option" type="button" [class.active]="filters.controls.status.value === 'pending_activation'" (click)="selectStatus('pending_activation')"><span>Pendente</span>@if (filters.controls.status.value === 'pending_activation') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+            <button class="employee-status-option" type="button" [class.active]="filters.controls.status.value === 'disabled'" (click)="selectStatus('disabled')"><span>Desativado</span>@if (filters.controls.status.value === 'disabled') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+          </div>
+        }
+      </div>
+    </div>
   </section>
 
   <section class="card table-panel">

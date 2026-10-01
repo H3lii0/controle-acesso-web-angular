@@ -22,24 +22,27 @@
         placeholder="Buscar por nome, matrícula ou responsável"
       />
     </div>
-    <select
-      class="control"
-      [ngModel]="classFilter()"
-      (ngModelChange)="classFilter.set($event); applyFilters()"
-    >
-      <option value="">Todas as turmas</option>
-      <option *ngFor="let schoolClass of schoolClasses()" [ngValue]="schoolClass.id">
-        {{ classLabel(schoolClass) }}
-      </option></select
-    ><select
-      class="control"
-      [ngModel]="statusFilter()"
-      (ngModelChange)="statusFilter.set($event); applyFilters()"
-    >
-      <option value="">Todas as situações</option>
-      <option value="active">Ativos</option>
-      <option value="inactive">Inativos</option>
-    </select>
+    <div class="list-filter" [class.open]="openFilter() === 'class'" (click)="$event.stopPropagation()">
+      <span class="list-filter-icon"><svg [lucideIcon]="icons.school" size="16"></svg></span><strong>{{ classFilterLabel() }}</strong>
+      <button class="list-filter-trigger" type="button" aria-label="Selecionar turma" [attr.aria-expanded]="openFilter() === 'class'" (click)="toggleFilter('class')"><svg [lucideIcon]="icons.chevron" size="16"></svg></button>
+      @if (openFilter() === 'class') {
+        <div class="list-filter-menu" role="listbox" aria-label="Turma">
+          <button class="list-filter-option" type="button" [class.active]="classFilter() === ''" (click)="selectClass('')"><span>Todas as turmas</span>@if (classFilter() === '') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+          @for (schoolClass of schoolClasses(); track schoolClass.id) { <button class="list-filter-option" type="button" [class.active]="isSelectedClass(schoolClass.id)" (click)="selectClass(schoolClass.id)"><span>{{ classLabel(schoolClass) }}</span>@if (isSelectedClass(schoolClass.id)) { <svg [lucideIcon]="icons.check" size="15"></svg> }</button> }
+        </div>
+      }
+    </div>
+    <div class="list-filter" [class.open]="openFilter() === 'status'" (click)="$event.stopPropagation()">
+      <span class="list-filter-icon"><svg [lucideIcon]="icons.status" size="16"></svg></span><strong>{{ statusFilterLabel() }}</strong>
+      <button class="list-filter-trigger" type="button" aria-label="Selecionar situação" [attr.aria-expanded]="openFilter() === 'status'" (click)="toggleFilter('status')"><svg [lucideIcon]="icons.chevron" size="16"></svg></button>
+      @if (openFilter() === 'status') {
+        <div class="list-filter-menu" role="listbox" aria-label="Situação">
+          <button class="list-filter-option" type="button" [class.active]="statusFilter() === ''" (click)="selectStatus('')"><span>Todas as situações</span>@if (statusFilter() === '') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+          <button class="list-filter-option" type="button" [class.active]="statusFilter() === 'active'" (click)="selectStatus('active')"><span>Ativos</span>@if (statusFilter() === 'active') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+          <button class="list-filter-option" type="button" [class.active]="statusFilter() === 'inactive'" (click)="selectStatus('inactive')"><span>Inativos</span>@if (statusFilter() === 'inactive') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+        </div>
+      }
+    </div>
   </section>
   <section class="card">
     @if (loading()) {
@@ -102,7 +105,7 @@
         </table>
       </div>
     }
-    @if (!loading() && students().length > 0) {
+    @if (!loading() && !errorMessage() && students().length > 0) {
       <footer class="pagination">
         <span>Exibindo {{ students().length }} de {{ total() }} alunos</span>
         <div>
@@ -123,14 +126,5 @@
         </div>
       </footer>
     }
-  </section>
-  <section class="student-shortcuts">
-    <article class="card">
-      <svg [lucideIcon]="icons.students" size="20"></svg>
-      <div>
-        <strong>Responsáveis vinculados</strong
-        ><small>Consulte os contatos autorizados no cadastro de cada aluno.</small>
-      </div>
-    </article>
   </section>
 </main>

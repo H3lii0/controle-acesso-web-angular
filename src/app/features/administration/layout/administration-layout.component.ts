@@ -5,6 +5,8 @@ import {
   LucideGraduationCap,
   LucideLayoutDashboard,
   LucideLogOut,
+  LucidePanelLeftClose,
+  LucidePanelLeftOpen,
   LucideScanLine,
   LucideSchool,
   LucideSettings,
@@ -26,6 +28,7 @@ export class AdministrationLayoutComponent implements OnDestroy {
   private readonly settingsService = inject(SettingsService);
 
   protected readonly schoolName = this.settingsService.schoolName;
+  protected readonly sidebarCollapsed = signal(false);
   protected readonly userName = this.auth.sessionSnapshot?.user.full_name ?? 'Administrador';
   protected readonly currentDateTime = signal(new Date());
   private readonly clock = setInterval(() => this.currentDateTime.set(new Date()), 1000);
@@ -38,6 +41,8 @@ export class AdministrationLayoutComponent implements OnDestroy {
     settings: LucideSettings,
     team: LucideShieldCheck,
     signOut: LucideLogOut,
+    panelClose: LucidePanelLeftClose,
+    panelOpen: LucidePanelLeftOpen,
   };
 
   constructor() {
@@ -65,6 +70,10 @@ export class AdministrationLayoutComponent implements OnDestroy {
 
   protected isCentralAdministrator(): boolean {
     return this.auth.sessionSnapshot?.user.account_type === 'central_administrator';
+  }
+
+  protected toggleSidebar(): void {
+    this.sidebarCollapsed.update((collapsed) => !collapsed);
   }
 
   protected signOut(): void {

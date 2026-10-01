@@ -65,24 +65,200 @@
       </div>
     </div>
     <div class="card-body history-filters">
-      <label class="field">
+      <div class="field">
         <span>Data inicial</span>
-        <input
-          class="control"
-          type="date"
-          [value]="dateFrom"
-          (change)="onDateFromChange($any($event.target).value)"
-        />
-      </label>
-      <label class="field">
+        <div
+          class="date-picker"
+          [class.open]="openDatePicker() === 'from'"
+          (click)="$event.stopPropagation()"
+        >
+          <button
+            class="control date-trigger"
+            type="button"
+            aria-label="Selecionar data inicial"
+            [attr.aria-expanded]="openDatePicker() === 'from'"
+            (click)="toggleDatePicker('from')"
+          >
+            <span>{{ formatDate(dateFrom) }}</span
+            ><svg [lucideIcon]="icons.calendar" size="16"></svg>
+          </button>
+          @if (openDatePicker() === 'from') {
+            <div class="calendar-popup" role="dialog" aria-label="Calendário da data inicial">
+              <div class="calendar-header">
+                <div class="calendar-heading">
+                  <button
+                    class="calendar-title-button"
+                    type="button"
+                    (click)="showCalendarView('months')"
+                  >
+                    {{ calendarMonthLabel().split(' de ')[0] }}</button
+                  ><button
+                    class="calendar-title-button year"
+                    type="button"
+                    (click)="showCalendarView('years')"
+                  >
+                    {{ calendarMonth.getFullYear() }}
+                  </button>
+                </div>
+                @if (calendarView() === 'days') {
+                  <div>
+                    <button type="button" aria-label="Mês anterior" (click)="moveCalendar(-1)">
+                      ‹</button
+                    ><button type="button" aria-label="Próximo mês" (click)="moveCalendar(1)">
+                      ›
+                    </button>
+                  </div>
+                }
+              </div>
+              @if (calendarView() === 'days') {
+                <div class="calendar-weekdays">
+                  @for (weekday of weekdays; track $index) {
+                    <span>{{ weekday }}</span>
+                  }
+                </div>
+                <div class="calendar-grid">
+                  @for (calendarDay of calendarDays(); track calendarDay.date) {
+                    <button
+                      type="button"
+                      [class.outside-month]="!calendarDay.currentMonth"
+                      [class.selected]="calendarDay.date === dateFrom"
+                      [class.today]="isToday(calendarDay.date)"
+                      (click)="selectDate('from', calendarDay.date)"
+                    >
+                      {{ calendarDay.day }}
+                    </button>
+                  }
+                </div>
+              } @else if (calendarView() === 'months') {
+                <div class="calendar-choice-grid">
+                  @for (month of calendarMonthOptions(); track month.value) {
+                    <button
+                      type="button"
+                      [class.selected]="calendarMonth.getMonth() === month.value"
+                      (click)="selectCalendarMonth(month.value)"
+                    >
+                      {{ month.label }}
+                    </button>
+                  }
+                </div>
+              } @else {
+                <div class="calendar-choice-grid years">
+                  @for (year of calendarYearOptions(); track year) {
+                    <button
+                      type="button"
+                      [class.selected]="calendarMonth.getFullYear() === year"
+                      (click)="selectCalendarYear(year)"
+                    >
+                      {{ year }}
+                    </button>
+                  }
+                </div>
+              }
+              <div class="calendar-footer">
+                <button type="button" (click)="clearDate('from')">Limpar</button
+                ><button type="button" (click)="selectToday('from')">Hoje</button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="field">
         <span>Data final</span>
-        <input
-          class="control"
-          type="date"
-          [value]="dateTo"
-          (change)="onDateToChange($any($event.target).value)"
-        />
-      </label>
+        <div
+          class="date-picker"
+          [class.open]="openDatePicker() === 'to'"
+          (click)="$event.stopPropagation()"
+        >
+          <button
+            class="control date-trigger"
+            type="button"
+            aria-label="Selecionar data final"
+            [attr.aria-expanded]="openDatePicker() === 'to'"
+            (click)="toggleDatePicker('to')"
+          >
+            <span>{{ formatDate(dateTo) }}</span
+            ><svg [lucideIcon]="icons.calendar" size="16"></svg>
+          </button>
+          @if (openDatePicker() === 'to') {
+            <div class="calendar-popup" role="dialog" aria-label="Calendário da data final">
+              <div class="calendar-header">
+                <div class="calendar-heading">
+                  <button
+                    class="calendar-title-button"
+                    type="button"
+                    (click)="showCalendarView('months')"
+                  >
+                    {{ calendarMonthLabel().split(' de ')[0] }}</button
+                  ><button
+                    class="calendar-title-button year"
+                    type="button"
+                    (click)="showCalendarView('years')"
+                  >
+                    {{ calendarMonth.getFullYear() }}
+                  </button>
+                </div>
+                @if (calendarView() === 'days') {
+                  <div>
+                    <button type="button" aria-label="Mês anterior" (click)="moveCalendar(-1)">
+                      ‹</button
+                    ><button type="button" aria-label="Próximo mês" (click)="moveCalendar(1)">
+                      ›
+                    </button>
+                  </div>
+                }
+              </div>
+              @if (calendarView() === 'days') {
+                <div class="calendar-weekdays">
+                  @for (weekday of weekdays; track $index) {
+                    <span>{{ weekday }}</span>
+                  }
+                </div>
+                <div class="calendar-grid">
+                  @for (calendarDay of calendarDays(); track calendarDay.date) {
+                    <button
+                      type="button"
+                      [class.outside-month]="!calendarDay.currentMonth"
+                      [class.selected]="calendarDay.date === dateTo"
+                      [class.today]="isToday(calendarDay.date)"
+                      (click)="selectDate('to', calendarDay.date)"
+                    >
+                      {{ calendarDay.day }}
+                    </button>
+                  }
+                </div>
+              } @else if (calendarView() === 'months') {
+                <div class="calendar-choice-grid">
+                  @for (month of calendarMonthOptions(); track month.value) {
+                    <button
+                      type="button"
+                      [class.selected]="calendarMonth.getMonth() === month.value"
+                      (click)="selectCalendarMonth(month.value)"
+                    >
+                      {{ month.label }}
+                    </button>
+                  }
+                </div>
+              } @else {
+                <div class="calendar-choice-grid years">
+                  @for (year of calendarYearOptions(); track year) {
+                    <button
+                      type="button"
+                      [class.selected]="calendarMonth.getFullYear() === year"
+                      (click)="selectCalendarYear(year)"
+                    >
+                      {{ year }}
+                    </button>
+                  }
+                </div>
+              }
+              <div class="calendar-footer">
+                <button type="button" (click)="clearDate('to')">Limpar</button
+                ><button type="button" (click)="selectToday('to')">Hoje</button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
       <label class="field">
         <span>Aluno ou matrícula</span>
         <span class="search">
@@ -95,27 +271,27 @@
           />
         </span>
       </label>
-      <label class="field">
+      <div class="field">
         <span>Turma</span>
-        <select class="control" [value]="schoolClassId" (change)="onClassChange($any($event.target).value)">
-          <option value="">Todas as turmas</option>
-          @for (schoolClass of summary.classes; track schoolClass.id) {
-            <option [value]="schoolClass.id">{{ schoolClass.name }}</option>
-          }
-        </select>
-      </label>
-      <label class="field">
+        <app-custom-select
+          ariaLabel="Selecionar turma"
+          placeholder="Todas as turmas"
+          [options]="classOptions()"
+          [value]="schoolClassId"
+          [icon]="icons.school"
+          (valueChange)="selectClass($event)"
+        />
+      </div>
+      <div class="field">
         <span>Situação</span>
-        <select
-          class="control"
+        <app-custom-select
+          ariaLabel="Selecionar situação"
+          [options]="statusOptions"
           [value]="status"
-          (change)="onStatusChange($any($event.target).value)"
-        >
-          @for (option of statusOptions; track option.value) {
-            <option [value]="option.value">{{ option.label }}</option>
-          }
-        </select>
-      </label>
+          [icon]="icons.entry"
+          (valueChange)="selectStatus($event)"
+        />
+      </div>
     </div>
     @if (dateRangeError) {
       <div class="history-state error-state" role="alert">{{ dateRangeError }}</div>

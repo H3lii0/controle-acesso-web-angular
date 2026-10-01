@@ -1,0 +1,56 @@
+<div
+  class="custom-select"
+  [class.large]="size === 'large'"
+  [class.open]="open"
+  [class.disabled]="disabled || loading || options.length === 0"
+  (click)="stopClick($event)"
+>
+  @if (icon) {
+    <span class="custom-select-icon">
+      <svg [lucideIcon]="icon" size="16"></svg>
+    </span>
+  }
+
+  <span class="custom-select-copy">
+    @if (label) {
+      <small>{{ label }}</small>
+    }
+    <strong>{{ selectionLabel }}</strong>
+  </span>
+
+  <button
+    class="custom-select-trigger"
+    type="button"
+    [attr.aria-label]="ariaLabel"
+    [attr.aria-expanded]="open"
+    [disabled]="disabled || loading || options.length === 0"
+    (click)="toggle()"
+  >
+    <svg [lucideIcon]="chevronIcon" size="16"></svg>
+  </button>
+
+  @if (open) {
+    <div class="custom-select-menu" role="listbox" [attr.aria-label]="ariaLabel">
+      @for (option of options; track option.value) {
+        <button
+          class="custom-select-option"
+          type="button"
+          role="option"
+          [attr.aria-selected]="isSelected(option.value)"
+          [class.active]="isSelected(option.value)"
+          (click)="select(option)"
+        >
+          <span>
+            <strong>{{ option.label }}</strong>
+            @if (option.description) {
+              <small>{{ option.description }}</small>
+            }
+          </span>
+          @if (isSelected(option.value)) {
+            <svg [lucideIcon]="checkIcon" size="15"></svg>
+          }
+        </button>
+      }
+    </div>
+  }
+</div>

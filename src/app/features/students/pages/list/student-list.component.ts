@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { debounceTime, finalize, startWith, Subject, switchMap } from 'rxjs';
-import { LucideDynamicIcon, LucideEye, LucidePlus, LucideSearch, LucideUsers } from '@lucide/angular';
+import { LucideCheck, LucideChevronDown, LucideDynamicIcon, LucideEye, LucidePlus, LucideSchool, LucideSearch, LucideShieldCheck, LucideUsers } from '@lucide/angular';
 import { SchoolClass, Student, StudentStatusFilter } from '../../../../core/students/student.models';
 import { StudentService } from '../../../../core/students/student.service';
 
@@ -25,10 +25,11 @@ export class StudentListComponent implements OnInit {
   protected readonly schoolClasses = signal<SchoolClass[]>([]);
   protected readonly loading = signal(true);
   protected readonly errorMessage = signal('');
+  protected readonly openFilter = signal<'class' | 'status' | null>(null);
   protected readonly currentPage = signal(1);
   protected readonly lastPage = signal(1);
   protected readonly total = signal(0);
-  protected readonly icons = { search: LucideSearch, add: LucidePlus, view: LucideEye, students: LucideUsers };
+  protected readonly icons = { search: LucideSearch, add: LucidePlus, view: LucideEye, students: LucideUsers, school: LucideSchool, status: LucideShieldCheck, chevron: LucideChevronDown, check: LucideCheck };
 
   ngOnInit(): void {
     this.studentService.schoolClassOptions().subscribe({
@@ -53,6 +54,13 @@ export class StudentListComponent implements OnInit {
   protected classLabel(schoolClass: SchoolClass): string { return `${schoolClass.name} · ${schoolClass.shift === 'morning' ? 'Manhã' : 'Tarde'}`; }
   protected initials(name: string): string { return name.split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase(); }
   protected activeLabel(active: boolean): string { return active ? 'Ativo' : 'Inativo'; }
+  protected toggleFilter(filter: 'class' | 'status'): void { this.openFilter.update((current) => current === filter ? null : filter); }
+  protected selectClass(value: number | ''): void { this.classFilter.set(value); this.openFilter.set(null); this.applyFilters(); }
+  protected selectStatus(value: StudentStatusFilter): void { this.statusFilter.set(value); this.openFilter.set(null); this.applyFilters(); }
+  protected classFilterLabel(): string { return this.classFilter() ? this.schoolClasses().find((schoolClass) => schoolClass.id === this.classFilter())?.name ?? 'Turma selecionada' : 'Todas as turmas'; }
+  protected statusFilterLabel(): string { return this.statusFilter() === 'active' ? 'Ativos' : this.statusFilter() === 'inactive' ? 'Inativos' : 'Todas as situações'; }
+  protected isSelectedClass(id: number): boolean { return this.classFilter() === id; }
+  @HostListener('document:click') protected closeFilters(): void { this.openFilter.set(null); }
 
   private filters() {
     const status = this.statusFilter();

@@ -4,29 +4,47 @@
 
 .admin-shell {
   width: 100%;
-  min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: 232px minmax(0, 1fr);
-  overflow-x: hidden;
+  align-items: start;
+  overflow-x: clip;
   background: var(--color-background);
+}
+
+.admin-shell.is-collapsed {
+  grid-template-columns: 72px minmax(0, 1fr);
 }
 
 .admin-sidebar {
   position: sticky;
   top: 0;
-  height: 100vh;
+  align-self: start;
+  width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
   border-right: 1px solid var(--color-border);
   padding: 18px 12px;
   background: var(--color-surface);
 }
 
 .admin-brand {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: 10px;
   padding: 0 8px 20px;
+  justify-items: center;
+}
+
+.brand-lockup {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .admin-brand strong,
@@ -52,6 +70,61 @@
   border-radius: var(--radius);
   color: #fff;
   background: var(--color-primary);
+}
+
+.sidebar-toggle {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  align-self: flex-end;
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.admin-brand .sidebar-toggle {
+  grid-row: 1;
+}
+
+.admin-brand .brand-lockup {
+  grid-row: 2;
+}
+
+.sidebar-toggle:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.admin-shell.is-collapsed .admin-sidebar {
+  padding-inline: 8px;
+}
+
+.admin-shell.is-collapsed .admin-brand {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.admin-shell.is-collapsed .sidebar-toggle {
+  align-self: center;
+}
+
+.admin-shell.is-collapsed .brand-lockup {
+  justify-content: center;
+}
+
+.admin-shell.is-collapsed .admin-brand-copy,
+.admin-shell.is-collapsed nav span {
+  display: none;
+}
+
+.admin-shell.is-collapsed nav a,
+.admin-shell.is-collapsed nav button {
+  justify-content: center;
+  padding-inline: 0;
 }
 
 nav {
@@ -96,6 +169,7 @@ nav a.active {
 
 .admin-workspace {
   width: 100%;
+  min-height: 100dvh;
   min-width: 0;
   overflow-x: hidden;
 }
@@ -149,7 +223,7 @@ nav a.active {
     padding-inline: 8px;
   }
 
-  .admin-brand div,
+  .admin-brand-copy,
   nav span,
   .admin-user div,
   .admin-context {
@@ -159,6 +233,14 @@ nav a.active {
   .admin-brand {
     justify-content: center;
     padding-inline: 0;
+  }
+
+  .brand-lockup {
+    justify-content: center;
+  }
+
+  .sidebar-toggle {
+    display: none;
   }
 
   nav a,

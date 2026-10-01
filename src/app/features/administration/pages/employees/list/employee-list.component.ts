@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize, debounceTime, distinctUntilChanged, startWith, switchMap } from 'rxjs';
-import { LucideDynamicIcon, LucideEye } from '@lucide/angular';
+import { LucideCheck, LucideChevronDown, LucideDynamicIcon, LucideEye, LucideShieldCheck } from '@lucide/angular';
 import { Employee, EmployeeStatus } from '../../../../../core/administration/administration.models';
 import { EmployeeService } from '../../../../../core/administration/employee.service';
 
@@ -28,7 +28,8 @@ export class EmployeeListComponent implements OnInit {
   protected currentPage = 1;
   protected lastPage = 1;
   protected total = 0;
-  protected readonly icons = { view: LucideEye };
+  protected readonly openFilter = signal(false);
+  protected readonly icons = { view: LucideEye, status: LucideShieldCheck, chevron: LucideChevronDown, check: LucideCheck };
 
   ngOnInit(): void {
     this.filters.valueChanges
@@ -82,6 +83,19 @@ export class EmployeeListComponent implements OnInit {
   protected statusLabel(status: EmployeeStatus): string {
     return { pending_activation: 'Pendente', active: 'Ativo', disabled: 'Desativado' }[status];
   }
+
+  protected statusFilterLabel(): string {
+    const status = this.filters.controls.status.value;
+    return status ? this.statusLabel(status) : 'Todas as situações';
+  }
+
+  protected toggleFilter(): void { this.openFilter.update((open) => !open); }
+  protected selectStatus(status: EmployeeStatus | ''): void {
+    this.filters.controls.status.setValue(status);
+    this.openFilter.set(false);
+  }
+
+  @HostListener('document:click') protected closeFilter(): void { this.openFilter.set(false); }
 
   private applyResponse(response: {
     data: Employee[];

@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  HostListener,
   OnInit,
   ViewChild,
   inject,
@@ -13,12 +14,16 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   LucideChevronLeft,
   LucideChevronRight,
+  LucideCheck,
+  LucideChevronDown,
+  LucideClock3,
   LucideDynamicIcon,
   LucidePencil,
   LucidePlus,
   LucidePower,
   LucideRefreshCw,
   LucideSearch,
+  LucideShieldCheck,
   LucideX,
 } from '@lucide/angular';
 import { Subscription, debounceTime, distinctUntilChanged, finalize, startWith } from 'rxjs';
@@ -49,6 +54,10 @@ export class SchoolClassListComponent implements OnInit {
     close: LucideX,
     previous: LucideChevronLeft,
     next: LucideChevronRight,
+    check: LucideCheck,
+    chevron: LucideChevronDown,
+    clock: LucideClock3,
+    status: LucideShieldCheck,
   };
   protected readonly filters = this.formBuilder.nonNullable.group({
     search: [''],
@@ -73,6 +82,8 @@ export class SchoolClassListComponent implements OnInit {
   protected readonly statusTarget = signal<SchoolClass | null>(null);
   protected readonly changingStatus = signal(false);
   protected readonly statusError = signal('');
+  protected readonly openFilter = signal<'shift' | 'status' | null>(null);
+  protected readonly openFormShift = signal(false);
 
   ngOnInit(): void {
     this.filters.valueChanges
@@ -130,6 +141,7 @@ export class SchoolClassListComponent implements OnInit {
     this.form.reset({ name: schoolClass?.name ?? '', shift: schoolClass?.shift ?? 'morning' });
     this.formError.set('');
     this.fieldErrors.set({});
+    this.openFormShift.set(false);
     this.classDialog.nativeElement.showModal();
   }
 
@@ -218,4 +230,14 @@ export class SchoolClassListComponent implements OnInit {
   protected shiftLabel(shift: SchoolShift): string {
     return shift === 'morning' ? 'Manhã' : 'Tarde';
   }
+
+  protected toggleFilter(filter: 'shift' | 'status'): void { this.openFilter.update((current) => current === filter ? null : filter); }
+  protected selectShift(value: SchoolShift | ''): void { this.filters.controls.shift.setValue(value); this.openFilter.set(null); }
+  protected toggleFormShift(): void { this.openFormShift.update((open) => !open); }
+  protected selectFormShift(value: SchoolShift): void { this.form.controls.shift.setValue(value); this.openFormShift.set(false); }
+  protected formShiftLabel(): string { return this.form.controls.shift.value === 'morning' ? 'Manhã' : 'Tarde'; }
+  protected selectStatus(value: string): void { this.filters.controls.status.setValue(value); this.openFilter.set(null); }
+  protected shiftFilterLabel(): string { return this.filters.controls.shift.value === 'morning' ? 'Manhã' : this.filters.controls.shift.value === 'afternoon' ? 'Tarde' : 'Todos os turnos'; }
+  protected statusFilterLabel(): string { return this.filters.controls.status.value === 'active' ? 'Ativas' : this.filters.controls.status.value === 'inactive' ? 'Inativas' : 'Todas as situações'; }
+  @HostListener('document:click') protected closeFilters(): void { this.openFilter.set(null); this.openFormShift.set(false); }
 }

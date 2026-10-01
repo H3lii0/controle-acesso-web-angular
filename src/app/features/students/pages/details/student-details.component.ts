@@ -23,6 +23,10 @@ import {
   StudentAccessRecord,
 } from '../../../../core/students/student.models';
 import { StudentService } from '../../../../core/students/student.service';
+import {
+  CustomSelectComponent,
+  CustomSelectOption,
+} from '../../../../shared/components/custom-select/custom-select.component';
 
 interface TimelineEvent {
   type: string;
@@ -36,7 +40,7 @@ type BiometricCaptureState = 'ready' | 'reading' | 'captured' | 'error';
 
 @Component({
   selector: 'app-student-details',
-  imports: [CommonModule, FormsModule, RouterLink, LucideDynamicIcon],
+  imports: [CommonModule, FormsModule, RouterLink, LucideDynamicIcon, CustomSelectComponent],
   templateUrl: './student-details.component.html',
   styleUrl: './student-details.component.scss',
 })
@@ -77,6 +81,29 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
   protected guardianSearch = '';
   protected guardianResults: GuardianSummary[] = [];
   protected selectedGuardianId = 0;
+
+  protected classOptions(): CustomSelectOption[] {
+    const options = this.schoolClasses.map((schoolClass) => ({
+      value: schoolClass.id,
+      label: this.classLabel(schoolClass),
+    }));
+
+    if (
+      this.student &&
+      !this.schoolClasses.some((schoolClass) => schoolClass.id === this.student?.school_class.id)
+    ) {
+      options.unshift({
+        value: this.student.school_class.id,
+        label: `${this.classLabel(this.student.school_class)} · turma inativa atual`,
+      });
+    }
+
+    return options;
+  }
+
+  protected selectClass(value: string | number): void {
+    this.form.school_class_id = Number(value);
+  }
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -122,9 +149,9 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
         date_of_birth: this.student.date_of_birth,
         school_class_id: this.student.school_class.id,
       };
-      this.selectedGuardianId = this.student.guardian.id;
-      this.guardianSearch = this.student.guardian.full_name;
-      this.guardianResults = [];
+    this.selectedGuardianId = this.student.guardian.id;
+    this.guardianSearch = this.student.guardian.full_name;
+    this.guardianResults = [];
   }
 
   protected save(): void {
@@ -199,8 +226,14 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
       return;
     }
     this.studentsApi.searchGuardians(this.guardianSearch.trim()).subscribe({
-      next: (response) => { this.guardianResults = response.data; this.changeDetector.markForCheck(); },
-      error: () => { this.errorMessage = 'Não foi possível buscar os responsáveis.'; this.changeDetector.markForCheck(); },
+      next: (response) => {
+        this.guardianResults = response.data;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        this.errorMessage = 'Não foi possível buscar os responsáveis.';
+        this.changeDetector.markForCheck();
+      },
     });
   }
 

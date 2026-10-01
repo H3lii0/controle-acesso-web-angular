@@ -5,6 +5,17 @@
   max-width: 1500px;
   margin: 0 auto;
 }
+.dashboard-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.dashboard-filters app-custom-select {
+  min-width: 206px;
+  flex: 1 1 206px;
+}
 .warning-tone {
   color: var(--color-warning);
 }
@@ -114,5 +125,12 @@
 @media (max-width: 650px) {
   .status-column {
     grid-template-columns: 1fr;
+  }
+  .dashboard-filters {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .dashboard-filters app-custom-select {
+    width: 100%;
   }
 }
