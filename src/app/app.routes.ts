@@ -3,6 +3,7 @@ import { authGuard } from './core/authentication/auth.guard';
 import { guestGuard } from './core/authentication/guest.guard';
 import { adminGuard } from './core/authentication/admin.guard';
 import { guardianGuard } from './core/authentication/guardian.guard';
+import { terminalGuard } from './core/authentication/terminal.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -123,7 +124,7 @@ export const routes: Routes = [
   },
   {
     path: 'terminal',
-    canActivate: [authGuard],
+    canActivate: [terminalGuard],
     loadComponent: () =>
       import('./features/terminal/pages/access-control/access-terminal.component').then(
         (m) => m.AccessTerminalComponent,

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   LucideBell,
@@ -36,6 +36,7 @@ type PortalEvent = {
 })
 export class GuardianPortalComponent implements OnInit {
   private readonly auth = inject(AuthService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
   private readonly studentService = inject(StudentService);
 
@@ -145,11 +146,13 @@ export class GuardianPortalComponent implements OnInit {
         this.students = response.data;
         this.selectedStudent = this.students[0] ?? null;
         this.loading = false;
+        this.changeDetector.markForCheck();
         if (this.selectedStudent) this.loadAccessRecords();
       },
       error: () => {
         this.loading = false;
         this.errorMessage = 'Não foi possível carregar os alunos vinculados.';
+        this.changeDetector.markForCheck();
       },
     });
   }
@@ -165,12 +168,14 @@ export class GuardianPortalComponent implements OnInit {
           this.records = response.data;
           this.events = this.toEvents(this.records);
           this.recordsLoading = false;
+          this.changeDetector.markForCheck();
         },
         error: () => {
           this.records = [];
           this.events = [];
           this.recordsLoading = false;
           this.recordsErrorMessage = 'Não foi possível carregar o histórico de acessos.';
+          this.changeDetector.markForCheck();
         },
       });
   }
