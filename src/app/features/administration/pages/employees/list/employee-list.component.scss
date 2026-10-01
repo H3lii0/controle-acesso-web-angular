@@ -1,0 +1,116 @@
+:host {
+  display: block;
+}
+.employees-page {
+  max-width: 1500px;
+  margin: 0 auto;
+}
+.page-header h1 small {
+  margin-left: 8px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.employee-filters {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) 220px;
+  gap: 8px;
+  padding: 12px;
+}
+.table-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+.table-heading span,
+small {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+.table-wrap {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+th,
+td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+th {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+.status {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.active {
+  color: #236243;
+  background: #e6f3eb;
+}
+.pending_activation {
+  color: #8a651a;
+  background: #fff4d8;
+}
+.disabled {
+  color: #8a3e3e;
+  background: #fae7e7;
+}
+.text-action {
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  font-weight: 700;
+  cursor: pointer;
+}
+.feedback {
+  padding: 42px 20px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.feedback.error {
+  color: #a44343;
+}
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+.pagination button {
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  padding: 7px 10px;
+  background: #fff;
+  color: var(--color-primary);
+}
+.pagination button:disabled {
+  opacity: 0.45;
+}
+@media (max-width: 700px) {
+  .employee-filters {
+    grid-template-columns: 1fr;
+  }
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

@@ -14,6 +14,8 @@ import {
   LucideWrench,
 } from '@lucide/angular';
 import { AuthService } from '../../../../core/authentication/auth.service';
+import { StudentService } from '../../../../core/students/student.service';
+import { Student } from '../../../../core/students/student.models';
 
 type TerminalState = 'waiting' | 'reading' | 'entry' | 'exit' | 'denied' | 'failure' | 'offline' | 'maintenance';
 
@@ -26,12 +28,15 @@ type TerminalState = 'waiting' | 'reading' | 'entry' | 'exit' | 'denied' | 'fail
 export class AccessTerminalComponent implements OnDestroy {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly studentService = inject(StudentService);
   private returnTimer?: number;
   private readonly clock = window.setInterval(() => this.currentTime.set(this.formatTime()), 1000);
 
   protected readonly currentTime = signal(this.formatTime());
   protected readonly state = signal<TerminalState>('waiting');
   protected readonly currentSchoolName = 'Colégio Horizonte';
+  protected readonly testStudent = signal<Student | null>(null);
+  protected readonly errorMessage = signal('');
   protected readonly icons = {
     fingerprint: LucideFingerprint,
     reading: LucideScanLine,
@@ -55,6 +60,13 @@ export class AccessTerminalComponent implements OnDestroy {
     maintenance: { title: 'Terminal em manutenção', text: 'O equipamento está temporariamente indisponível.' },
   };
 
+  constructor() {
+    this.studentService.list({ per_page: 100 }).subscribe({
+      next: (response) => this.testStudent.set(response.data.find((student) => student.biometric.captured) ?? response.data[0] ?? null),
+      error: () => this.errorMessage.set('Não foi possível carregar o aluno de teste.'),
+    });
+  }
+
   ngOnDestroy(): void {
     window.clearInterval(this.clock);
 
@@ -72,11 +84,23 @@ export class AccessTerminalComponent implements OnDestroy {
   }
 
   protected simulateReading(): void {
+    const student = this.testStudent();
+    if (!student?.biometric.captured || !student.biometric.identifier) {
+      this.state.set('failure');
+      this.errorMessage.set('Cadastre a captura biométrica simulada do aluno antes de testar o terminal.');
+      return;
+    }
     this.selectState('reading');
-    this.returnTimer = window.setTimeout(() => {
-      this.state.set('entry');
-      this.returnTimer = window.setTimeout(() => this.state.set('waiting'), 3500);
-    }, 1500);
+    this.studentService.readAccess(student.biometric.identifier).subscribe({
+      next: (response) => {
+        this.state.set(response.code === 'exit_registered' ? 'exit' : 'entry');
+        this.returnTimer = window.setTimeout(() => this.state.set('waiting'), 3500);
+      },
+      error: (error) => {
+        this.state.set(error.error?.code === 'exit_too_soon' ? 'denied' : 'failure');
+        this.errorMessage.set(error.error?.message ?? 'Não foi possível registrar a leitura.');
+      },
+    });
   }
 
   protected currentIcon() {

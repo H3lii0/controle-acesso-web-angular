@@ -1,6 +1,139 @@
-:host { display:block; }.dashboard-overview { max-width: 1500px; margin: 0 auto; }.warning-tone { color:var(--color-warning); }.danger-tone { color:var(--color-danger); }.kpi small small,.kpi strong small { color:var(--color-text-muted);font-size:12px;font-weight:500; }
-.operation-grid { display:grid;grid-template-columns:minmax(0,1.8fr) minmax(280px,.7fr);gap:12px; }.chart { min-height:330px; }.chart-area { height:230px;position:relative;padding:8px 0 24px; }.chart-area svg { position:absolute;inset:8px 0 24px;width:100%;height:calc(100% - 32px);overflow:visible; }.chart-area .area { fill:rgba(15,118,110,.1); }.chart-area .line { fill:none;stroke:var(--color-primary);stroke-width:2.5; }.grid-line { position:absolute;left:0;right:0;border-top:1px dashed #e5e9ed; }.l1{top:25%}.l2{top:50%}.l3{top:75%}.axis { position:absolute;right:0;bottom:0;left:0;display:flex;justify-content:space-between;color:var(--color-text-muted);font-size:9px; }
-.status-column { display:grid;gap:12px; }.status-list,.alert-list { display:grid; }.status-list>div,.alert-list>div { display:flex;align-items:flex-start;gap:10px;border-top:1px solid var(--color-border);padding:13px 14px; }.status-list>div:first-child,.alert-list>div:first-child { border-top:0; }.status-list svg { color:var(--color-primary); }.status-list span,.alert-list span { min-width:0;flex:1; }.status-list strong,.status-list small,.alert-list strong,.alert-list small { display:block; }.status-list strong,.alert-list strong { font-size:11px; }.status-list small,.alert-list small { margin-top:3px;color:var(--color-text-muted);font-size:10px; }.status-list b { color:var(--color-success);font-size:10px; }.alert-list svg { color:var(--color-warning); }.arrow-link { color:var(--color-primary); }
-@media(max-width:1050px){.operation-grid{grid-template-columns:1fr}.status-column{grid-template-columns:1fr 1fr}}@media(max-width:650px){.status-column{grid-template-columns:1fr}}
-
-
+:host {
+  display: block;
+}
+.dashboard-overview {
+  max-width: 1500px;
+  margin: 0 auto;
+}
+.warning-tone {
+  color: var(--color-warning);
+}
+.danger-tone {
+  color: var(--color-danger);
+}
+.kpi small small,
+.kpi strong small {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.operation-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(280px, 0.7fr);
+  gap: 12px;
+}
+.chart {
+  min-height: 330px;
+}
+.chart-area {
+  height: 230px;
+  position: relative;
+  padding: 8px 0 24px;
+}
+.chart-area svg {
+  position: absolute;
+  inset: 8px 0 24px;
+  width: 100%;
+  height: calc(100% - 32px);
+  overflow: visible;
+}
+.chart-area .area {
+  fill: rgba(15, 118, 110, 0.1);
+}
+.chart-area .line {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 2.5;
+}
+.grid-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed #e5e9ed;
+}
+.l1 {
+  top: 25%;
+}
+.l2 {
+  top: 50%;
+}
+.l3 {
+  top: 75%;
+}
+.axis {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-text-muted);
+  font-size: 9px;
+}
+.status-column {
+  display: grid;
+  gap: 12px;
+}
+.status-list,
+.alert-list {
+  display: grid;
+}
+.status-list > div,
+.alert-list > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-top: 1px solid var(--color-border);
+  padding: 13px 14px;
+}
+.status-list > div:first-child,
+.alert-list > div:first-child {
+  border-top: 0;
+}
+.status-list svg {
+  color: var(--color-primary);
+}
+.status-list span,
+.alert-list span {
+  min-width: 0;
+  flex: 1;
+}
+.status-list strong,
+.status-list small,
+.alert-list strong,
+.alert-list small {
+  display: block;
+}
+.status-list strong,
+.alert-list strong {
+  font-size: 11px;
+}
+.status-list small,
+.alert-list small {
+  margin-top: 3px;
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+.status-list b {
+  color: var(--color-success);
+  font-size: 10px;
+}
+.alert-list svg {
+  color: var(--color-warning);
+}
+.arrow-link {
+  color: var(--color-primary);
+}
+@media (max-width: 1050px) {
+  .operation-grid {
+    grid-template-columns: 1fr;
+  }
+  .status-column {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 650px) {
+  .status-column {
+    grid-template-columns: 1fr;
+  }
+}

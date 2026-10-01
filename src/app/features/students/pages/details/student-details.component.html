@@ -1,14 +1,236 @@
 <main class="page details-page">
-  @if(created){<div class="message success success-notice"><svg [lucideIcon]="icons.check" size="18"></svg><span><strong>Aluno cadastrado com sucesso.</strong> O registro já está disponível para consulta.</span></div>}
-  <div *ngIf="loading" class="card feedback">Carregando os dados do aluno...</div>
-  <div *ngIf="!loading && errorMessage && !student" class="card feedback error">{{errorMessage}}</div>
-  <ng-container *ngIf="student as currentStudent">
-    <header class="page-header"><div><p class="back"><a routerLink="/admin/students"><svg [lucideIcon]="icons.back" size="15"></svg>Voltar para alunos</a></p><div class="student-header"><span class="avatar large">{{initials(currentStudent.full_name)}}</span><div><div class="student-title"><h1>{{currentStudent.full_name}}</h1><span class="badge" [class.info]="currentStudent.is_active" [class.warning]="!currentStudent.is_active">{{currentStudent.is_active?'Ativo':'Inativo'}}</span><span *ngIf="todayRecord?.status==='inside'" class="badge success">Na escola</span></div><p>Matrícula {{currentStudent.enrollment_number}} · {{classLabel(currentStudent.school_class)}}</p></div></div></div><div class="header-actions"><button class="button secondary" type="button" (click)="toggleStatus()">{{currentStudent.is_active?'Desativar aluno':'Ativar aluno'}}</button><button class="button" type="button" (click)="editing?save():toggleEdit()"><svg [lucideIcon]="editing?icons.check:icons.edit" size="16"></svg>{{saving?'Salvando...':editing?'Salvar alterações':'Editar aluno'}}</button></div></header>
-    <p *ngIf="feedbackMessage" class="feedback success-text">{{feedbackMessage}}</p><p *ngIf="errorMessage && student" class="feedback error-text">{{errorMessage}}</p>
-    <nav class="tabs"><button class="active" type="button">Visão geral</button><button type="button"><svg [lucideIcon]="icons.guardians" size="15"></svg>Responsável</button><button type="button"><svg [lucideIcon]="icons.biometric" size="15"></svg>Biometria</button><button type="button"><svg [lucideIcon]="icons.accessRecords" size="15"></svg>Acessos</button></nav>
-    <section class="details-grid"><div class="details-column"><article class="card"><div class="card-header"><h2>Dados cadastrais</h2><span class="muted-text">Cadastro escolar</span></div><div class="card-body data-grid"><div><span>Nome completo</span><strong *ngIf="!editing">{{currentStudent.full_name}}</strong><input *ngIf="editing" class="control" [(ngModel)]="form.full_name"></div><div><span>Data de nascimento</span><strong *ngIf="!editing">{{formatDate(currentStudent.date_of_birth)}}</strong><input *ngIf="editing" class="control" type="date" [(ngModel)]="form.date_of_birth"></div><div><span>Matrícula</span><strong *ngIf="!editing">{{currentStudent.enrollment_number}}</strong><input *ngIf="editing" class="control" [(ngModel)]="form.enrollment_number"></div><div><span>Turma e turno</span><strong *ngIf="!editing">{{classLabel(currentStudent.school_class)}}</strong><select *ngIf="editing" class="control" [(ngModel)]="form.school_class_id"><option *ngIf="!currentStudent.school_class.is_active" [ngValue]="currentStudent.school_class.id">{{classLabel(currentStudent.school_class)}} · turma inativa atual</option><option *ngFor="let schoolClass of schoolClasses" [ngValue]="schoolClass.id">{{classLabel(schoolClass)}}</option></select></div><div><span>Situação da matrícula</span><strong>{{currentStudent.is_active?'Regular e ativo':'Inativo'}}</strong></div><div><span>Responsável vinculado</span><strong>{{currentStudent.guardian.full_name}}</strong></div></div></article>
-      <article class="card"><div class="card-header"><h2>Responsável principal</h2><span class="badge" [class.success]="currentStudent.guardian.account_status==='active'" [class.warning]="currentStudent.guardian.account_status==='pending_activation'">{{currentStudent.guardian.account_status==='active'?'Ativo':currentStudent.guardian.account_status==='pending_activation'?'Convite pendente':'Desativado'}}</span></div><div class="card-body"><div class="guardian"><span class="avatar">{{initials(currentStudent.guardian.full_name)}}</span><div><strong>{{currentStudent.guardian.full_name}}</strong><small>{{currentStudent.guardian.phone || 'Telefone não informado'}} · {{currentStudent.guardian.email}}</small></div><span class="badge info">Responsável</span></div></div></article>
-      <article class="card"><div class="card-header"><h2>Biometria digital</h2><span class="badge warning">Futura etapa</span></div><div class="card-body biometric-summary"><svg [lucideIcon]="icons.biometric" size="24"></svg><div><strong>Biometria não cadastrada</strong><small>O cadastro biométrico ainda não está integrado.</small></div><span class="badge warning">Pendente</span></div></article></div>
-      <aside class="activity-column"><article class="card campus-status"><div class="card-header"><h2>Situação na escola</h2><span class="badge" [class.success]="todayRecord?.status==='inside'" [class.info]="todayRecord?.status==='completed'">Hoje</span></div><div class="card-body"><strong>{{todayRecord?.status==='inside'?'Presente na instituição':todayRecord?.status==='completed'?'Acesso do dia concluído':'Sem registro de acesso hoje'}}</strong><p *ngIf="todayRecord"><svg [lucideIcon]="icons.location" size="14"></svg>Registro diário de acesso</p><p *ngIf="todayRecord"><svg [lucideIcon]="icons.clock" size="14"></svg>Entrada às {{formatTime(todayRecord.entered_at)}}<span *ngIf="todayRecord.exited_at"> · Saída às {{formatTime(todayRecord.exited_at)}}</span></p></div></article><article class="card"><div class="card-header"><h2>Últimos eventos</h2><a routerLink="/admin/access-records">Histórico completo</a></div><div *ngIf="events.length" class="timeline"><div *ngFor="let event of events"><span class="point" [class.success]="event.tone==='success'"></span><div><strong>{{event.type}}</strong><small>{{event.time}} · {{event.location}}</small></div></div></div><div *ngIf="!events.length" class="empty-events">Nenhum registro recente de entrada ou saída.</div><a class="view-history" routerLink="/admin/access-records">Ver todos os acessos <svg [lucideIcon]="icons.arrow" size="15"></svg></a></article></aside></section>
-  </ng-container>
+  @if (created) {
+    <div class="message success success-notice">
+      <svg [lucideIcon]="icons.check" size="18"></svg
+      ><span
+        ><strong>Aluno cadastrado com sucesso.</strong> O registro já está disponível para
+        consulta.</span
+      >
+    </div>
+  }
+
+  @if (loading) {
+    <div class="card feedback">Carregando os dados do aluno...</div>
+  }
+
+  @if (!loading && errorMessage && !student) {
+    <div class="card feedback error">{{ errorMessage }}</div>
+  }
+
+  @if (student; as currentStudent) {
+    <header class="page-header">
+      <div>
+        <p class="back">
+          <a routerLink="/admin/students"
+            ><svg [lucideIcon]="icons.back" size="15"></svg>Voltar para alunos</a
+          >
+        </p>
+        <div class="student-header">
+          <span class="avatar large">{{ initials(currentStudent.full_name) }}</span>
+          <div>
+            <div class="student-title">
+              <h1>{{ currentStudent.full_name }}</h1>
+              <span
+                class="badge"
+                [class.info]="currentStudent.is_active"
+                [class.warning]="!currentStudent.is_active"
+                >{{ currentStudent.is_active ? 'Ativo' : 'Inativo' }}</span
+              >
+              @if (todayRecord?.status === 'inside') {
+                <span class="badge success">Na escola</span>
+              }
+            </div>
+            <p>
+              Matrícula {{ currentStudent.enrollment_number }} ·
+              {{ classLabel(currentStudent.school_class) }}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="button secondary" type="button" (click)="toggleStatus()">
+          {{ currentStudent.is_active ? 'Desativar aluno' : 'Ativar aluno' }}</button
+        ><button class="button" type="button" (click)="editing ? save() : toggleEdit()">
+          <svg [lucideIcon]="editing ? icons.check : icons.edit" size="16"></svg
+          >{{ saving ? 'Salvando...' : editing ? 'Salvar alterações' : 'Editar aluno' }}
+        </button>
+      </div>
+    </header>
+
+    @if (feedbackMessage) {
+      <p class="feedback success-text">{{ feedbackMessage }}</p>
+    }
+
+    @if (errorMessage && student) {
+      <p class="feedback error-text">{{ errorMessage }}</p>
+    }
+
+    <nav class="tabs">
+      <button class="active" type="button">Visão geral</button
+      ><button type="button"><svg [lucideIcon]="icons.guardians" size="15"></svg>Responsável</button
+      ><button type="button"><svg [lucideIcon]="icons.biometric" size="15"></svg>Biometria</button
+      ><button type="button">
+        <svg [lucideIcon]="icons.accessRecords" size="15"></svg>Acessos
+      </button>
+    </nav>
+    <section class="details-grid">
+      <div class="details-column">
+        <article class="card">
+          <div class="card-header">
+            <h2>Dados cadastrais</h2>
+            <span class="muted-text">Cadastro escolar</span>
+          </div>
+          <div class="card-body data-grid">
+            <div>
+              <span>Nome completo</span>
+              @if (!editing) {
+                <strong>{{ currentStudent.full_name }}</strong>
+              } @else {
+                <input class="control" [(ngModel)]="form.full_name" />
+              }
+            </div>
+            <div>
+              <span>Data de nascimento</span>
+              @if (!editing) {
+                <strong>{{ formatDate(currentStudent.date_of_birth) }}</strong>
+              } @else {
+                <input class="control" type="date" [(ngModel)]="form.date_of_birth" />
+              }
+            </div>
+            <div>
+              <span>Matrícula</span>
+              @if (!editing) {
+                <strong>{{ currentStudent.enrollment_number }}</strong>
+              } @else {
+                <input class="control" [(ngModel)]="form.enrollment_number" />
+              }
+            </div>
+            <div>
+              <span>Turma e turno</span>
+              @if (!editing) {
+                <strong>{{ classLabel(currentStudent.school_class) }}</strong>
+              } @else {
+                <select class="control" [(ngModel)]="form.school_class_id">
+                  @if (!currentStudent.school_class.is_active) {
+                    <option [ngValue]="currentStudent.school_class.id">
+                      {{ classLabel(currentStudent.school_class) }} · turma inativa atual
+                    </option>
+                  }
+                  <option *ngFor="let schoolClass of schoolClasses" [ngValue]="schoolClass.id">
+                    {{ classLabel(schoolClass) }}
+                  </option>
+                </select>
+              }
+            </div>
+            <div>
+              <span>Situação da matrícula</span
+              ><strong>{{ currentStudent.is_active ? 'Regular e ativo' : 'Inativo' }}</strong>
+            </div>
+            <div>
+              <span>Responsável vinculado</span
+              ><strong>{{ currentStudent.guardian.full_name }}</strong>
+            </div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="card-header">
+            <h2>Responsável principal</h2>
+            <span
+              class="badge"
+              [class.success]="currentStudent.guardian.account_status === 'active'"
+              [class.warning]="currentStudent.guardian.account_status === 'pending_activation'"
+              >{{
+                currentStudent.guardian.account_status === 'active'
+                  ? 'Ativo'
+                  : currentStudent.guardian.account_status === 'pending_activation'
+                    ? 'Convite pendente'
+                    : 'Desativado'
+              }}</span
+            >
+          </div>
+          <div class="card-body">
+            <div class="guardian">
+              <span class="avatar">{{ initials(currentStudent.guardian.full_name) }}</span>
+              <div>
+                <strong>{{ currentStudent.guardian.full_name }}</strong
+                ><small
+                  >{{ currentStudent.guardian.phone || 'Telefone não informado' }} ·
+                  {{ currentStudent.guardian.email }}</small
+                >
+              </div>
+              <span class="badge info">Responsável</span>
+            </div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="card-header">
+            <h2>Biometria digital</h2>
+            <span class="badge warning">Futura etapa</span>
+          </div>
+          <div class="card-body biometric-summary">
+            <svg [lucideIcon]="icons.biometric" size="24"></svg>
+            <div>
+              <strong>Biometria não cadastrada</strong
+              ><small>O cadastro biométrico ainda não está integrado.</small>
+            </div>
+            <span class="badge warning">Pendente</span>
+          </div>
+        </article>
+      </div>
+      <aside class="activity-column">
+        <article class="card campus-status">
+          <div class="card-header">
+            <h2>Situação na escola</h2>
+            <span
+              class="badge"
+              [class.success]="todayRecord?.status === 'inside'"
+              [class.info]="todayRecord?.status === 'completed'"
+              >Hoje</span
+            >
+          </div>
+          <div class="card-body">
+            <strong>{{
+              todayRecord?.status === 'inside'
+                ? 'Presente na instituição'
+                : todayRecord?.status === 'completed'
+                  ? 'Acesso do dia concluído'
+                  : 'Sem registro de acesso hoje'
+            }}</strong>
+            @if (todayRecord) {
+              <p><svg [lucideIcon]="icons.location" size="14"></svg>Registro diário de acesso</p>
+              <p>
+                <svg [lucideIcon]="icons.clock" size="14"></svg>Entrada às
+                {{ formatTime(todayRecord.entered_at) }}
+                @if (todayRecord.exited_at) {
+                  <span> · Saída às {{ formatTime(todayRecord.exited_at) }}</span>
+                }
+              </p>
+            }
+          </div>
+        </article>
+        <article class="card">
+          <div class="card-header">
+            <h2>Últimos eventos</h2>
+            <a routerLink="/admin/access-records">Histórico completo</a>
+          </div>
+          @if (events.length) {
+            <div class="timeline">
+              <div *ngFor="let event of events">
+                <span class="point" [class.success]="event.tone === 'success'"></span>
+                <div>
+                  <strong>{{ event.type }}</strong
+                  ><small>{{ event.time }} · {{ event.location }}</small>
+                </div>
+              </div>
+            </div>
+          } @else {
+            <div class="empty-events">Nenhum registro recente de entrada ou saída.</div>
+          }
+          <a class="view-history" routerLink="/admin/access-records"
+            >Ver todos os acessos <svg [lucideIcon]="icons.arrow" size="15"></svg
+          ></a>
+        </article>
+      </aside>
+    </section>
+  }
 </main>

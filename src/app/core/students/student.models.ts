@@ -1,11 +1,7 @@
-export type StudentStatusFilter = '' | 'active' | 'inactive';
+import { SchoolClass } from '../school-classes/school-class.models';
 
-export interface SchoolClass {
-  id: number;
-  name: string;
-  shift: 'morning' | 'afternoon';
-  is_active: boolean;
-}
+export type { SchoolClass } from '../school-classes/school-class.models';
+export type StudentStatusFilter = '' | 'active' | 'inactive';
 
 export interface GuardianSummary {
   id: number;
@@ -22,6 +18,7 @@ export interface StudentPayload {
     full_name: string;
     date_of_birth: string;
     school_class_id: number;
+    biometric_captured?: boolean;
   };
   guardian: {
     mode: 'new' | 'existing';
@@ -60,6 +57,7 @@ export interface Student {
   is_active: boolean;
   school_class: SchoolClass;
   guardian: GuardianSummary;
+  biometric: { captured: boolean; identifier?: string };
 }
 
 export interface StudentFilters {

@@ -9,6 +9,7 @@ import {
   LucideLogOut,
   LucideMonitor,
   LucideScanLine,
+  LucideSchool,
   LucideSettings,
   LucideShieldCheck,
   LucideTriangleAlert,
@@ -31,6 +32,7 @@ export class AdministrationLayoutComponent {
   protected readonly icons = {
     dashboard: LucideLayoutDashboard,
     students: LucideGraduationCap,
+    schoolClasses: LucideSchool,
     accessRecords: LucideScanLine,
     alerts: LucideTriangleAlert,
     guardians: LucideUsers,

@@ -6,6 +6,7 @@ import { LucideCamera, LucideCheck, LucideChevronLeft, LucideChevronRight, Lucid
 import { finalize } from 'rxjs';
 import { GuardianSummary, SchoolClass } from '../../../../core/students/student.models';
 import { StudentService } from '../../../../core/students/student.service';
+import { AuthService } from '../../../../core/authentication/auth.service';
 
 type BiometricState = 'ready' | 'reading' | 'captured';
 
@@ -19,6 +20,7 @@ export class StudentFormComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly studentService = inject(StudentService);
   private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly auth = inject(AuthService);
   private timer?: number;
 
   protected step = signal(1);
@@ -26,6 +28,8 @@ export class StudentFormComponent implements OnInit, OnDestroy {
   protected loading = signal(true);
   protected saving = signal(false);
   protected errorMessage = signal('');
+  protected classOptionsError = signal('');
+  protected readonly canManageSchoolClasses = this.auth.sessionSnapshot?.user.account_type === 'central_administrator';
   protected schoolClasses = signal<SchoolClass[]>([]);
   protected guardianResults = signal<GuardianSummary[]>([]);
   protected guardianMode: 'new' | 'existing' = 'new';
@@ -36,23 +40,47 @@ export class StudentFormComponent implements OnInit, OnDestroy {
   protected guardian = { name: '', relationship: '', phone: '', email: '' };
 
   ngOnInit(): void {
+    this.loadClasses();
+  }
+
+  protected loadClasses(): void {
+    this.loading.set(true);
+    this.classOptionsError.set('');
     this.studentService.schoolClassOptions().subscribe({
-      next: (response) => { this.schoolClasses.set(response.data); this.loading.set(false); this.changeDetector.markForCheck(); },
-      error: () => { this.errorMessage.set('Não foi possível carregar as turmas.'); this.loading.set(false); this.changeDetector.markForCheck(); },
+      next: (response) => {
+        this.schoolClasses.set(response.data);
+        if (this.student.classId && !response.data.some((schoolClass) => schoolClass.id === this.student.classId)) this.selectClass(0);
+        this.loading.set(false);
+        this.changeDetector.markForCheck();
+      },
+      error: () => { this.classOptionsError.set('Não foi possível carregar as turmas. Tente novamente.'); this.loading.set(false); this.changeDetector.markForCheck(); },
     });
   }
 
   ngOnDestroy(): void { if (this.timer) window.clearTimeout(this.timer); }
-  protected goTo(step: number): void { this.step.set(Math.min(4, Math.max(1, step))); window.scrollTo({ top: 0, behavior: 'smooth' }); }
-  protected selectClass(id: number): void { const item = this.schoolClasses().find((schoolClass) => schoolClass.id === Number(id)); this.student.classId = Number(id); this.student.className = item?.name ?? ''; this.student.shift = item?.shift === 'morning' ? 'Manhã' : 'Tarde'; }
+  protected goTo(step: number): void {
+    if (step > this.step() && (this.loading() || this.classOptionsError() || !this.schoolClasses().some((schoolClass) => schoolClass.id === this.student.classId))) {
+      this.errorMessage.set('Selecione uma turma ativa antes de continuar.');
+      return;
+    }
+    this.errorMessage.set('');
+    this.step.set(Math.min(4, Math.max(1, step)));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  protected selectClass(id: number): void { const item = this.schoolClasses().find((schoolClass) => schoolClass.id === Number(id)); this.student.classId = Number(id); this.student.className = item?.name ?? ''; this.student.shift = item ? (item.shift === 'morning' ? 'Manhã' : 'Tarde') : ''; }
   protected setGuardianMode(mode: 'new' | 'existing'): void { this.guardianMode = mode; this.selectedGuardian = null; this.guardianResults.set([]); }
   protected searchExistingGuardian(): void { if (this.guardianSearch.trim().length < 2) return; this.studentService.searchGuardians(this.guardianSearch.trim()).subscribe({ next: (response) => { this.guardianResults.set(response.data); this.changeDetector.markForCheck(); }, error: () => this.errorMessage.set('Não foi possível buscar os responsáveis.') }); }
   protected chooseGuardian(guardian: GuardianSummary): void { this.selectedGuardian = guardian; this.guardianSearch = guardian.full_name; }
   protected capture(): void { this.biometric.set('reading'); this.timer = window.setTimeout(() => this.biometric.set('captured'), 1800); }
   protected complete(): void {
-    if (!this.student.classId || !this.student.name || !this.student.enrollment || !this.student.birthDate || (this.guardianMode === 'existing' && !this.selectedGuardian) || (this.guardianMode === 'new' && (!this.guardian.name || !this.guardian.email))) { this.errorMessage.set('Complete os dados obrigatórios antes de concluir.'); return; }
+    if (this.loading() || this.classOptionsError() || !this.schoolClasses().some((schoolClass) => schoolClass.id === this.student.classId)) {
+      this.errorMessage.set('Selecione uma turma ativa antes de concluir o cadastro.');
+      this.step.set(1);
+      return;
+    }
+    if (!this.student.classId || !this.student.name || !this.student.enrollment || !this.student.birthDate || this.biometric() !== 'captured' || (this.guardianMode === 'existing' && !this.selectedGuardian) || (this.guardianMode === 'new' && (!this.guardian.name || !this.guardian.email))) { this.errorMessage.set(this.biometric() !== 'captured' ? 'Conclua a captura biométrica simulada antes de finalizar.' : 'Complete os dados obrigatórios antes de concluir.'); return; }
     this.saving.set(true); this.errorMessage.set('');
     const guardian = this.guardianMode === 'existing' ? { mode: 'existing' as const, id: this.selectedGuardian!.id } : { mode: 'new' as const, full_name: this.guardian.name, email: this.guardian.email, phone: this.guardian.phone.trim() || null };
-    this.studentService.create({ student: { enrollment_number: this.student.enrollment, full_name: this.student.name, date_of_birth: this.student.birthDate, school_class_id: this.student.classId }, guardian }).pipe(finalize(() => { this.saving.set(false); this.changeDetector.markForCheck(); })).subscribe({ next: (response) => this.router.navigate(['/admin/students', response.data.id], { queryParams: { created: '1' } }), error: () => { this.errorMessage.set('Não foi possível cadastrar o aluno. Verifique os dados informados.'); this.changeDetector.markForCheck(); } });
+    this.studentService.create({ student: { enrollment_number: this.student.enrollment, full_name: this.student.name, date_of_birth: this.student.birthDate, school_class_id: this.student.classId, biometric_captured: true }, guardian }).pipe(finalize(() => { this.saving.set(false); this.changeDetector.markForCheck(); })).subscribe({ next: (response) => this.router.navigate(['/admin/students', response.data.id], { queryParams: { created: '1' } }), error: () => { this.errorMessage.set('Não foi possível cadastrar o aluno. Verifique os dados informados.'); this.changeDetector.markForCheck(); } });
   }
 }

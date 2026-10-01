@@ -1,0 +1,292 @@
+<main class="page school-classes-page">
+  <header class="page-header">
+    <div>
+      <h1>Turmas</h1>
+      <p>Organize as turmas e os turnos utilizados no cadastro dos alunos.</p>
+    </div>
+    <div class="actions">
+      <button
+        class="icon-button"
+        type="button"
+        title="Atualizar turmas"
+        aria-label="Atualizar turmas"
+        (click)="load()"
+        [disabled]="loading()"
+      >
+        <svg [lucideIcon]="icons.refresh" size="16"></svg>
+      </button>
+      <button class="button" type="button" (click)="openForm()">
+        <svg [lucideIcon]="icons.add" size="16"></svg>Nova turma
+      </button>
+    </div>
+  </header>
+
+  @if (notice()) {
+    <div class="message success" role="status">{{ notice() }}</div>
+  }
+
+  <section class="card class-filters" aria-label="Filtros de turmas" [formGroup]="filters">
+    <label class="field"
+      ><span>Buscar</span
+      ><span class="search"
+        ><svg [lucideIcon]="icons.search" size="16"></svg
+        ><input
+          class="control"
+          type="search"
+          formControlName="search"
+          maxlength="100"
+          placeholder="Nome da turma" /></span
+    ></label>
+    <label class="field"
+      ><span>Turno</span
+      ><select class="control" formControlName="shift">
+        <option value="">Todos os turnos</option>
+        <option value="morning">Manhã</option>
+        <option value="afternoon">Tarde</option>
+      </select></label
+    >
+    <label class="field"
+      ><span>Situação</span
+      ><select class="control" formControlName="status">
+        <option value="">Todas as situações</option>
+        <option value="active">Ativas</option>
+        <option value="inactive">Inativas</option>
+      </select></label
+    >
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <h2>Turmas cadastradas</h2>
+      <span class="muted-text">{{ total() }} turma(s)</span>
+    </div>
+    @if (loading()) {
+      <div class="feedback" role="status">Carregando turmas...</div>
+    } @else if (errorMessage()) {
+      <div class="feedback error" role="alert">
+        {{ errorMessage()
+        }}<button class="button secondary" type="button" (click)="load()">Tentar novamente</button>
+      </div>
+    } @else if (schoolClasses().length === 0) {
+      <div class="feedback">
+        Nenhuma turma encontrada.<button
+          class="button secondary"
+          type="button"
+          (click)="openForm()"
+        >
+          <svg [lucideIcon]="icons.add" size="16"></svg>Cadastrar turma
+        </button>
+      </div>
+    } @else {
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Turma</th>
+              <th>Turno</th>
+              <th>Situação</th>
+              <th class="action-column">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (schoolClass of schoolClasses(); track schoolClass.id) {
+              <tr>
+                <td class="class-name">
+                  <strong>{{ schoolClass.name }}</strong>
+                </td>
+                <td>{{ shiftLabel(schoolClass.shift) }}</td>
+                <td>
+                  <span
+                    class="badge"
+                    [class.success]="schoolClass.is_active"
+                    [class.warning]="!schoolClass.is_active"
+                    >{{ schoolClass.is_active ? 'Ativa' : 'Inativa' }}</span
+                  >
+                </td>
+                <td>
+                  <div class="row-actions">
+                    <button
+                      class="icon-button"
+                      type="button"
+                      title="Editar turma"
+                      [attr.aria-label]="'Editar ' + schoolClass.name"
+                      (click)="openForm(schoolClass)"
+                    >
+                      <svg [lucideIcon]="icons.edit" size="16"></svg>
+                    </button>
+                    <button
+                      class="icon-button"
+                      type="button"
+                      [title]="schoolClass.is_active ? 'Desativar turma' : 'Ativar turma'"
+                      [attr.aria-label]="
+                        (schoolClass.is_active ? 'Desativar ' : 'Ativar ') + schoolClass.name
+                      "
+                      (click)="openStatus(schoolClass)"
+                    >
+                      <svg [lucideIcon]="icons.power" size="16"></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <footer class="pagination">
+        <span>Exibindo {{ schoolClasses().length }} de {{ total() }} turmas</span>
+        <div>
+          <button
+            class="icon-button"
+            type="button"
+            title="Página anterior"
+            aria-label="Página anterior"
+            (click)="changePage(currentPage() - 1)"
+            [disabled]="currentPage() === 1"
+          >
+            <svg [lucideIcon]="icons.previous" size="16"></svg>
+          </button>
+          <span>Página {{ currentPage() }} de {{ lastPage() }}</span>
+          <button
+            class="icon-button"
+            type="button"
+            title="Próxima página"
+            aria-label="Próxima página"
+            (click)="changePage(currentPage() + 1)"
+            [disabled]="currentPage() === lastPage()"
+          >
+            <svg [lucideIcon]="icons.next" size="16"></svg>
+          </button>
+        </div>
+      </footer>
+    }
+  </section>
+
+  <dialog
+    #classDialog
+    class="class-dialog"
+    aria-labelledby="class-dialog-title"
+    (cancel)="onCancel($event, saving())"
+  >
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <header class="dialog-header">
+        <h2 id="class-dialog-title">{{ editingClass() ? 'Editar turma' : 'Nova turma' }}</h2>
+        <button
+          class="icon-button"
+          type="button"
+          title="Fechar"
+          aria-label="Fechar formulário"
+          (click)="closeForm()"
+          [disabled]="saving()"
+        >
+          <svg [lucideIcon]="icons.close" size="16"></svg>
+        </button>
+      </header>
+      <div class="dialog-body">
+        @if (formError()) {
+          <p class="error" role="alert">{{ formError() }}</p>
+        }
+        <label class="field"
+          ><span>Nome da turma</span
+          ><input
+            class="control"
+            formControlName="name"
+            maxlength="100"
+            placeholder="Ex.: 7º Ano A"
+            autofocus
+            [attr.aria-invalid]="!!fieldError('name')"
+            aria-describedby="class-name-error"
+          />
+          @if (fieldError('name')) {
+            <small class="error" id="class-name-error">{{ fieldError('name') }}</small>
+          }
+        </label>
+        <label class="field"
+          ><span>Turno</span
+          ><select
+            class="control"
+            formControlName="shift"
+            [attr.aria-invalid]="!!fieldError('shift')"
+            aria-describedby="class-shift-error"
+          >
+            <option value="morning">Manhã</option>
+            <option value="afternoon">Tarde</option>
+          </select>
+          @if (fieldError('shift')) {
+            <small class="error" id="class-shift-error">{{ fieldError('shift') }}</small>
+          }
+        </label>
+      </div>
+      <footer class="dialog-footer">
+        <button class="button secondary" type="button" (click)="closeForm()" [disabled]="saving()">
+          Cancelar</button
+        ><button class="button" type="submit" [disabled]="saving()">
+          {{ saving() ? 'Salvando...' : editingClass() ? 'Salvar alterações' : 'Cadastrar turma' }}
+        </button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog
+    #statusDialog
+    class="class-dialog"
+    aria-labelledby="class-status-title"
+    (cancel)="onCancel($event, changingStatus())"
+  >
+    @if (statusTarget(); as schoolClass) {
+      <header class="dialog-header">
+        <h2 id="class-status-title">
+          {{ schoolClass.is_active ? 'Desativar turma' : 'Ativar turma' }}
+        </h2>
+        <button
+          class="icon-button"
+          type="button"
+          title="Fechar"
+          aria-label="Fechar confirmação"
+          (click)="closeStatus()"
+          [disabled]="changingStatus()"
+        >
+          <svg [lucideIcon]="icons.close" size="16"></svg>
+        </button>
+      </header>
+      <div class="dialog-body">
+        <p>
+          <strong>{{ schoolClass.name }} · {{ shiftLabel(schoolClass.shift) }}</strong>
+        </p>
+        <p>
+          {{
+            schoolClass.is_active
+              ? 'Esta turma deixará de estar disponível para novos cadastros. Os alunos já vinculados permanecerão na turma e manterão sua situação de acesso.'
+              : 'Esta turma voltará a estar disponível para o cadastro de alunos.'
+          }}
+        </p>
+        @if (statusError()) {
+          <p class="error" role="alert">{{ statusError() }}</p>
+        }
+      </div>
+      <footer class="dialog-footer">
+        <button
+          class="button secondary"
+          type="button"
+          (click)="closeStatus()"
+          [disabled]="changingStatus()"
+        >
+          Cancelar</button
+        ><button
+          class="button"
+          type="button"
+          [class.danger]="schoolClass.is_active"
+          (click)="confirmStatus()"
+          [disabled]="changingStatus()"
+        >
+          {{
+            changingStatus()
+              ? 'Salvando...'
+              : schoolClass.is_active
+                ? 'Desativar turma'
+                : 'Ativar turma'
+          }}
+        </button>
+      </footer>
+    }
+  </dialog>
+</main>

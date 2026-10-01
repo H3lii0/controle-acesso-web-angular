@@ -1,0 +1,91 @@
+<main class="page employee-details-page">
+  <header class="page-header">
+    <div>
+      <p class="breadcrumb"><a routerLink="/admin/employees">Equipe e permissões</a> / Detalhes</p>
+      <h1>{{ employee?.full_name || 'Funcionário' }}</h1>
+      <p>Atualize os dados, permissões e situação desta conta.</p>
+    </div>
+    @if (employee) {
+      <span class="status" [class]="'status ' + employee.account_status">{{
+        employee.account_status === 'active'
+          ? 'Ativo'
+          : employee.account_status === 'disabled'
+            ? 'Desativado'
+            : 'Pendente'
+      }}</span>
+    }
+  </header>
+  @if (loading) {
+    <div class="card feedback">Carregando dados do funcionário...</div>
+  }
+  @if (!loading && errorMessage) {
+    <div class="card feedback error">{{ errorMessage }}</div>
+  }
+  @if (!loading && employee) {
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h2>Dados do funcionário</h2>
+          <p>Informações da conta administrativa.</p>
+        </div>
+        @if (employee.account_status === 'pending_activation') {
+          <button class="button secondary" type="button" (click)="resendInvitation()">
+            Reenviar convite
+          </button>
+        }
+      </div>
+      <div class="card-body form-grid">
+        <label class="field wide-field"
+          ><span>Nome completo</span
+          ><input class="control" [formControl]="form.controls.full_name" /></label
+        ><label class="field"
+          ><span>E-mail</span
+          ><input class="control" type="email" [formControl]="form.controls.email" /></label
+        ><label class="field"
+          ><span>Telefone <small>opcional</small></span
+          ><input class="control" [formControl]="form.controls.phone"
+        /></label>
+      </div>
+    </section>
+    <section class="card permissions-card">
+      <div class="card-header">
+        <div>
+          <h2>Permissões individuais</h2>
+          <p>As alterações são aplicadas somente a este funcionário.</p>
+        </div>
+        <span class="badge success"
+          >{{ form.controls.permissions.value.length }} selecionada(s)</span
+        >
+      </div>
+      <div class="permission-grid">
+        <label
+          *ngFor="let permission of permissions"
+          class="permission-option"
+          [class.selected]="hasPermission(permission.key)"
+          ><input
+            type="checkbox"
+            [checked]="hasPermission(permission.key)"
+            (change)="togglePermission(permission.key)"
+          /><span
+            ><strong>{{ permission.name }}</strong
+            ><small>{{ permission.description || permission.key }}</small></span
+          ></label
+        >
+      </div>
+    </section>
+    @if (feedbackMessage) {
+      <p class="feedback success-message">{{ feedbackMessage }}</p>
+    }
+    @if (errorMessage) {
+      <p class="feedback error">{{ errorMessage }}</p>
+    }
+    <footer class="flow-footer">
+      <button class="button secondary" type="button" (click)="changeStatus()">
+        {{ employee.account_status === 'disabled' ? 'Reativar conta' : 'Desativar conta' }}</button
+      ><span>Última atualização da conta</span
+      ><button class="button" type="button" (click)="save()" [disabled]="saving">
+        {{ saving ? 'Salvando...' : 'Salvar alterações' }}
+      </button>
+    </footer>
+  }
+</main>

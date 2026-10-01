@@ -1,15 +1,427 @@
 <main class="page student-form-page">
-  <header class="page-header"><div><p class="breadcrumb"><a routerLink="/admin/students">Alunos</a> / Novo aluno</p><h1>Novo aluno</h1><p>Cadastre os dados escolares e de identificação do aluno.</p></div><span class="badge info">Cadastro protegido</span></header>
-  <p *ngIf="errorMessage()" class="form-error">{{ errorMessage() }}</p>
-  <ol class="steps">@for(item of ['Dados do aluno','Responsável','Biometria','Revisão'];track item;let i=$index){<li [class.active]="step()===i+1" [class.completed]="step()>i+1"><span>@if(step()>i+1){<svg [lucideIcon]="icons.check" size="14"></svg>}@else{{{i+1}}}</span><div><strong>{{item}}</strong><small>{{step()>i+1?'Concluído':step()===i+1?'Em andamento':'Pendente'}}</small></div></li>}</ol>
+  <header class="page-header">
+    <div>
+      <p class="breadcrumb"><a routerLink="/admin/students">Alunos</a> / Novo aluno</p>
+      <h1>Novo aluno</h1>
+      <p>Cadastre os dados escolares e de identificação do aluno.</p>
+    </div>
+    <span class="badge info">Cadastro protegido</span>
+  </header>
+  @if (errorMessage()) {
+    <p class="form-error">{{ errorMessage() }}</p>
+  }
+  @if (loading()) {
+    <div class="message" role="status">Carregando turmas...</div>
+  } @else if (classOptionsError()) {
+    <div class="message warning class-feedback" role="alert">
+      <span>{{ classOptionsError() }}</span
+      ><button class="button secondary" type="button" (click)="loadClasses()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (schoolClasses().length === 0) {
+    <div class="message warning class-feedback" role="status">
+      <div>
+        <strong>Nenhuma turma ativa disponível</strong>
+        <p>
+          {{
+            canManageSchoolClasses
+              ? 'Cadastre ou ative uma turma para iniciar o cadastro do aluno.'
+              : 'Solicite ao administrador o cadastro ou a ativação de uma turma para continuar.'
+          }}
+        </p>
+      </div>
+      @if (canManageSchoolClasses) {
+        <a class="button secondary" routerLink="/admin/school-classes">Gerenciar turmas</a>
+      }
+    </div>
+  }
+  <ol class="steps">
+    @for (
+      item of ['Dados do aluno', 'Responsável', 'Biometria', 'Revisão'];
+      track item;
+      let i = $index
+    ) {
+      <li [class.active]="step() === i + 1" [class.completed]="step() > i + 1">
+        <span>
+          @if (step() > i + 1) {
+            <svg [lucideIcon]="icons.check" size="14"></svg>
+          } @else {
+            {{ i + 1 }}
+          }
+        </span>
+        <div>
+          <strong>{{ item }}</strong
+          ><small>{{
+            step() > i + 1 ? 'Concluído' : step() === i + 1 ? 'Em andamento' : 'Pendente'
+          }}</small>
+        </div>
+      </li>
+    }
+  </ol>
 
-  @if(step()===1){<section class="card step-form"><div class="card-header"><div><h2>Dados do aluno</h2><p>Informações utilizadas no cadastro e na identificação escolar.</p></div><button class="button secondary" type="button"><svg [lucideIcon]="icons.camera" size="15"></svg>Adicionar foto</button></div><div class="card-body form-grid"><label class="field wide-field"><span>Nome completo</span><input class="control" [(ngModel)]="student.name" placeholder="Nome do aluno"></label><label class="field"><span>Matrícula</span><input class="control" [(ngModel)]="student.enrollment" placeholder="Ex.: 2026-0495"></label><label class="field"><span>Data de nascimento</span><input class="control" type="date" [(ngModel)]="student.birthDate"></label><label class="field wide-field"><span>Turma</span><select class="control" [ngModel]="student.classId" (ngModelChange)="selectClass($event)"><option [ngValue]="0">Selecione a turma</option><option *ngFor="let schoolClass of schoolClasses()" [ngValue]="schoolClass.id">{{ schoolClass.name }} · {{ schoolClass.shift === 'morning' ? 'Manhã' : 'Tarde' }}</option></select></label><fieldset class="status"><legend>Situação de acesso inicial</legend><label><input type="radio" name="status" value="Ativo" [(ngModel)]="student.status"><span><strong>Ativo e liberado</strong><small>Aluno pode utilizar o controle de acesso.</small></span></label><label><input type="radio" name="status" value="Inativo" [(ngModel)]="student.status"><span><strong>Inativo ou bloqueado</strong><small>Aluno não poderá registrar acessos.</small></span></label></fieldset></div></section>}
+  @if (step() === 1) {
+    <section class="card step-form">
+      <div class="card-header">
+        <div>
+          <h2>Dados do aluno</h2>
+          <p>Informações utilizadas no cadastro e na identificação escolar.</p>
+        </div>
+        <button class="button secondary" type="button">
+          <svg [lucideIcon]="icons.camera" size="15"></svg>Adicionar foto
+        </button>
+      </div>
+      <div class="card-body form-grid">
+        <label class="field wide-field"
+          ><span>Nome completo</span
+          ><input class="control" [(ngModel)]="student.name" placeholder="Nome do aluno" /></label
+        ><label class="field"
+          ><span>Matrícula</span
+          ><input
+            class="control"
+            [(ngModel)]="student.enrollment"
+            placeholder="Ex.: 2026-0495" /></label
+        ><label class="field"
+          ><span>Data de nascimento</span
+          ><input class="control" type="date" [(ngModel)]="student.birthDate" /></label
+        ><label class="field wide-field"
+          ><span>Turma</span
+          ><select
+            class="control"
+            [ngModel]="student.classId"
+            (ngModelChange)="selectClass($event)"
+            [disabled]="loading() || !!classOptionsError() || schoolClasses().length === 0"
+          >
+            <option [ngValue]="0">
+              {{
+                loading()
+                  ? 'Carregando turmas...'
+                  : schoolClasses().length === 0
+                    ? 'Nenhuma turma ativa disponível'
+                    : 'Selecione a turma'
+              }}
+            </option>
+            <option *ngFor="let schoolClass of schoolClasses()" [ngValue]="schoolClass.id">
+              {{ schoolClass.name }} · {{ schoolClass.shift === 'morning' ? 'Manhã' : 'Tarde' }}
+            </option>
+          </select></label
+        >
+        <fieldset class="status">
+          <legend>Situação de acesso inicial</legend>
+          <label
+            ><input type="radio" name="status" value="Ativo" [(ngModel)]="student.status" /><span
+              ><strong>Ativo e liberado</strong
+              ><small>Aluno pode utilizar o controle de acesso.</small></span
+            ></label
+          ><label
+            ><input type="radio" name="status" value="Inativo" [(ngModel)]="student.status" /><span
+              ><strong>Inativo ou bloqueado</strong
+              ><small>Aluno não poderá registrar acessos.</small></span
+            ></label
+          >
+        </fieldset>
+      </div>
+    </section>
+  }
 
-  @if(step()===2){<section class="guardian-grid"><article class="card"><div class="card-header"><div><h2>Vincular responsável</h2><p>Busque um cadastro existente ou informe um novo contato.</p></div></div><div class="card-body guardian-content"><div class="guardian-mode"><button type="button" class="button" [class.secondary]="guardianMode !== 'new'" (click)="setGuardianMode('new')">Novo responsável</button><button type="button" class="button" [class.secondary]="guardianMode !== 'existing'" (click)="setGuardianMode('existing')">Já cadastrado</button></div>@if(guardianMode==='existing'){<div class="search"><svg [lucideIcon]="icons.search" size="17"></svg><input class="control" [(ngModel)]="guardianSearch" placeholder="Nome ou e-mail" (keyup.enter)="searchExistingGuardian()"><button type="button" class="icon-button" title="Buscar responsável" (click)="searchExistingGuardian()"><svg [lucideIcon]="icons.search" size="16"></svg></button></div><div *ngFor="let result of guardianResults()" class="guardian-result" (click)="chooseGuardian(result)"><strong>{{ result.full_name }}</strong><small>{{ result.email }}</small></div>@if(selectedGuardian){<div class="selected-guardian"><span class="avatar large">{{ selectedGuardian.full_name.slice(0, 2).toUpperCase() }}</span><div><strong>{{selectedGuardian.full_name}}</strong><small>{{selectedGuardian.email}}</small></div><span class="badge success">Selecionado</span></div>}}@else{<div class="form-grid"><label class="field wide-field"><span>Nome completo</span><input class="control" [(ngModel)]="guardian.name" placeholder="Nome do responsável"></label><label class="field"><span>Parentesco</span><select class="control" [(ngModel)]="guardian.relationship"><option value="">Selecione</option><option>Mãe</option><option>Pai</option><option>Avó ou avô</option><option>Outro</option></select></label><label class="field"><span>Telefone <small>opcional</small></span><input class="control" [(ngModel)]="guardian.phone" placeholder="(00) 00000-0000"></label><label class="field wide-field"><span>E-mail</span><input class="control" type="email" [(ngModel)]="guardian.email" placeholder="email@exemplo.com"></label></div>}<div class="message"><svg [lucideIcon]="icons.security" size="18"></svg><span>O responsável receberá um convite por e-mail para criar a senha.</span></div></div></article><aside class="card summary-sidebar"><div class="card-header"><h3>Aluno em cadastro</h3></div><div class="card-body"><div class="person-cell"><span class="avatar large">{{student.name.slice(0, 2).toUpperCase() || 'AL'}}</span><span><strong>{{student.name || 'Novo aluno'}}</strong><small>{{student.enrollment || 'Matrícula pendente'}} · {{student.className || 'Turma pendente'}}</small></span></div><div class="message"><svg [lucideIcon]="icons.security" size="18"></svg><span>O responsável principal poderá acompanhar entradas e saídas no portal.</span></div></div></aside></section>}
+  @if (step() === 2) {
+    <section class="guardian-grid">
+      <article class="card">
+        <div class="card-header">
+          <div>
+            <h2>Vincular responsável</h2>
+            <p>Busque um cadastro existente ou informe um novo contato.</p>
+          </div>
+        </div>
+        <div class="card-body guardian-content">
+          <div class="guardian-mode">
+            <button
+              type="button"
+              class="button"
+              [class.secondary]="guardianMode !== 'new'"
+              (click)="setGuardianMode('new')"
+            >
+              Novo responsável</button
+            ><button
+              type="button"
+              class="button"
+              [class.secondary]="guardianMode !== 'existing'"
+              (click)="setGuardianMode('existing')"
+            >
+              Já cadastrado
+            </button>
+          </div>
+          @if (guardianMode === 'existing') {
+            <div class="search">
+              <svg [lucideIcon]="icons.search" size="17"></svg
+              ><input
+                class="control"
+                [(ngModel)]="guardianSearch"
+                placeholder="Nome ou e-mail"
+                (keyup.enter)="searchExistingGuardian()"
+              /><button
+                type="button"
+                class="icon-button"
+                title="Buscar responsável"
+                (click)="searchExistingGuardian()"
+              >
+                <svg [lucideIcon]="icons.search" size="16"></svg>
+              </button>
+            </div>
+            <div
+              *ngFor="let result of guardianResults()"
+              class="guardian-result"
+              (click)="chooseGuardian(result)"
+            >
+              <strong>{{ result.full_name }}</strong
+              ><small>{{ result.email }}</small>
+            </div>
+            @if (selectedGuardian) {
+              <div class="selected-guardian">
+                <span class="avatar large">{{
+                  selectedGuardian.full_name.slice(0, 2).toUpperCase()
+                }}</span>
+                <div>
+                  <strong>{{ selectedGuardian.full_name }}</strong
+                  ><small>{{ selectedGuardian.email }}</small>
+                </div>
+                <span class="badge success">Selecionado</span>
+              </div>
+            }
+          } @else {
+            <div class="form-grid">
+              <label class="field wide-field"
+                ><span>Nome completo</span
+                ><input
+                  class="control"
+                  [(ngModel)]="guardian.name"
+                  placeholder="Nome do responsável" /></label
+              ><label class="field"
+                ><span>Parentesco</span
+                ><select class="control" [(ngModel)]="guardian.relationship">
+                  <option value="">Selecione</option>
+                  <option>Mãe</option>
+                  <option>Pai</option>
+                  <option>Avó ou avô</option>
+                  <option>Outro</option>
+                </select></label
+              ><label class="field"
+                ><span>Telefone <small>opcional</small></span
+                ><input
+                  class="control"
+                  [(ngModel)]="guardian.phone"
+                  placeholder="(00) 00000-0000" /></label
+              ><label class="field wide-field"
+                ><span>E-mail</span
+                ><input
+                  class="control"
+                  type="email"
+                  [(ngModel)]="guardian.email"
+                  placeholder="email@exemplo.com"
+              /></label>
+            </div>
+          }
+          <div class="message">
+            <svg [lucideIcon]="icons.security" size="18"></svg
+            ><span>O responsável receberá um convite por e-mail para criar a senha.</span>
+          </div>
+        </div>
+      </article>
+      <aside class="card summary-sidebar">
+        <div class="card-header"><h3>Aluno em cadastro</h3></div>
+        <div class="card-body">
+          <div class="person-cell">
+            <span class="avatar large">{{ student.name.slice(0, 2).toUpperCase() || 'AL' }}</span
+            ><span
+              ><strong>{{ student.name || 'Novo aluno' }}</strong
+              ><small
+                >{{ student.enrollment || 'Matrícula pendente' }} ·
+                {{ student.className || 'Turma pendente' }}</small
+              ></span
+            >
+          </div>
+          <div class="message">
+            <svg [lucideIcon]="icons.security" size="18"></svg
+            ><span>O responsável principal poderá acompanhar entradas e saídas no portal.</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+  }
 
-  @if(step()===3){<section class="biometric-grid"><article class="card capture"><div class="card-header"><div><h2>Cadastro biométrico</h2><p>Leitor de mesa conectado e pronto para captura.</p></div><span class="badge success">Leitor online</span></div><div class="capture-body"><span class="biometric-icon" [class.reading]="biometric()==='reading'"><svg [lucideIcon]="biometric()==='reading'?icons.reading:biometric()==='captured'?icons.check:icons.biometric" size="54"></svg></span><h3>{{biometric()==='ready'?'Posicione o dedo indicador no leitor':biometric()==='reading'?'Lendo biometria...':'Biometria capturada'}}</h3><p>{{biometric()==='captured'?'A captura foi validada e vinculada ao cadastro.':'Mantenha o dedo firme até a confirmação sonora e visual.'}}</p>@if(biometric()!=='captured'){<button class="button" (click)="capture()" [disabled]="biometric()==='reading'"><svg [lucideIcon]="icons.biometric" size="17"></svg>{{biometric()==='reading'?'Capturando...':'Iniciar captura biométrica'}}</button>}@else{<span class="badge success">Qualidade excelente</span>}</div></article><aside class="card summary-sidebar"><div class="card-header"><h3>Identificação escolar</h3></div><div class="card-body"><div class="person-cell"><span class="avatar large">{{student.name.slice(0, 2).toUpperCase() || 'AL'}}</span><span><strong>{{student.name || 'Novo aluno'}}</strong><small>{{student.enrollment || 'Matrícula pendente'}} · {{student.className || 'Turma pendente'}}</small></span></div><div class="message"><svg [lucideIcon]="icons.info" size="18"></svg><span>A biometria pode ser cadastrada posteriormente sem impedir a conclusão.</span></div></div></aside></section>}
+  @if (step() === 3) {
+    <section class="biometric-grid">
+      <article class="card capture">
+        <div class="card-header">
+          <div>
+            <h2>Cadastro biométrico</h2>
+            <p>Simulação de captura para validar o fluxo do leitor.</p>
+          </div>
+          <span class="badge info">Modo simulação</span>
+        </div>
+        <div class="capture-body">
+          <span class="biometric-icon" [class.reading]="biometric() === 'reading'"
+            ><svg
+              [lucideIcon]="
+                biometric() === 'reading'
+                  ? icons.reading
+                  : biometric() === 'captured'
+                    ? icons.check
+                    : icons.biometric
+              "
+              size="54"
+            ></svg
+          ></span>
+          <h3>
+            {{
+              biometric() === 'ready'
+                ? 'Posicione o dedo indicador no leitor'
+                : biometric() === 'reading'
+                  ? 'Lendo biometria...'
+                  : 'Biometria capturada'
+            }}
+          </h3>
+          <p>
+            {{
+              biometric() === 'captured'
+                ? 'A captura foi validada e vinculada ao cadastro.'
+                : 'Mantenha o dedo firme até a confirmação sonora e visual.'
+            }}
+          </p>
+          @if (biometric() !== 'captured') {
+            <button class="button" (click)="capture()" [disabled]="biometric() === 'reading'">
+              <svg [lucideIcon]="icons.biometric" size="17"></svg
+              >{{ biometric() === 'reading' ? 'Capturando...' : 'Iniciar captura biométrica' }}
+            </button>
+          } @else {
+            <span class="badge success">Qualidade excelente</span>
+          }
+        </div>
+      </article>
+      <aside class="card summary-sidebar">
+        <div class="card-header"><h3>Identificação escolar</h3></div>
+        <div class="card-body">
+          <div class="person-cell">
+            <span class="avatar large">{{ student.name.slice(0, 2).toUpperCase() || 'AL' }}</span
+            ><span
+              ><strong>{{ student.name || 'Novo aluno' }}</strong
+              ><small
+                >{{ student.enrollment || 'Matrícula pendente' }} ·
+                {{ student.className || 'Turma pendente' }}</small
+              ></span
+            >
+          </div>
+          <div class="message">
+            <svg [lucideIcon]="icons.info" size="18"></svg
+            ><span>Uma única credencial simulada será criada e usada nas leituras do terminal.</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+  }
 
-  @if(step()===4){<section class="review-grid"><article class="card"><div class="card-header"><div><h2>1. Dados do aluno</h2><p>Confira as informações antes de concluir.</p></div><button class="button subtle" (click)="goTo(1)"><svg [lucideIcon]="icons.edit" size="15"></svg>Editar</button></div><div class="card-body data-summary"><div><span>Nome completo</span><strong>{{student.name}}</strong></div><div><span>Matrícula</span><strong>{{student.enrollment}}</strong></div><div><span>Turma e turno</span><strong>{{student.className}} · {{student.shift}}</strong></div><div><span>Situação</span><strong>{{student.status}}</strong></div></div></article><article class="card"><div class="card-header"><h2>2. Responsável vinculado</h2><button class="button subtle" (click)="goTo(2)"><svg [lucideIcon]="icons.edit" size="15"></svg>Editar</button></div><div class="card-body"><div class="selected-guardian"><span class="avatar">{{(selectedGuardian?.full_name || guardian.name || 'AL').slice(0, 2).toUpperCase()}}</span><div><strong>{{selectedGuardian?.full_name || guardian.name}}</strong><small>{{selectedGuardian?.email || guardian.email}}</small></div><span class="badge success">Vinculado</span></div></div></article><article class="card"><div class="card-header"><h2>3. Situação da biometria</h2><button class="button subtle" (click)="goTo(3)"><svg [lucideIcon]="icons.edit" size="15"></svg>Editar</button></div><div class="card-body"><div class="message" [class.success]="biometric()==='captured'"><svg [lucideIcon]="icons.biometric" size="18"></svg><span><strong>{{biometric()==='captured'?'Capturada com sucesso':'Cadastro pendente'}}</strong><br>{{biometric()==='captured'?'Credencial pronta para utilização.':'Poderá ser cadastrada nos detalhes do aluno.'}}</span></div></div></article></section>}
+  @if (step() === 4) {
+    <section class="review-grid">
+      <article class="card">
+        <div class="card-header">
+          <div>
+            <h2>1. Dados do aluno</h2>
+            <p>Confira as informações antes de concluir.</p>
+          </div>
+          <button class="button subtle" (click)="goTo(1)">
+            <svg [lucideIcon]="icons.edit" size="15"></svg>Editar
+          </button>
+        </div>
+        <div class="card-body data-summary">
+          <div>
+            <span>Nome completo</span><strong>{{ student.name }}</strong>
+          </div>
+          <div>
+            <span>Matrícula</span><strong>{{ student.enrollment }}</strong>
+          </div>
+          <div>
+            <span>Turma e turno</span><strong>{{ student.className }} · {{ student.shift }}</strong>
+          </div>
+          <div>
+            <span>Situação</span><strong>{{ student.status }}</strong>
+          </div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="card-header">
+          <h2>2. Responsável vinculado</h2>
+          <button class="button subtle" (click)="goTo(2)">
+            <svg [lucideIcon]="icons.edit" size="15"></svg>Editar
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="selected-guardian">
+            <span class="avatar">{{
+              (selectedGuardian?.full_name || guardian.name || 'AL').slice(0, 2).toUpperCase()
+            }}</span>
+            <div>
+              <strong>{{ selectedGuardian?.full_name || guardian.name }}</strong
+              ><small>{{ selectedGuardian?.email || guardian.email }}</small>
+            </div>
+            <span class="badge success">Vinculado</span>
+          </div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="card-header">
+          <h2>3. Situação da biometria</h2>
+          <button class="button subtle" (click)="goTo(3)">
+            <svg [lucideIcon]="icons.edit" size="15"></svg>Editar
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="message" [class.success]="biometric() === 'captured'">
+            <svg [lucideIcon]="icons.biometric" size="18"></svg
+            ><span
+              ><strong>{{
+                biometric() === 'captured' ? 'Capturada com sucesso' : 'Cadastro pendente'
+              }}</strong
+              ><br />{{
+                biometric() === 'captured'
+                  ? 'Credencial pronta para utilização.'
+                  : 'Poderá ser cadastrada nos detalhes do aluno.'
+              }}</span
+            >
+          </div>
+        </div>
+      </article>
+    </section>
+  }
 
-  <footer class="flow-footer"><button class="button secondary" [routerLink]="step()===1?'/admin/students':null" (click)="step()>1&&goTo(step()-1)"><svg [lucideIcon]="icons.back" size="16"></svg>{{step()===1?'Cancelar':'Voltar'}}</button><span>Etapa {{step()}} de 4</span>@if(step()<4){<button class="button" (click)="goTo(step()+1)">{{step()===3?'Continuar para revisão':'Continuar'}}<svg [lucideIcon]="icons.next" size="16"></svg></button>}@else{<button class="button" [disabled]="saving()" (click)="complete()"><svg [lucideIcon]="icons.check" size="16"></svg>{{saving()?'Salvando...':'Concluir cadastro'}}</button>}</footer>
+  <footer class="flow-footer">
+    <button
+      class="button secondary"
+      [routerLink]="step() === 1 ? '/admin/students' : null"
+      (click)="step() > 1 && goTo(step() - 1)"
+    >
+      <svg [lucideIcon]="icons.back" size="16"></svg
+      >{{ step() === 1 ? 'Cancelar' : 'Voltar' }}</button
+    ><span>Etapa {{ step() }} de 4</span>
+    @if (step() < 4) {
+      <button
+        class="button"
+        (click)="goTo(step() + 1)"
+        [disabled]="
+          loading() || !!classOptionsError() || schoolClasses().length === 0 || !student.classId
+        "
+      >
+        {{ step() === 3 ? 'Continuar para revisão' : 'Continuar'
+        }}<svg [lucideIcon]="icons.next" size="16"></svg>
+      </button>
+    } @else {
+      <button
+        class="button"
+        [disabled]="saving() || loading() || !!classOptionsError() || schoolClasses().length === 0 || biometric() !== 'captured'"
+        (click)="complete()"
+      >
+        <svg [lucideIcon]="icons.check" size="16"></svg
+        >{{ saving() ? 'Salvando...' : 'Concluir cadastro' }}
+      </button>
+    }
+  </footer>
 </main>

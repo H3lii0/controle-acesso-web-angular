@@ -1,0 +1,124 @@
+:host {
+  display: block;
+}
+.school-classes-page {
+  max-width: 1500px;
+  margin: 0 auto;
+}
+.class-filters {
+  display: grid;
+  grid-template-columns: minmax(200px, 2fr) repeat(2, minmax(150px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+.class-filters .search {
+  display: block;
+}
+.card-header .muted-text {
+  font-size: 12px;
+}
+.feedback {
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  color: var(--color-text-muted);
+  text-align: center;
+  font-size: 13px;
+}
+.error {
+  color: var(--color-danger);
+}
+.class-name {
+  min-width: 180px;
+  overflow-wrap: anywhere;
+}
+.action-column {
+  width: 110px;
+}
+.row-actions {
+  display: flex;
+  gap: 8px;
+}
+.icon-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+.pagination > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.class-dialog {
+  width: min(480px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  padding: 0;
+  color: var(--color-text);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-2);
+}
+.class-dialog::backdrop {
+  background: rgba(29, 39, 51, 0.4);
+}
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+.dialog-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+.dialog-body {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  font-size: 13px;
+}
+.dialog-body p {
+  margin: 0;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.dialog-body small {
+  font-size: 12px;
+}
+.dialog-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-top: 1px solid var(--color-border);
+}
+@media (max-width: 650px) {
+  .class-filters {
+    grid-template-columns: 1fr;
+  }
+  .dialog-footer {
+    flex-wrap: wrap;
+  }
+  .dialog-footer .button {
+    flex: 1;
+  }
+}

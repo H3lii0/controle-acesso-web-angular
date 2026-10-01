@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { EmployeeService } from '../../../../core/administration/employee.service';
-import { Permission } from '../../../../core/administration/administration.models';
+import { EmployeeService } from '../../../../../core/administration/employee.service';
+import { Permission } from '../../../../../core/administration/administration.models';
 
 @Component({
   selector: 'app-employee-form',
@@ -30,14 +30,24 @@ export class EmployeeFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.employeeService.permissions().subscribe({
-      next: (response) => { this.permissions = response.data; this.loading = false; this.changeDetector.markForCheck(); },
-      error: () => { this.errorMessage = 'Não foi possível carregar as permissões.'; this.loading = false; this.changeDetector.markForCheck(); },
+      next: (response) => {
+        this.permissions = response.data;
+        this.loading = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        this.errorMessage = 'Não foi possível carregar as permissões.';
+        this.loading = false;
+        this.changeDetector.markForCheck();
+      },
     });
   }
 
   protected togglePermission(key: string): void {
     const current = this.form.controls.permissions.value;
-    this.form.controls.permissions.setValue(current.includes(key) ? current.filter((item) => item !== key) : [...current, key]);
+    this.form.controls.permissions.setValue(
+      current.includes(key) ? current.filter((item) => item !== key) : [...current, key],
+    );
     this.form.controls.permissions.markAsTouched();
   }
 
@@ -46,13 +56,21 @@ export class EmployeeFormComponent implements OnInit {
   }
 
   protected submit(): void {
-    if (this.form.invalid || this.saving) { this.form.markAllAsTouched(); return; }
+    if (this.form.invalid || this.saving) {
+      this.form.markAllAsTouched();
+      return;
+    }
     this.saving = true;
     this.errorMessage = '';
     const value = this.form.getRawValue();
     this.employeeService.create({ ...value, phone: value.phone.trim() || null }).subscribe({
       next: () => this.router.navigateByUrl('/admin/employees'),
-      error: () => { this.errorMessage = 'Não foi possível cadastrar o funcionário. Verifique os dados informados.'; this.saving = false; this.changeDetector.markForCheck(); },
+      error: () => {
+        this.errorMessage =
+          'Não foi possível cadastrar o funcionário. Verifique os dados informados.';
+        this.saving = false;
+        this.changeDetector.markForCheck();
+      },
     });
   }
 }

@@ -11,6 +11,7 @@ export class AuthService {
   private readonly sessionState = inject(SessionStateService);
   private readonly sessionSubject = new BehaviorSubject<AuthSession | null>(null);
   private initialized = false;
+  private initializationRequest$: Observable<AuthSession | null> | null = null;
   private csrfRequest$: Observable<void> | null = null;
 
   readonly session$ = this.sessionSubject.asObservable();
@@ -24,18 +25,21 @@ export class AuthService {
   }
 
   initialize(): Observable<AuthSession | null> {
-    if (this.initialized) {
+    if (this.initialized || this.isAuthenticated) {
       return of(this.sessionSnapshot);
     }
 
-    this.initialized = true;
-
-    return this.loadCurrentUser().pipe(
+    this.initializationRequest$ ??= this.loadCurrentUser().pipe(
       catchError(() => {
         this.clearSession();
         return of(null);
       }),
+      tap(() => this.initialized = true),
+      finalize(() => this.initializationRequest$ = null),
+      shareReplay({ bufferSize: 1, refCount: false }),
     );
+
+    return this.initializationRequest$;
   }
 
   login(credentials: LoginCredentials): Observable<AuthSession> {

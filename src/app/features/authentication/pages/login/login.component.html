@@ -4,7 +4,9 @@
       <span class="brand-icon"><svg [lucideIcon]="icons.shield" size="21"></svg></span>
       <div><strong>Colégio Horizonte</strong><small>Controle de acesso escolar</small></div>
     </div>
-    <a href="mailto:suporte@colegio.local"><svg [lucideIcon]="icons.help" size="17"></svg> Precisa de ajuda?</a>
+    <a href="mailto:suporte@colegio.local"
+      ><svg [lucideIcon]="icons.help" size="17"></svg> Precisa de ajuda?</a
+    >
   </header>
 
   <section class="login-area">
@@ -20,7 +22,13 @@
           <span>E-mail</span>
           <span class="field-with-icon">
             <svg [lucideIcon]="icons.email" size="17"></svg>
-            <input class="control" type="email" formControlName="email" autocomplete="email" placeholder="seu@email.com" />
+            <input
+              class="control"
+              type="email"
+              formControlName="email"
+              autocomplete="email"
+              placeholder="seu@email.com"
+            />
           </span>
           @if (form.controls.email.touched && form.controls.email.invalid) {
             <small class="field-error">Informe um e-mail válido.</small>
@@ -31,8 +39,19 @@
           <span>Senha</span>
           <span class="field-with-icon password">
             <svg [lucideIcon]="icons.lock" size="17"></svg>
-            <input class="control" [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="current-password" placeholder="Digite sua senha" />
-            <button class="password-toggle" type="button" (click)="showPassword.set(!showPassword())" [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'">
+            <input
+              class="control"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              autocomplete="current-password"
+              placeholder="Digite sua senha"
+            />
+            <button
+              class="password-toggle"
+              type="button"
+              (click)="showPassword.set(!showPassword())"
+              [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
+            >
               <svg [lucideIcon]="showPassword() ? icons.hide : icons.show" size="17"></svg>
             </button>
           </span>
@@ -58,5 +77,3 @@
 
   <footer>© 2026 Colégio Horizonte <span>Privacidade</span><span>Termos de uso</span></footer>
 </main>
-
-

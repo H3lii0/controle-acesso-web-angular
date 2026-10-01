@@ -1,44 +1,75 @@
 <main [class]="'terminal-page state-' + state()">
   <header>
-    <div class="identity"><span>CH</span><div><strong>{{ currentSchoolName }}</strong><small>Terminal de acesso · Portaria principal</small></div></div>
-    <div class="header-right"><div class="clock"><strong>{{ currentTime() }}</strong><small>08 de setembro de 2026</small></div><button type="button" aria-label="Sair do terminal" (click)="signOut()"><svg [lucideIcon]="icons.signOut" size="19"></svg></button></div>
+    <div class="identity">
+      <span>CH</span>
+      <div>
+        <strong>{{ currentSchoolName }}</strong
+          ><small>Terminal simulado · Portaria principal</small>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="clock">
+        <strong>{{ currentTime() }}</strong
+        ><small>08 de setembro de 2026</small>
+      </div>
+      <button type="button" aria-label="Sair do terminal" (click)="signOut()">
+        <svg [lucideIcon]="icons.signOut" size="19"></svg>
+      </button>
+    </div>
   </header>
 
   <section class="reader">
-    <div class="reading-icon" [class.animating]="state() === 'reading'" (click)="simulateReading()" role="button" tabindex="0" aria-label="Simular leitura biométrica">
+    <div
+      class="reading-icon"
+      [class.animating]="state() === 'reading'"
+      (click)="simulateReading()"
+      role="button"
+      tabindex="0"
+      aria-label="Simular leitura biométrica"
+    >
       <span class="ring ring-1"></span><span class="ring ring-2"></span>
       <svg [lucideIcon]="currentIcon()" size="82" strokeWidth="1.35"></svg>
     </div>
     <div class="terminal-message">
-      <p class="state-label">{{ state() === 'waiting' ? 'Terminal pronto' : 'Processando acesso' }}</p>
+      <p class="state-label">
+        {{ state() === 'waiting' ? 'Terminal pronto' : 'Processando acesso' }}
+      </p>
       <h1>{{ messages[state()].title }}</h1>
       <p>{{ messages[state()].text }}</p>
     </div>
 
     @if (state() === 'entry' || state() === 'exit') {
-      <article class="person"><span class="terminal-avatar">LM</span><div><small>Aluno identificado</small><strong>Lucas Martins</strong><em>8º ano B · Matrícula 2026-0842</em></div></article>
+      <article class="person">
+        <span class="terminal-avatar">LM</span>
+        <div>
+          <small>Aluno identificado</small><strong>{{ testStudent()?.full_name }}</strong
+          ><em>{{ testStudent()?.school_class?.name }} · Matrícula {{ testStudent()?.enrollment_number }}</em>
+        </div>
+      </article>
     }
 
-    @if (state() === 'failure' || state() === 'denied' || state() === 'offline' || state() === 'maintenance') {
-      <button type="button" class="terminal-action" (click)="selectState('waiting')"><svg [lucideIcon]="icons.restart" size="18"></svg> Tentar novamente</button>
+    @if (
+      state() === 'failure' ||
+      state() === 'denied' ||
+      state() === 'offline' ||
+      state() === 'maintenance'
+    ) {
+      <button type="button" class="terminal-action" (click)="selectState('waiting')">
+        <svg [lucideIcon]="icons.restart" size="18"></svg> Tentar novamente
+      </button>
     }
   </section>
 
   <footer>
-    <div class="connection"><span></span><svg [lucideIcon]="icons.online" size="15"></svg><strong>Online</strong><small>Última sincronização agora</small></div>
+    <div class="connection">
+      <span></span><svg [lucideIcon]="icons.online" size="15"></svg><strong>Online</strong
+      ><small>Última sincronização agora</small>
+    </div>
     <div class="help">Em caso de dificuldade, procure a equipe da portaria.</div>
   </footer>
 
   <aside class="simulator" aria-label="Simulador visual do terminal">
-    <span>Simular estado</span>
+    <span>Simulação de leitura</span>
     <button type="button" (click)="simulateReading()">Leitura</button>
-    <button type="button" (click)="selectState('entry')">Entrada</button>
-    <button type="button" (click)="selectState('exit')">Saída</button>
-    <button type="button" (click)="selectState('denied')">Negado</button>
-    <button type="button" (click)="selectState('failure')">Falha</button>
-    <button type="button" (click)="selectState('offline')">Offline</button>
-    <button type="button" (click)="selectState('maintenance')">Manutenção</button>
   </aside>
 </main>
-
-
