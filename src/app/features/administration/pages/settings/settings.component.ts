@@ -11,10 +11,11 @@ import {
 import { AuthService } from '../../../../core/authentication/auth.service';
 import { SettingsService } from '../../../../core/settings/settings.service';
 import { finalize } from 'rxjs';
+import { PhoneInputDirective } from '../../../../shared/directives/phone-input.directive';
 
 @Component({
   selector: 'app-settings',
-  imports: [LucideDynamicIcon, ReactiveFormsModule],
+  imports: [LucideDynamicIcon, ReactiveFormsModule, PhoneInputDirective],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
 })
@@ -74,21 +75,30 @@ export class SettingsComponent {
     this.savingSchool = true;
     this.error = '';
     this.success = '';
-    this.settingsService.updateSchool(this.schoolForm.getRawValue()).pipe(
-      finalize(() => { this.savingSchool = false; this.changeDetector.markForCheck(); }),
-    ).subscribe({
-      next: (response) => {
-        this.schoolForm.patchValue({
-          ...response.data,
-          contact_email: response.data.contact_email ?? '',
-          phone: response.data.phone ?? '',
-          address: response.data.address ?? '',
-        });
-        this.success = response.message;
-        this.changeDetector.markForCheck();
-      },
-      error: () => { this.error = 'Não foi possível salvar os dados da escola.'; this.changeDetector.markForCheck(); },
-    });
+    this.settingsService
+      .updateSchool(this.schoolForm.getRawValue())
+      .pipe(
+        finalize(() => {
+          this.savingSchool = false;
+          this.changeDetector.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          this.schoolForm.patchValue({
+            ...response.data,
+            contact_email: response.data.contact_email ?? '',
+            phone: response.data.phone ?? '',
+            address: response.data.address ?? '',
+          });
+          this.success = response.message;
+          this.changeDetector.markForCheck();
+        },
+        error: () => {
+          this.error = 'Não foi possível salvar os dados da escola.';
+          this.changeDetector.markForCheck();
+        },
+      });
   }
 
   protected saveProfile(): void {
@@ -96,11 +106,24 @@ export class SettingsComponent {
     this.savingProfile = true;
     this.error = '';
     this.success = '';
-    this.auth.updateProfile(this.profileForm.getRawValue()).pipe(
-      finalize(() => { this.savingProfile = false; this.changeDetector.markForCheck(); }),
-    ).subscribe({
-      next: (response) => { this.user = response.data; this.success = response.message; this.changeDetector.markForCheck(); },
-      error: () => { this.error = 'Não foi possível salvar o perfil.'; this.changeDetector.markForCheck(); },
-    });
+    this.auth
+      .updateProfile(this.profileForm.getRawValue())
+      .pipe(
+        finalize(() => {
+          this.savingProfile = false;
+          this.changeDetector.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          this.user = response.data;
+          this.success = response.message;
+          this.changeDetector.markForCheck();
+        },
+        error: () => {
+          this.error = 'Não foi possível salvar o perfil.';
+          this.changeDetector.markForCheck();
+        },
+      });
   }
 }

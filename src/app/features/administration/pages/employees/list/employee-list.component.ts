@@ -3,13 +3,20 @@ import { ChangeDetectorRef, Component, HostListener, OnInit, inject, signal } fr
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize, debounceTime, distinctUntilChanged, startWith, switchMap } from 'rxjs';
-import { LucideCheck, LucideChevronDown, LucideDynamicIcon, LucideEye, LucideShieldCheck } from '@lucide/angular';
+import {
+  LucideCheck,
+  LucideChevronDown,
+  LucideDynamicIcon,
+  LucideEye,
+  LucideShieldCheck,
+} from '@lucide/angular';
 import { Employee, EmployeeStatus } from '../../../../../core/administration/administration.models';
 import { EmployeeService } from '../../../../../core/administration/employee.service';
+import { PhonePipe } from '../../../../../shared/pipes/phone.pipe';
 
 @Component({
   selector: 'app-employee-list',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideDynamicIcon],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideDynamicIcon, PhonePipe],
   templateUrl: './employee-list.component.html',
   styleUrl: './employee-list.component.scss',
 })
@@ -29,7 +36,12 @@ export class EmployeeListComponent implements OnInit {
   protected lastPage = 1;
   protected total = 0;
   protected readonly openFilter = signal(false);
-  protected readonly icons = { view: LucideEye, status: LucideShieldCheck, chevron: LucideChevronDown, check: LucideCheck };
+  protected readonly icons = {
+    view: LucideEye,
+    status: LucideShieldCheck,
+    chevron: LucideChevronDown,
+    check: LucideCheck,
+  };
 
   ngOnInit(): void {
     this.filters.valueChanges
@@ -89,13 +101,17 @@ export class EmployeeListComponent implements OnInit {
     return status ? this.statusLabel(status) : 'Todas as situações';
   }
 
-  protected toggleFilter(): void { this.openFilter.update((open) => !open); }
+  protected toggleFilter(): void {
+    this.openFilter.update((open) => !open);
+  }
   protected selectStatus(status: EmployeeStatus | ''): void {
     this.filters.controls.status.setValue(status);
     this.openFilter.set(false);
   }
 
-  @HostListener('document:click') protected closeFilter(): void { this.openFilter.set(false); }
+  @HostListener('document:click') protected closeFilter(): void {
+    this.openFilter.set(false);
+  }
 
   private applyResponse(response: {
     data: Employee[];

@@ -5,10 +5,11 @@ import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon, LucideEye } from '@lucide/angular';
 import { Guardian, GuardianStatus } from '../../../../../core/guardians/guardian.models';
 import { GuardianService } from '../../../../../core/guardians/guardian.service';
+import { PhonePipe } from '../../../../../shared/pipes/phone.pipe';
 
 @Component({
   selector: 'app-guardian-list',
-  imports: [CommonModule, FormsModule, RouterLink, LucideDynamicIcon],
+  imports: [CommonModule, FormsModule, RouterLink, LucideDynamicIcon, PhonePipe],
   templateUrl: './guardian-list.component.html',
   styleUrl: './guardian-list.component.scss',
 })
@@ -24,7 +25,9 @@ export class GuardianListComponent implements OnInit {
   protected total = 0;
   protected readonly icons = { view: LucideEye };
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.load();
+  }
 
   protected load(page = 1): void {
     this.loading = true;

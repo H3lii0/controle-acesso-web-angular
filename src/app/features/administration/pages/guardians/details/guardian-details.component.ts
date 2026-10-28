@@ -5,8 +5,14 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { Guardian } from '../../../../../core/guardians/guardian.models';
 import { GuardianService } from '../../../../../core/guardians/guardian.service';
+import { PhoneInputDirective } from '../../../../../shared/directives/phone-input.directive';
 
-@Component({ selector: 'app-guardian-details', imports: [CommonModule, ReactiveFormsModule, RouterLink], templateUrl: './guardian-details.component.html', styleUrl: './guardian-details.component.scss' })
+@Component({
+  selector: 'app-guardian-details',
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputDirective],
+  templateUrl: './guardian-details.component.html',
+  styleUrl: './guardian-details.component.scss',
+})
 export class GuardianDetailsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -27,39 +33,89 @@ export class GuardianDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (!id) { this.errorMessage = 'Responsável inválido.'; this.loading = false; return; }
+    if (!id) {
+      this.errorMessage = 'Responsável inválido.';
+      this.loading = false;
+      return;
+    }
     this.guardianService.show(id).subscribe({
-      next: (response) => { this.guardian = response.data; this.form.patchValue({ full_name: this.guardian.full_name, email: this.guardian.email, phone: this.guardian.phone ?? '' }); this.loading = false; this.changeDetector.markForCheck(); },
-      error: () => { this.errorMessage = 'Não foi possível carregar o responsável.'; this.loading = false; this.changeDetector.markForCheck(); },
+      next: (response) => {
+        this.guardian = response.data;
+        this.form.patchValue({
+          full_name: this.guardian.full_name,
+          email: this.guardian.email,
+          phone: this.guardian.phone ?? '',
+        });
+        this.loading = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        this.errorMessage = 'Não foi possível carregar o responsável.';
+        this.loading = false;
+        this.changeDetector.markForCheck();
+      },
     });
   }
 
   protected submit(): void {
-    if (!this.guardian || this.form.invalid) { this.form.markAllAsTouched(); return; }
-    this.saving = true; this.errorMessage = ''; this.feedbackMessage = '';
+    if (!this.guardian || this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    this.saving = true;
+    this.errorMessage = '';
+    this.feedbackMessage = '';
     const value = this.form.getRawValue();
-    this.guardianService.update(this.guardian.id, { ...value, phone: value.phone.trim() || null }).pipe(
-      finalize(() => { this.saving = false; this.changeDetector.markForCheck(); }),
-    ).subscribe({
-      next: (response) => { this.guardian = response.data; this.feedbackMessage = response.message; this.changeDetector.markForCheck(); },
-      error: (error) => { this.errorMessage = error?.error?.message || 'Não foi possível atualizar o responsável.'; this.changeDetector.markForCheck(); },
-    });
+    this.guardianService
+      .update(this.guardian.id, { ...value, phone: value.phone.trim() || null })
+      .pipe(
+        finalize(() => {
+          this.saving = false;
+          this.changeDetector.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          this.guardian = response.data;
+          this.feedbackMessage = response.message;
+          this.changeDetector.markForCheck();
+        },
+        error: (error) => {
+          this.errorMessage = error?.error?.message || 'Não foi possível atualizar o responsável.';
+          this.changeDetector.markForCheck();
+        },
+      });
   }
 
   protected resendInvitation(): void {
     if (!this.guardian || this.guardian.account_status !== 'pending_activation') return;
-    this.resending = true; this.errorMessage = ''; this.feedbackMessage = '';
-    this.guardianService.resendInvitation(this.guardian.id).pipe(
-      finalize(() => { this.resending = false; this.changeDetector.markForCheck(); }),
-    ).subscribe({
-      next: (response) => { this.feedbackMessage = response.message; this.changeDetector.markForCheck(); },
-      error: (error) => { this.errorMessage = error?.error?.message || 'Não foi possível reenviar o convite.'; this.changeDetector.markForCheck(); },
-    });
+    this.resending = true;
+    this.errorMessage = '';
+    this.feedbackMessage = '';
+    this.guardianService
+      .resendInvitation(this.guardian.id)
+      .pipe(
+        finalize(() => {
+          this.resending = false;
+          this.changeDetector.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          this.feedbackMessage = response.message;
+          this.changeDetector.markForCheck();
+        },
+        error: (error) => {
+          this.errorMessage = error?.error?.message || 'Não foi possível reenviar o convite.';
+          this.changeDetector.markForCheck();
+        },
+      });
   }
-
 
   protected statusLabel(): string {
     if (!this.guardian) return '';
-    return { pending_activation: 'Pendente', active: 'Ativo', disabled: 'Desativado' }[this.guardian.account_status];
+    return { pending_activation: 'Pendente', active: 'Ativo', disabled: 'Desativado' }[
+      this.guardian.account_status
+    ];
   }
 }

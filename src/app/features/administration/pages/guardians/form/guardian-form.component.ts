@@ -4,8 +4,14 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { GuardianService } from '../../../../../core/guardians/guardian.service';
+import { PhoneInputDirective } from '../../../../../shared/directives/phone-input.directive';
 
-@Component({ selector: 'app-guardian-form', imports: [CommonModule, ReactiveFormsModule, RouterLink], templateUrl: './guardian-form.component.html', styleUrl: './guardian-form.component.scss' })
+@Component({
+  selector: 'app-guardian-form',
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputDirective],
+  templateUrl: './guardian-form.component.html',
+  styleUrl: './guardian-form.component.scss',
+})
 export class GuardianFormComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly guardianService = inject(GuardianService);
@@ -20,15 +26,27 @@ export class GuardianFormComponent {
   protected errorMessage = '';
 
   protected submit(): void {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
     this.saving = true;
     this.errorMessage = '';
     const value = this.form.getRawValue();
-    this.guardianService.create({ ...value, phone: value.phone.trim() || null }).pipe(
-      finalize(() => { this.saving = false; this.changeDetector.markForCheck(); }),
-    ).subscribe({
-      next: () => this.router.navigate(['/admin/guardians'], { queryParams: { created: '1' } }),
-      error: (error) => { this.errorMessage = error?.error?.message || 'Não foi possível cadastrar o responsável.'; this.changeDetector.markForCheck(); },
-    });
+    this.guardianService
+      .create({ ...value, phone: value.phone.trim() || null })
+      .pipe(
+        finalize(() => {
+          this.saving = false;
+          this.changeDetector.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: () => this.router.navigate(['/admin/guardians'], { queryParams: { created: '1' } }),
+        error: (error) => {
+          this.errorMessage = error?.error?.message || 'Não foi possível cadastrar o responsável.';
+          this.changeDetector.markForCheck();
+        },
+      });
   }
 }

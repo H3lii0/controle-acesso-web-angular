@@ -20,16 +20,68 @@
     </label>
     <div class="employee-status-field">
       <span>Situação</span>
-      <div class="employee-status-filter" [class.open]="openFilter()" (click)="$event.stopPropagation()">
+      <div
+        class="employee-status-filter"
+        [class.open]="openFilter()"
+        (click)="$event.stopPropagation()"
+      >
         <span class="employee-status-icon"><svg [lucideIcon]="icons.status" size="16"></svg></span>
         <strong>{{ statusFilterLabel() }}</strong>
-        <button class="employee-status-trigger" type="button" aria-label="Selecionar situação" [attr.aria-expanded]="openFilter()" (click)="toggleFilter()"><svg [lucideIcon]="icons.chevron" size="16"></svg></button>
+        <button
+          class="employee-status-trigger"
+          type="button"
+          aria-label="Selecionar situação"
+          [attr.aria-expanded]="openFilter()"
+          (click)="toggleFilter()"
+        >
+          <svg [lucideIcon]="icons.chevron" size="16"></svg>
+        </button>
         @if (openFilter()) {
           <div class="employee-status-menu" role="listbox" aria-label="Situação">
-            <button class="employee-status-option" type="button" [class.active]="filters.controls.status.value === ''" (click)="selectStatus('')"><span>Todas as situações</span>@if (filters.controls.status.value === '') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
-            <button class="employee-status-option" type="button" [class.active]="filters.controls.status.value === 'active'" (click)="selectStatus('active')"><span>Ativo</span>@if (filters.controls.status.value === 'active') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
-            <button class="employee-status-option" type="button" [class.active]="filters.controls.status.value === 'pending_activation'" (click)="selectStatus('pending_activation')"><span>Pendente</span>@if (filters.controls.status.value === 'pending_activation') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
-            <button class="employee-status-option" type="button" [class.active]="filters.controls.status.value === 'disabled'" (click)="selectStatus('disabled')"><span>Desativado</span>@if (filters.controls.status.value === 'disabled') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+            <button
+              class="employee-status-option"
+              type="button"
+              [class.active]="filters.controls.status.value === ''"
+              (click)="selectStatus('')"
+            >
+              <span>Todas as situações</span>
+              @if (filters.controls.status.value === '') {
+                <svg [lucideIcon]="icons.check" size="15"></svg>
+              }
+            </button>
+            <button
+              class="employee-status-option"
+              type="button"
+              [class.active]="filters.controls.status.value === 'active'"
+              (click)="selectStatus('active')"
+            >
+              <span>Ativo</span>
+              @if (filters.controls.status.value === 'active') {
+                <svg [lucideIcon]="icons.check" size="15"></svg>
+              }
+            </button>
+            <button
+              class="employee-status-option"
+              type="button"
+              [class.active]="filters.controls.status.value === 'pending_activation'"
+              (click)="selectStatus('pending_activation')"
+            >
+              <span>Pendente</span>
+              @if (filters.controls.status.value === 'pending_activation') {
+                <svg [lucideIcon]="icons.check" size="15"></svg>
+              }
+            </button>
+            <button
+              class="employee-status-option"
+              type="button"
+              [class.active]="filters.controls.status.value === 'disabled'"
+              (click)="selectStatus('disabled')"
+            >
+              <span>Desativado</span>
+              @if (filters.controls.status.value === 'disabled') {
+                <svg [lucideIcon]="icons.check" size="15"></svg>
+              }
+            </button>
           </div>
         }
       </div>
@@ -67,7 +119,7 @@
                 <strong>{{ employee.full_name }}</strong
                 ><small>{{ employee.email }}</small>
               </td>
-              <td>{{ employee.phone || 'Não informado' }}</td>
+              <td>{{ (employee.phone | phone) || 'Não informado' }}</td>
               <td>
                 <span class="status" [class]="'status ' + employee.account_status">{{
                   statusLabel(employee.account_status)
@@ -75,7 +127,10 @@
               </td>
               <td>{{ employee.permissions.length }}</td>
               <td>
-                <a class="icon-button" [routerLink]="['/admin/employees', employee.id]" title="Ver detalhes"
+                <a
+                  class="icon-button"
+                  [routerLink]="['/admin/employees', employee.id]"
+                  title="Ver detalhes"
                   ><svg [lucideIcon]="icons.view" size="16"></svg
                 ></a>
               </td>

@@ -27,6 +27,7 @@ import {
   CustomSelectComponent,
   CustomSelectOption,
 } from '../../../../shared/components/custom-select/custom-select.component';
+import { PhonePipe } from '../../../../shared/pipes/phone.pipe';
 
 interface TimelineEvent {
   type: string;
@@ -40,7 +41,14 @@ type BiometricCaptureState = 'ready' | 'reading' | 'captured' | 'error';
 
 @Component({
   selector: 'app-student-details',
-  imports: [CommonModule, FormsModule, RouterLink, LucideDynamicIcon, CustomSelectComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    LucideDynamicIcon,
+    CustomSelectComponent,
+    PhonePipe,
+  ],
   templateUrl: './student-details.component.html',
   styleUrl: './student-details.component.scss',
 })

@@ -88,7 +88,7 @@ export class AccessTerminalComponent implements OnDestroy {
     const student = this.testStudent();
     if (!student?.biometric.captured || !student.biometric.identifier) {
       this.state.set('failure');
-      this.errorMessage.set('Cadastre a captura biométrica simulada do aluno antes de testar o terminal.');
+      this.errorMessage.set('Cadastre a captura biométrica do aluno antes de utilizar o terminal.');
       return;
     }
     this.selectState('reading');

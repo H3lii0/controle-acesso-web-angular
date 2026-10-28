@@ -72,8 +72,8 @@
         <span>Acessos negados</span><svg [lucideIcon]="icons.denied" size="17"></svg>
       </div>
       <strong class="danger-tone">{{ summary?.denied ?? '—' }}</strong
-      ><small>{{
-        summary?.denied === null ? 'Não registrado no MVP' : 'Bloqueios registrados'
+       ><small>{{
+         summary?.denied === null ? 'Nenhum bloqueio registrado' : 'Bloqueios registrados'
       }}</small>
     </article>
   </section>
@@ -133,7 +133,7 @@
               ><strong>Acessos negados</strong
               ><small>{{
                 summary?.denied === null
-                  ? 'O registro de negações ainda não faz parte do MVP.'
+                  ? 'Nenhum bloqueio foi registrado no período.'
                   : summary?.denied + ' bloqueio(s) registrado(s).'
               }}</small></span
             >

@@ -304,6 +304,10 @@
                 ><span>Telefone <small>opcional</small></span
                 ><input
                   class="control"
+                  type="tel"
+                  appPhoneInput
+                  inputmode="numeric"
+                  maxlength="15"
                   [(ngModel)]="guardian.phone"
                   placeholder="(00) 00000-0000" /></label
               ><label class="field wide-field"
@@ -409,7 +413,7 @@
           <div class="message">
             <svg [lucideIcon]="icons.info" size="18"></svg
             ><span
-              >Uma única credencial simulada será criada e usada nas leituras do terminal.</span
+              >Uma única credencial biométrica será criada e usada nas leituras do terminal.</span
             >
           </div>
         </div>

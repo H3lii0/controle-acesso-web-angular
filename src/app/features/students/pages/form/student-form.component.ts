@@ -35,13 +35,21 @@ import {
   CustomSelectComponent,
   CustomSelectOption,
 } from '../../../../shared/components/custom-select/custom-select.component';
+import { PhoneInputDirective } from '../../../../shared/directives/phone-input.directive';
 
 type BiometricState = 'ready' | 'reading' | 'captured';
 type CalendarDay = { date: string; day: number; currentMonth: boolean };
 
 @Component({
   selector: 'app-student-form',
-  imports: [CommonModule, FormsModule, RouterLink, LucideDynamicIcon, CustomSelectComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    LucideDynamicIcon,
+    CustomSelectComponent,
+    PhoneInputDirective,
+  ],
   templateUrl: './student-form.component.html',
   styleUrl: './student-form.component.scss',
 })
@@ -281,7 +289,7 @@ export class StudentFormComponent implements OnInit, OnDestroy {
     ) {
       this.errorMessage.set(
         this.biometric() !== 'captured'
-          ? 'Conclua a captura biométrica simulada antes de finalizar.'
+          ? 'Conclua a captura biométrica antes de finalizar.'
           : 'Complete os dados obrigatórios antes de concluir.',
       );
       return;

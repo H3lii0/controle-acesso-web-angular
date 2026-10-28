@@ -7,8 +7,12 @@
     </div>
   </header>
 
-  @if (error) { <p class="feedback error" role="alert">{{ error }}</p> }
-  @if (success) { <p class="feedback success" role="status">{{ success }}</p> }
+  @if (error) {
+    <p class="feedback error" role="alert">{{ error }}</p>
+  }
+  @if (success) {
+    <p class="feedback success" role="status">{{ success }}</p>
+  }
 
   <section class="settings-grid">
     <form class="card settings-card" [formGroup]="schoolForm" (ngSubmit)="saveSchool()">
@@ -20,18 +24,39 @@
             <p>Identidade utilizada nas telas do sistema.</p>
           </div>
         </div>
-        <span class="badge info">MVP</span>
+        <span class="badge info">Operação ativa</span>
       </div>
       <div class="settings-fields">
-        <label class="setting-field"><span>Nome da escola</span><input class="control" formControlName="name" /></label>
+        <label class="setting-field"
+          ><span>Nome da escola</span><input class="control" formControlName="name"
+        /></label>
         <div class="setting-field"><span>Modelo de operação</span><strong>Uma escola</strong></div>
-        <label class="setting-field"><span>E-mail de contato</span><input class="control" type="email" formControlName="contact_email" /></label>
-        <label class="setting-field"><span>Telefone</span><input class="control" formControlName="phone" /></label>
-        <label class="setting-field wide-field"><span>Endereço</span><input class="control" formControlName="address" /></label>
-        <div class="setting-field"><span>Fuso horário</span><strong>{{ schoolForm.controls.timezone.value }}</strong></div>
+        <label class="setting-field"
+          ><span>E-mail de contato</span
+          ><input class="control" type="email" formControlName="contact_email"
+        /></label>
+        <label class="setting-field"
+          ><span>Telefone</span
+          ><input
+            class="control"
+            type="tel"
+            appPhoneInput
+            inputmode="numeric"
+            maxlength="15"
+            formControlName="phone"
+            placeholder="(00) 00000-0000"
+        /></label>
+        <div class="setting-field">
+          <span>Fuso horário</span><strong>{{ schoolForm.controls.timezone.value }}</strong>
+        </div>
         <div class="setting-field"><span>Ambiente</span><strong>Desenvolvimento local</strong></div>
       </div>
-      <div class="settings-actions"><span>{{ schoolLoading ? 'Carregando dados...' : 'Alterações salvas no banco.' }}</span><button class="button" type="submit" [disabled]="schoolLoading || savingSchool">{{ savingSchool ? 'Salvando...' : 'Salvar escola' }}</button></div>
+      <div class="settings-actions">
+        <span>{{ schoolLoading ? 'Carregando dados...' : 'Alterações salvas no banco.' }}</span
+        ><button class="button" type="submit" [disabled]="schoolLoading || savingSchool">
+          {{ savingSchool ? 'Salvando...' : 'Salvar escola' }}
+        </button>
+      </div>
     </form>
 
     <form class="card settings-card" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
@@ -46,13 +71,34 @@
         <span class="badge success">Ativa</span>
       </div>
       <div class="settings-fields">
-        <label class="setting-field"><span>Nome completo</span><input class="control" formControlName="full_name" /></label>
-        <div class="setting-field"><span>E-mail</span><strong>{{ user?.email }}</strong></div>
-        <label class="setting-field"><span>Telefone</span><input class="control" formControlName="phone" /></label>
+        <label class="setting-field"
+          ><span>Nome completo</span><input class="control" formControlName="full_name"
+        /></label>
+        <div class="setting-field">
+          <span>E-mail</span><strong>{{ user?.email }}</strong>
+        </div>
+        <label class="setting-field"
+          ><span>Telefone</span
+          ><input
+            class="control"
+            type="tel"
+            appPhoneInput
+            inputmode="numeric"
+            maxlength="15"
+            formControlName="phone"
+            placeholder="(00) 00000-0000"
+        /></label>
         <div class="setting-field"><span>Perfil</span><strong>Administrador central</strong></div>
-        <div class="setting-field"><span>Permissões</span><strong>Acesso administrativo completo</strong></div>
+        <div class="setting-field">
+          <span>Permissões</span><strong>Acesso administrativo completo</strong>
+        </div>
       </div>
-      <div class="settings-actions"><span>E-mail somente para consulta</span><button class="button" type="submit" [disabled]="savingProfile">{{ savingProfile ? 'Salvando...' : 'Salvar perfil' }}</button></div>
+      <div class="settings-actions">
+        <span>E-mail somente para consulta</span
+        ><button class="button" type="submit" [disabled]="savingProfile">
+          {{ savingProfile ? 'Salvando...' : 'Salvar perfil' }}
+        </button>
+      </div>
     </form>
   </section>
 
@@ -62,7 +108,7 @@
         <span class="section-icon"><svg [lucideIcon]="icons.security" size="18"></svg></span>
         <div>
           <h2>Regras operacionais</h2>
-          <p>Parâmetros que orientam o funcionamento atual do MVP.</p>
+          <p>Parâmetros que orientam o funcionamento do sistema.</p>
         </div>
       </div>
       <span class="badge warning">Fixas</span>
@@ -70,15 +116,24 @@
     <div class="rules-list">
       <div class="rule-item">
         <span class="rule-icon"><svg [lucideIcon]="icons.clock" size="17"></svg></span>
-        <div><strong>Controle diário</strong><small>Um registro de entrada e um registro de saída por aluno ao dia.</small></div>
+        <div>
+          <strong>Controle diário</strong
+          ><small>Um registro de entrada e um registro de saída por aluno ao dia.</small>
+        </div>
       </div>
       <div class="rule-item">
         <span class="rule-icon"><svg [lucideIcon]="icons.biometric" size="17"></svg></span>
-        <div><strong>Biometria</strong><small>Modo simulado para desenvolvimento, sem leitor físico integrado.</small></div>
+        <div>
+          <strong>Biometria</strong
+          ><small>Captura biométrica disponível para cadastro e identificação.</small>
+        </div>
       </div>
       <div class="rule-item">
         <span class="rule-icon"><svg [lucideIcon]="icons.school" size="17"></svg></span>
-        <div><strong>Unidade escolar</strong><small>O sistema opera com uma única escola neste MVP.</small></div>
+        <div>
+          <strong>Unidade escolar</strong
+          ><small>O sistema está configurado para uma única escola.</small>
+        </div>
       </div>
     </div>
   </section>

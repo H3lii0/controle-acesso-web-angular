@@ -43,7 +43,14 @@
           ><input class="control" type="email" [formControl]="form.controls.email" /></label
         ><label class="field"
           ><span>Telefone <small>opcional</small></span
-          ><input class="control" [formControl]="form.controls.phone"
+          ><input
+            class="control"
+            type="tel"
+            appPhoneInput
+            inputmode="numeric"
+            maxlength="15"
+            [formControl]="form.controls.phone"
+            placeholder="(00) 00000-0000"
         /></label>
       </div>
     </section>

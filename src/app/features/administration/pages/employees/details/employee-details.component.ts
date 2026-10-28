@@ -4,10 +4,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Employee, Permission } from '../../../../../core/administration/administration.models';
 import { EmployeeService } from '../../../../../core/administration/employee.service';
+import { PhoneInputDirective } from '../../../../../shared/directives/phone-input.directive';
 
 @Component({
   selector: 'app-employee-details',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputDirective],
   templateUrl: './employee-details.component.html',
   styleUrl: './employee-details.component.scss',
 })

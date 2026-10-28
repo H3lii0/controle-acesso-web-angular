@@ -174,7 +174,7 @@
                 <div>
                   <strong>{{ currentStudent.guardian.full_name }}</strong
                   ><small
-                    >{{ currentStudent.guardian.phone || 'Telefone não informado' }} ·
+                    >{{ (currentStudent.guardian.phone | phone) || 'Telefone não informado' }} ·
                     {{ currentStudent.guardian.email }}</small
                   >
                 </div>
@@ -184,7 +184,7 @@
           </article>
           <article class="card">
             <div class="card-header">
-              <h2>Biometria simulada</h2>
+              <h2>Biometria digital</h2>
               <span
                 class="badge"
                 [class.success]="currentStudent.biometric.captured"
@@ -203,7 +203,7 @@
                 }}</strong
                 ><small>{{
                   currentStudent.biometric.captured
-                    ? 'Pronta para o terminal simulado.'
+                   ? 'Pronta para o terminal de acesso.'
                     : 'Realize a captura no cadastro do aluno.'
                 }}</small>
               </div>
@@ -324,7 +324,9 @@
                 <div>
                   <strong>{{ currentStudent.guardian.full_name }}</strong>
                   <small>{{ currentStudent.guardian.email }}</small>
-                  <small>{{ currentStudent.guardian.phone || 'Telefone não informado' }}</small>
+                  <small>{{
+                    (currentStudent.guardian.phone | phone) || 'Telefone não informado'
+                  }}</small>
                 </div>
                 <span class="badge info">Responsável principal</span>
               </div>
@@ -342,8 +344,8 @@
         <article class="card">
           <div class="card-header">
             <div>
-              <h2>Credencial biométrica simulada</h2>
-              <p>Identificador utilizado pelo terminal durante os testes.</p>
+                <h2>Credencial biométrica</h2>
+                <p>Identificador utilizado pelo terminal para registrar acessos.</p>
             </div>
             <span
               class="badge"
@@ -372,16 +374,16 @@
             <svg [lucideIcon]="icons.biometric" size="34"></svg>
             @if (currentStudent.biometric.captured) {
               <div>
-                <strong>Captura simulada cadastrada</strong>
+                  <strong>Captura biométrica cadastrada</strong>
                 <small
-                  >O terminal pode reutilizar esta credencial para registrar entrada e saída.</small
+                  >O terminal pode utilizar esta credencial para registrar entrada e saída.</small
                 >
                 <code>{{ currentStudent.biometric.identifier }}</code>
               </div>
             } @else {
               <div>
                 <strong>Biometria não cadastrada</strong>
-                <small>Volte ao cadastro do aluno para realizar a captura simulada.</small>
+                <small>Volte ao cadastro do aluno para realizar a captura biométrica.</small>
               </div>
             }
           </div>
@@ -485,7 +487,7 @@
             <p>
               {{
                 biometricCaptureState === 'ready'
-                  ? 'Clique em iniciar e aguarde a confirmação da leitura simulada.'
+                  ? 'Clique em iniciar e aguarde a confirmação da leitura biométrica.'
                   : biometricCaptureState === 'reading'
                     ? 'Mantenha o dedo no leitor até a confirmação.'
                     : biometricCaptureState === 'captured'
