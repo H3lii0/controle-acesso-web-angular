@@ -3,16 +3,18 @@ import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
+import { LucideArrowLeft, LucideDynamicIcon } from '@lucide/angular';
 import { GuardianService } from '../../../../../core/guardians/guardian.service';
 import { PhoneInputDirective } from '../../../../../shared/directives/phone-input.directive';
 
 @Component({
   selector: 'app-guardian-form',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputDirective],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputDirective, LucideDynamicIcon],
   templateUrl: './guardian-form.component.html',
   styleUrl: './guardian-form.component.scss',
 })
 export class GuardianFormComponent {
+  protected readonly backIcon = LucideArrowLeft;
   private readonly formBuilder = inject(FormBuilder);
   private readonly guardianService = inject(GuardianService);
   private readonly router = inject(Router);

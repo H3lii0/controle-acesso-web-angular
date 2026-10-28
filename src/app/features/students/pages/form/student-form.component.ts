@@ -1,17 +1,8 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  HostListener,
-  OnDestroy,
-  OnInit,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
-  LucideCalendarDays,
   LucideCamera,
   LucideCheck,
   LucideChevronDown,
@@ -36,9 +27,9 @@ import {
   CustomSelectOption,
 } from '../../../../shared/components/custom-select/custom-select.component';
 import { PhoneInputDirective } from '../../../../shared/directives/phone-input.directive';
+import { DatePickerComponent } from '../../../../shared/components/date-picker/date-picker.component';
 
 type BiometricState = 'ready' | 'reading' | 'captured';
-type CalendarDay = { date: string; day: number; currentMonth: boolean };
 
 @Component({
   selector: 'app-student-form',
@@ -49,6 +40,7 @@ type CalendarDay = { date: string; day: number; currentMonth: boolean };
     LucideDynamicIcon,
     CustomSelectComponent,
     PhoneInputDirective,
+    DatePickerComponent,
   ],
   templateUrl: './student-form.component.html',
   styleUrl: './student-form.component.scss',
@@ -61,10 +53,6 @@ export class StudentFormComponent implements OnInit, OnDestroy {
   private timer?: number;
 
   protected step = signal(1);
-  protected birthDateCalendarOpen = signal(false);
-  protected birthDateCalendarView = signal<'days' | 'months' | 'years'>('days');
-  protected birthDateCalendarMonth = new Date();
-  protected readonly weekdays = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
   protected biometric = signal<BiometricState>('ready');
   protected loading = signal(true);
   protected saving = signal(false);
@@ -89,7 +77,6 @@ export class StudentFormComponent implements OnInit, OnDestroy {
     camera: LucideCamera,
     info: LucideInfo,
     edit: LucidePencil,
-    calendar: LucideCalendarDays,
     chevron: LucideChevronDown,
     school: LucideSchool,
   };
@@ -165,94 +152,6 @@ export class StudentFormComponent implements OnInit, OnDestroy {
     this.student.classId = Number(id);
     this.student.className = item?.name ?? '';
     this.student.shift = item ? (item.shift === 'morning' ? 'Manhã' : 'Tarde') : '';
-  }
-  protected toggleBirthDateCalendar(): void {
-    this.birthDateCalendarView.set('days');
-    this.birthDateCalendarOpen.update((open) => !open);
-  }
-  protected moveBirthDateCalendar(months: number): void {
-    this.birthDateCalendarMonth = new Date(
-      this.birthDateCalendarMonth.getFullYear(),
-      this.birthDateCalendarMonth.getMonth() + months,
-      1,
-      12,
-    );
-  }
-
-  protected moveBirthDateCalendarYears(years: number): void {
-    this.birthDateCalendarMonth = new Date(
-      this.birthDateCalendarMonth.getFullYear() + years,
-      this.birthDateCalendarMonth.getMonth(),
-      1,
-      12,
-    );
-  }
-  protected birthDateCalendarLabel(): string {
-    return new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(
-      this.birthDateCalendarMonth,
-    );
-  }
-  protected showBirthDateCalendarView(view: 'months' | 'years'): void {
-    this.birthDateCalendarView.set(view);
-  }
-  protected birthDateCalendarYearOptions(): number[] {
-    const year = this.birthDateCalendarMonth.getFullYear();
-    return Array.from({ length: 12 }, (_, index) => year - 6 + index);
-  }
-  protected birthDateCalendarMonthOptions(): { value: number; label: string }[] {
-    return Array.from({ length: 12 }, (_, value) => ({
-      value,
-      label: new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(
-        new Date(2020, value, 1, 12),
-      ),
-    }));
-  }
-  protected selectBirthDateCalendarYear(year: number): void {
-    this.birthDateCalendarMonth = new Date(year, this.birthDateCalendarMonth.getMonth(), 1, 12);
-    this.birthDateCalendarView.set('months');
-  }
-  protected selectBirthDateCalendarMonth(month: number): void {
-    this.birthDateCalendarMonth = new Date(this.birthDateCalendarMonth.getFullYear(), month, 1, 12);
-    this.birthDateCalendarView.set('days');
-  }
-  protected birthDateLabel(): string {
-    if (!this.student.birthDate) return 'Selecione a data';
-    const [year, month, day] = this.student.birthDate.split('-');
-    return `${day}/${month}/${year}`;
-  }
-  protected birthDateCalendarDays(): CalendarDay[] {
-    const year = this.birthDateCalendarMonth.getFullYear();
-    const month = this.birthDateCalendarMonth.getMonth();
-    const firstDay = new Date(year, month, 1, 12);
-    const start = new Date(year, month, 1 - firstDay.getDay(), 12);
-    return Array.from({ length: 42 }, (_, index) => {
-      const date = new Date(start.getFullYear(), start.getMonth(), start.getDate() + index, 12);
-      return {
-        date: this.toIsoDate(date),
-        day: date.getDate(),
-        currentMonth: date.getMonth() === month,
-      };
-    });
-  }
-  protected selectBirthDate(value: string): void {
-    this.student.birthDate = value;
-    this.birthDateCalendarOpen.set(false);
-  }
-  protected isBirthDateSelected(value: string): boolean {
-    return value === this.student.birthDate;
-  }
-  protected isToday(value: string): boolean {
-    return value === this.todayInRecife();
-  }
-  protected selectTodayBirthDate(): void {
-    this.selectBirthDate(this.todayInRecife());
-  }
-  protected clearBirthDate(): void {
-    this.student.birthDate = '';
-    this.birthDateCalendarOpen.set(false);
-  }
-  @HostListener('document:click') protected closePopovers(): void {
-    this.birthDateCalendarOpen.set(false);
   }
   protected setGuardianMode(mode: 'new' | 'existing'): void {
     this.guardianMode = mode;

@@ -6,8 +6,15 @@
   } @else if (guardian) {
     <header class="page-header">
       <div>
-        <a class="back-link" routerLink="/admin/guardians">Voltar para responsáveis</a
-        ><span class="eyebrow">Responsável</span>
+        <a
+          class="back-link icon-button"
+          routerLink="/admin/guardians"
+          title="Voltar para responsáveis"
+          aria-label="Voltar para responsáveis"
+        >
+          <svg [lucideIcon]="backIcon" size="17"></svg>
+        </a>
+        <span class="eyebrow">Responsável</span>
         <h1>{{ guardian.full_name }}</h1>
         <p>
           {{ guardian.email }} ·

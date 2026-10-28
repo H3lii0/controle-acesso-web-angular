@@ -1,14 +1,6 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  DestroyRef,
-  HostListener,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-  LucideCalendarDays,
   LucideClockAlert,
   LucideDownload,
   LucideDynamicIcon,
@@ -41,13 +33,16 @@ import {
   CustomSelectOption,
 } from '../../../../shared/components/custom-select/custom-select.component';
 import { LoadingSkeletonComponent } from '../../../../shared/components/loading-skeleton/loading-skeleton.component';
-
-type DatePickerField = 'from' | 'to';
-type CalendarDay = { date: string; day: number; currentMonth: boolean };
+import { DatePickerComponent } from '../../../../shared/components/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-access-history',
-  imports: [LucideDynamicIcon, CustomSelectComponent, LoadingSkeletonComponent],
+  imports: [
+    LucideDynamicIcon,
+    CustomSelectComponent,
+    LoadingSkeletonComponent,
+    DatePickerComponent,
+  ],
   templateUrl: './access-history.component.html',
   styleUrl: './access-history.component.scss',
 })
@@ -59,7 +54,6 @@ export class AccessHistoryComponent {
   private request?: Subscription;
 
   protected readonly icons = {
-    calendar: LucideCalendarDays,
     export: LucideDownload,
     refresh: LucideRefreshCw,
     entry: LucideLogIn,
@@ -89,10 +83,6 @@ export class AccessHistoryComponent {
   protected search = '';
   protected schoolClassId = '';
   protected status: '' | AccessRecordStatus = '';
-  protected readonly openDatePicker = signal<DatePickerField | null>(null);
-  protected readonly calendarView = signal<'days' | 'months' | 'years'>('days');
-  protected calendarMonth = new Date(`${this.dateFrom}T12:00:00`);
-  protected readonly weekdays = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
   protected loading = false;
   protected error = '';
 
@@ -181,94 +171,6 @@ export class AccessHistoryComponent {
     this.loadDateRange();
   }
 
-  protected toggleDatePicker(field: DatePickerField): void {
-    this.calendarView.set('days');
-    this.openDatePicker.update((current) => (current === field ? null : field));
-  }
-
-  protected selectDate(field: DatePickerField, value: string): void {
-    if (field === 'from') this.dateFrom = value;
-    else this.dateTo = value;
-    this.openDatePicker.set(null);
-    this.loadDateRange();
-  }
-
-  protected moveCalendar(months: number): void {
-    this.calendarMonth = new Date(
-      this.calendarMonth.getFullYear(),
-      this.calendarMonth.getMonth() + months,
-      1,
-      12,
-    );
-  }
-
-  protected moveCalendarYears(years: number): void {
-    this.calendarMonth = new Date(
-      this.calendarMonth.getFullYear() + years,
-      this.calendarMonth.getMonth(),
-      1,
-      12,
-    );
-  }
-
-  protected showCalendarView(view: 'months' | 'years'): void {
-    this.calendarView.set(view);
-  }
-  protected calendarYearOptions(): number[] {
-    const year = this.calendarMonth.getFullYear();
-    return Array.from({ length: 12 }, (_, index) => year - 6 + index);
-  }
-  protected calendarMonthOptions(): { value: number; label: string }[] {
-    return Array.from({ length: 12 }, (_, value) => ({
-      value,
-      label: new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(
-        new Date(2020, value, 1, 12),
-      ),
-    }));
-  }
-  protected selectCalendarYear(year: number): void {
-    this.calendarMonth = new Date(year, this.calendarMonth.getMonth(), 1, 12);
-    this.calendarView.set('months');
-  }
-  protected selectCalendarMonth(month: number): void {
-    this.calendarMonth = new Date(this.calendarMonth.getFullYear(), month, 1, 12);
-    this.calendarView.set('days');
-  }
-
-  protected calendarMonthLabel(): string {
-    return new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(
-      this.calendarMonth,
-    );
-  }
-
-  protected calendarDays(): CalendarDay[] {
-    const year = this.calendarMonth.getFullYear();
-    const month = this.calendarMonth.getMonth();
-    const firstDay = new Date(year, month, 1, 12);
-    const start = new Date(year, month, 1 - firstDay.getDay(), 12);
-    return Array.from({ length: 42 }, (_, index) => {
-      const date = new Date(start.getFullYear(), start.getMonth(), start.getDate() + index, 12);
-      return {
-        date: this.toIsoDate(date),
-        day: date.getDate(),
-        currentMonth: date.getMonth() === month,
-      };
-    });
-  }
-
-  protected isSelectedDate(value: string): boolean {
-    return value === this.dateFrom || value === this.dateTo;
-  }
-  protected isToday(value: string): boolean {
-    return value === this.todayInRecife();
-  }
-  protected clearDate(field: DatePickerField): void {
-    this.selectDate(field, '');
-  }
-  protected selectToday(field: DatePickerField): void {
-    this.selectDate(field, this.todayInRecife());
-  }
-
   protected onStatusChange(value: string): void {
     this.status = value as '' | AccessRecordStatus;
     this.load();
@@ -293,11 +195,6 @@ export class AccessHistoryComponent {
     this.status = value as '' | AccessRecordStatus;
     this.load();
   }
-  @HostListener('document:click')
-  protected closeDatePicker(): void {
-    this.openDatePicker.set(null);
-  }
-
   protected onClassChange(value: string): void {
     this.schoolClassId = value;
     this.load();
@@ -373,10 +270,6 @@ export class AccessHistoryComponent {
     const part = (type: Intl.DateTimeFormatPartTypes) =>
       parts.find((item) => item.type === type)?.value ?? '';
     return `${part('year')}-${part('month')}-${part('day')}`;
-  }
-
-  private toIsoDate(date: Date): string {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   }
 
   protected formatPeriod(): string {

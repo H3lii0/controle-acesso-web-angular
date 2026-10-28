@@ -1,22 +1,25 @@
 <main class="page guardians-page">
   <header class="page-header">
     <div>
-      <span class="eyebrow">Administração</span>
       <h1>Responsáveis</h1>
       <p>Gerencie as contas e os alunos vinculados a cada responsável.</p>
     </div>
     <a class="button" routerLink="/admin/guardians/new">Novo responsável</a>
   </header>
   <section class="card guardian-filters" aria-label="Filtros de responsáveis">
-    <label
-      ><span>Buscar</span
-      ><input
-        class="control"
-        type="search"
-        [(ngModel)]="search"
-        (keyup.enter)="load()"
-        placeholder="Nome ou e-mail"
-    /></label>
+    <label class="field">
+      <span>Buscar</span>
+      <span class="search">
+        <svg [lucideIcon]="icons.search" size="16"></svg>
+        <input
+          class="control"
+          type="search"
+          [(ngModel)]="search"
+          (keyup.enter)="load()"
+          placeholder="Nome ou e-mail"
+        />
+      </span>
+    </label>
     <button class="button secondary" type="button" (click)="load()">Buscar</button>
   </section>
   <section class="card table-panel">

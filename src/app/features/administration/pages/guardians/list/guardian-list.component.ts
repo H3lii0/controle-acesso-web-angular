@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { LucideDynamicIcon, LucideEye } from '@lucide/angular';
+import { LucideDynamicIcon, LucideEye, LucideSearch } from '@lucide/angular';
 import { Guardian, GuardianStatus } from '../../../../../core/guardians/guardian.models';
 import { GuardianService } from '../../../../../core/guardians/guardian.service';
 import { PhonePipe } from '../../../../../shared/pipes/phone.pipe';
@@ -31,7 +31,7 @@ export class GuardianListComponent implements OnInit {
   protected currentPage = 1;
   protected lastPage = 1;
   protected total = 0;
-  protected readonly icons = { view: LucideEye };
+  protected readonly icons = { view: LucideEye, search: LucideSearch };
 
   ngOnInit(): void {
     this.load();

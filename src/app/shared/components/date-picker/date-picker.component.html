@@ -1,0 +1,93 @@
+<div class="date-picker" [class.open]="open" (click)="$event.stopPropagation()">
+  <button
+    class="control date-trigger"
+    type="button"
+    [attr.aria-label]="ariaLabel"
+    [attr.aria-expanded]="open"
+    (click)="toggle()"
+  >
+    <span>{{ displayValue() }}</span>
+    <svg [lucideIcon]="calendarIcon" size="16"></svg>
+  </button>
+
+  @if (open) {
+    <div class="calendar-popup" role="dialog" [attr.aria-label]="ariaLabel">
+      <div class="calendar-header">
+        <div class="calendar-heading">
+          <button class="calendar-title-button" type="button" (click)="view = 'months'">
+            {{ calendarLabel().split(' de ')[0] }}
+          </button>
+          <button class="calendar-title-button year" type="button" (click)="view = 'years'">
+            {{ calendarMonth.getFullYear() }}
+          </button>
+        </div>
+        @if (view === 'days') {
+          <div>
+            <button type="button" aria-label="Mês anterior" (click)="moveMonth(-1)">‹</button>
+            <button type="button" aria-label="Próximo mês" (click)="moveMonth(1)">›</button>
+          </div>
+        } @else if (view === 'months') {
+          <div>
+            <button type="button" aria-label="Ano anterior" (click)="moveYears(-1)">‹</button>
+            <button type="button" aria-label="Próximo ano" (click)="moveYears(1)">›</button>
+          </div>
+        } @else {
+          <div>
+            <button type="button" aria-label="Anos anteriores" (click)="moveYears(-12)">‹</button>
+            <button type="button" aria-label="Próximos anos" (click)="moveYears(12)">›</button>
+          </div>
+        }
+      </div>
+
+      @if (view === 'days') {
+        <div class="calendar-weekdays">
+          @for (weekday of weekdays; track $index) {
+            <span>{{ weekday }}</span>
+          }
+        </div>
+        <div class="calendar-grid">
+          @for (calendarDay of calendarDays(); track calendarDay.date) {
+            <button
+              type="button"
+              [class.outside-month]="!calendarDay.currentMonth"
+              [class.selected]="isSelected(calendarDay.date)"
+              [class.today]="isToday(calendarDay.date)"
+              (click)="selectDate(calendarDay.date)"
+            >
+              {{ calendarDay.day }}
+            </button>
+          }
+        </div>
+      } @else if (view === 'months') {
+        <div class="calendar-choice-grid">
+          @for (month of monthOptions(); track month.value) {
+            <button
+              type="button"
+              [class.selected]="calendarMonth.getMonth() === month.value"
+              (click)="selectMonth(month.value)"
+            >
+              {{ month.label }}
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="calendar-choice-grid years">
+          @for (year of yearOptions(); track year) {
+            <button
+              type="button"
+              [class.selected]="calendarMonth.getFullYear() === year"
+              (click)="selectYear(year)"
+            >
+              {{ year }}
+            </button>
+          }
+        </div>
+      }
+
+      <div class="calendar-footer">
+        <button type="button" (click)="clear()">Limpar</button>
+        <button type="button" (click)="selectToday()">Hoje</button>
+      </div>
+    </div>
+  }
+</div>
