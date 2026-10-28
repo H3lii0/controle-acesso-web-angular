@@ -24,7 +24,7 @@
       <strong>Responsáveis cadastrados</strong><span>{{ total }} responsável(is)</span>
     </div>
     @if (loading) {
-      <div class="feedback">Carregando responsáveis...</div>
+      <app-loading-skeleton variant="table" [rows]="4" />
     }
     @if (!loading && errorMessage) {
       <div class="feedback error">{{ errorMessage }}</div>

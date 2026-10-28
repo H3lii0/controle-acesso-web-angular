@@ -36,12 +36,13 @@ import {
   CustomSelectComponent,
   CustomSelectOption,
 } from '../../../../shared/components/custom-select/custom-select.component';
+import { LoadingSkeletonComponent } from '../../../../shared/components/loading-skeleton/loading-skeleton.component';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-overview',
-  imports: [RouterLink, LucideDynamicIcon, CustomSelectComponent],
+  imports: [RouterLink, LucideDynamicIcon, CustomSelectComponent, LoadingSkeletonComponent],
   templateUrl: './overview.component.html',
   styleUrl: './overview.component.scss',
 })

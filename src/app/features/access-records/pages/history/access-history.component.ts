@@ -40,13 +40,14 @@ import {
   CustomSelectComponent,
   CustomSelectOption,
 } from '../../../../shared/components/custom-select/custom-select.component';
+import { LoadingSkeletonComponent } from '../../../../shared/components/loading-skeleton/loading-skeleton.component';
 
 type DatePickerField = 'from' | 'to';
 type CalendarDay = { date: string; day: number; currentMonth: boolean };
 
 @Component({
   selector: 'app-access-history',
-  imports: [LucideDynamicIcon, CustomSelectComponent],
+  imports: [LucideDynamicIcon, CustomSelectComponent, LoadingSkeletonComponent],
   templateUrl: './access-history.component.html',
   styleUrl: './access-history.component.scss',
 })

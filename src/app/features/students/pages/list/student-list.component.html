@@ -22,31 +22,109 @@
         placeholder="Buscar por nome, matrícula ou responsável"
       />
     </div>
-    <div class="list-filter" [class.open]="openFilter() === 'class'" (click)="$event.stopPropagation()">
-      <span class="list-filter-icon"><svg [lucideIcon]="icons.school" size="16"></svg></span><strong>{{ classFilterLabel() }}</strong>
-      <button class="list-filter-trigger" type="button" aria-label="Selecionar turma" [attr.aria-expanded]="openFilter() === 'class'" (click)="toggleFilter('class')"><svg [lucideIcon]="icons.chevron" size="16"></svg></button>
+    <div
+      class="list-filter"
+      [class.open]="openFilter() === 'class'"
+      (click)="$event.stopPropagation()"
+    >
+      <span class="list-filter-icon"><svg [lucideIcon]="icons.school" size="16"></svg></span
+      ><strong>{{ classFilterLabel() }}</strong>
+      <button
+        class="list-filter-trigger"
+        type="button"
+        aria-label="Selecionar turma"
+        [attr.aria-expanded]="openFilter() === 'class'"
+        (click)="toggleFilter('class')"
+      >
+        <svg [lucideIcon]="icons.chevron" size="16"></svg>
+      </button>
       @if (openFilter() === 'class') {
         <div class="list-filter-menu" role="listbox" aria-label="Turma">
-          <button class="list-filter-option" type="button" [class.active]="classFilter() === ''" (click)="selectClass('')"><span>Todas as turmas</span>@if (classFilter() === '') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
-          @for (schoolClass of schoolClasses(); track schoolClass.id) { <button class="list-filter-option" type="button" [class.active]="isSelectedClass(schoolClass.id)" (click)="selectClass(schoolClass.id)"><span>{{ classLabel(schoolClass) }}</span>@if (isSelectedClass(schoolClass.id)) { <svg [lucideIcon]="icons.check" size="15"></svg> }</button> }
+          <button
+            class="list-filter-option"
+            type="button"
+            [class.active]="classFilter() === ''"
+            (click)="selectClass('')"
+          >
+            <span>Todas as turmas</span>
+            @if (classFilter() === '') {
+              <svg [lucideIcon]="icons.check" size="15"></svg>
+            }
+          </button>
+          @for (schoolClass of schoolClasses(); track schoolClass.id) {
+            <button
+              class="list-filter-option"
+              type="button"
+              [class.active]="isSelectedClass(schoolClass.id)"
+              (click)="selectClass(schoolClass.id)"
+            >
+              <span>{{ classLabel(schoolClass) }}</span>
+              @if (isSelectedClass(schoolClass.id)) {
+                <svg [lucideIcon]="icons.check" size="15"></svg>
+              }
+            </button>
+          }
         </div>
       }
     </div>
-    <div class="list-filter" [class.open]="openFilter() === 'status'" (click)="$event.stopPropagation()">
-      <span class="list-filter-icon"><svg [lucideIcon]="icons.status" size="16"></svg></span><strong>{{ statusFilterLabel() }}</strong>
-      <button class="list-filter-trigger" type="button" aria-label="Selecionar situação" [attr.aria-expanded]="openFilter() === 'status'" (click)="toggleFilter('status')"><svg [lucideIcon]="icons.chevron" size="16"></svg></button>
+    <div
+      class="list-filter"
+      [class.open]="openFilter() === 'status'"
+      (click)="$event.stopPropagation()"
+    >
+      <span class="list-filter-icon"><svg [lucideIcon]="icons.status" size="16"></svg></span
+      ><strong>{{ statusFilterLabel() }}</strong>
+      <button
+        class="list-filter-trigger"
+        type="button"
+        aria-label="Selecionar situação"
+        [attr.aria-expanded]="openFilter() === 'status'"
+        (click)="toggleFilter('status')"
+      >
+        <svg [lucideIcon]="icons.chevron" size="16"></svg>
+      </button>
       @if (openFilter() === 'status') {
         <div class="list-filter-menu" role="listbox" aria-label="Situação">
-          <button class="list-filter-option" type="button" [class.active]="statusFilter() === ''" (click)="selectStatus('')"><span>Todas as situações</span>@if (statusFilter() === '') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
-          <button class="list-filter-option" type="button" [class.active]="statusFilter() === 'active'" (click)="selectStatus('active')"><span>Ativos</span>@if (statusFilter() === 'active') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
-          <button class="list-filter-option" type="button" [class.active]="statusFilter() === 'inactive'" (click)="selectStatus('inactive')"><span>Inativos</span>@if (statusFilter() === 'inactive') { <svg [lucideIcon]="icons.check" size="15"></svg> }</button>
+          <button
+            class="list-filter-option"
+            type="button"
+            [class.active]="statusFilter() === ''"
+            (click)="selectStatus('')"
+          >
+            <span>Todas as situações</span>
+            @if (statusFilter() === '') {
+              <svg [lucideIcon]="icons.check" size="15"></svg>
+            }
+          </button>
+          <button
+            class="list-filter-option"
+            type="button"
+            [class.active]="statusFilter() === 'active'"
+            (click)="selectStatus('active')"
+          >
+            <span>Ativos</span>
+            @if (statusFilter() === 'active') {
+              <svg [lucideIcon]="icons.check" size="15"></svg>
+            }
+          </button>
+          <button
+            class="list-filter-option"
+            type="button"
+            [class.active]="statusFilter() === 'inactive'"
+            (click)="selectStatus('inactive')"
+          >
+            <span>Inativos</span>
+            @if (statusFilter() === 'inactive') {
+              <svg [lucideIcon]="icons.check" size="15"></svg>
+            }
+          </button>
         </div>
       }
     </div>
   </section>
   <section class="card">
     @if (loading()) {
-      <div class="feedback">Carregando alunos...</div>
+      <app-loading-skeleton variant="table" />
     }
     @if (!loading() && errorMessage()) {
       <div class="feedback error">{{ errorMessage() }}</div>

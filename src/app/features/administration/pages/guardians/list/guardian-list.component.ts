@@ -6,10 +6,18 @@ import { LucideDynamicIcon, LucideEye } from '@lucide/angular';
 import { Guardian, GuardianStatus } from '../../../../../core/guardians/guardian.models';
 import { GuardianService } from '../../../../../core/guardians/guardian.service';
 import { PhonePipe } from '../../../../../shared/pipes/phone.pipe';
+import { LoadingSkeletonComponent } from '../../../../../shared/components/loading-skeleton/loading-skeleton.component';
 
 @Component({
   selector: 'app-guardian-list',
-  imports: [CommonModule, FormsModule, RouterLink, LucideDynamicIcon, PhonePipe],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    LucideDynamicIcon,
+    PhonePipe,
+    LoadingSkeletonComponent,
+  ],
   templateUrl: './guardian-list.component.html',
   styleUrl: './guardian-list.component.scss',
 })

@@ -12,10 +12,11 @@ import { AuthService } from '../../../../core/authentication/auth.service';
 import { SettingsService } from '../../../../core/settings/settings.service';
 import { finalize } from 'rxjs';
 import { PhoneInputDirective } from '../../../../shared/directives/phone-input.directive';
+import { LoadingSkeletonComponent } from '../../../../shared/components/loading-skeleton/loading-skeleton.component';
 
 @Component({
   selector: 'app-settings',
-  imports: [LucideDynamicIcon, ReactiveFormsModule, PhoneInputDirective],
+  imports: [LucideDynamicIcon, ReactiveFormsModule, PhoneInputDirective, LoadingSkeletonComponent],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
 })

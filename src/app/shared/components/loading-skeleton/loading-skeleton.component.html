@@ -1,0 +1,63 @@
+@switch (variant) {
+  @case ('cards') {
+    <div class="skeleton-cards" aria-hidden="true">
+      @for (card of [1, 2, 3, 4]; track card) {
+        <div class="skeleton-card">
+          <span class="skeleton-line short"></span>
+          <span class="skeleton-line value"></span>
+          <span class="skeleton-line medium"></span>
+        </div>
+      }
+    </div>
+  }
+  @case ('chart') {
+    <div class="skeleton-chart" aria-hidden="true">
+      <span class="skeleton-line chart-line chart-line-one"></span>
+      <span class="skeleton-line chart-line chart-line-two"></span>
+      <span class="skeleton-line chart-line chart-line-three"></span>
+      <div class="skeleton-chart-axis">
+        @for (label of [1, 2, 3, 4, 5, 6]; track label) {
+          <span class="skeleton-line axis-label"></span>
+        }
+      </div>
+    </div>
+  }
+  @case ('detail') {
+    <div class="skeleton-detail" aria-hidden="true">
+      <span class="skeleton-line title"></span>
+      <span class="skeleton-line wide"></span>
+      <span class="skeleton-line medium"></span>
+      <span class="skeleton-line wide"></span>
+      <span class="skeleton-line short"></span>
+    </div>
+  }
+  @case ('form') {
+    <div class="skeleton-form" aria-hidden="true">
+      @for (field of [1, 2, 3, 4]; track field) {
+        <div>
+          <span class="skeleton-line label"></span>
+          <span class="skeleton-line input"></span>
+        </div>
+      }
+    </div>
+  }
+  @default {
+    <div class="skeleton-table" aria-hidden="true">
+      <div class="skeleton-table-header">
+        @for (column of [1, 2, 3, 4, 5]; track column) {
+          <span class="skeleton-line"></span>
+        }
+      </div>
+      @for (row of [].constructor(rows); track $index) {
+        <div class="skeleton-table-row">
+          <span class="skeleton-avatar"></span>
+          <span class="skeleton-line wide"></span>
+          <span class="skeleton-line medium"></span>
+          <span class="skeleton-line short"></span>
+          <span class="skeleton-line action"></span>
+        </div>
+      }
+    </div>
+  }
+}
+<span class="visually-hidden" role="status">Carregando dados...</span>

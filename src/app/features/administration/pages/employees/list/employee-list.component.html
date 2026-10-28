@@ -93,7 +93,7 @@
       <strong>Equipe cadastrada</strong><span>{{ total }} funcionário(s)</span>
     </div>
     @if (loading) {
-      <div class="feedback">Carregando funcionários...</div>
+      <app-loading-skeleton variant="table" [rows]="4" />
     }
     @if (!loading && errorMessage) {
       <div class="feedback error">{{ errorMessage }}</div>

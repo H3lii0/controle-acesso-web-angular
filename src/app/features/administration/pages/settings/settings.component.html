@@ -26,7 +26,10 @@
         </div>
         <span class="badge info">Operação ativa</span>
       </div>
-      <div class="settings-fields">
+      @if (schoolLoading) {
+        <app-loading-skeleton variant="form" />
+      }
+      <div class="settings-fields" [class.is-loading]="schoolLoading">
         <label class="setting-field"
           ><span>Nome da escola</span><input class="control" formControlName="name"
         /></label>

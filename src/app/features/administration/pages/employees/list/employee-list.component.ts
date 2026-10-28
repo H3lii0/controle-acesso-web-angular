@@ -13,10 +13,18 @@ import {
 import { Employee, EmployeeStatus } from '../../../../../core/administration/administration.models';
 import { EmployeeService } from '../../../../../core/administration/employee.service';
 import { PhonePipe } from '../../../../../shared/pipes/phone.pipe';
+import { LoadingSkeletonComponent } from '../../../../../shared/components/loading-skeleton/loading-skeleton.component';
 
 @Component({
   selector: 'app-employee-list',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideDynamicIcon, PhonePipe],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    LucideDynamicIcon,
+    PhonePipe,
+    LoadingSkeletonComponent,
+  ],
   templateUrl: './employee-list.component.html',
   styleUrl: './employee-list.component.scss',
 })
