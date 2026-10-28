@@ -25,6 +25,8 @@ export class AccountActivationComponent {
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
   protected readonly token = this.route.snapshot.queryParamMap.get('token') ?? '';
+  protected readonly isGuardianActivation =
+    this.route.snapshot.queryParamMap.get('portal') === 'responsavel';
   protected submitting = false;
   protected errorMessage = '';
   protected readonly icons = {
@@ -56,7 +58,10 @@ export class AccountActivationComponent {
       .activateAccount(this.token, value.password, value.password_confirmation)
       .pipe(finalize(() => (this.submitting = false)))
       .subscribe({
-        next: () => this.router.navigate(['/login'], { queryParams: { activated: '1' } }),
+        next: () => this.router.navigate(
+          [this.isGuardianActivation ? '/responsavel/login' : '/login'],
+          { queryParams: { activated: '1' } },
+        ),
         error: (error: unknown) => {
           this.errorMessage =
             error instanceof HttpErrorResponse && error.error?.message

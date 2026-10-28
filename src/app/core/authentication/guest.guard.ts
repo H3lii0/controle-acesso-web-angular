@@ -10,7 +10,7 @@ export const guestGuard: CanActivateFn = () => {
     return true;
   }
 
-  return router.parseUrl(auth.sessionSnapshot?.user.account_type === 'guardian' ? '/guardian' : '/admin');
+  return router.parseUrl(auth.sessionSnapshot?.user.account_type === 'guardian' ? '/responsavel' : '/admin');
 };
 
 

@@ -2,7 +2,7 @@
   <header class="public-bar">
     <div class="brand">
       <span class="brand-icon"><svg [lucideIcon]="icons.shield" size="21"></svg></span>
-      <div><strong>Colégio Horizonte</strong><small>Controle de acesso escolar</small></div>
+      <div><strong>Colégio Horizonte</strong><small>{{ brandSubtitle }}</small></div>
     </div>
     <a href="mailto:suporte@colegio.local"
       ><svg [lucideIcon]="icons.help" size="17"></svg> Precisa de ajuda?</a
@@ -13,8 +13,8 @@
     <div class="login-card">
       <div class="access-icon"><svg [lucideIcon]="icons.lock" size="25"></svg></div>
       <div class="login-title">
-        <h1>Acesso ao sistema</h1>
-        <p>Entre com suas credenciais para continuar.</p>
+        <h1>{{ loginTitle }}</h1>
+        <p>{{ loginSubtitle }}</p>
       </div>
 
       @if (infoMessage) {

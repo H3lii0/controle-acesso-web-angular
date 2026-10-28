@@ -17,6 +17,14 @@ export const routes: Routes = [
       import('./features/authentication/pages/login/login.component').then((m) => m.LoginComponent),
   },
   {
+    path: 'responsavel/login',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./features/authentication/pages/guardian-login/guardian-login.component').then(
+        (m) => m.GuardianLoginComponent,
+      ),
+  },
+  {
     path: 'ativar-conta',
     loadComponent: () =>
       import('./features/authentication/pages/activation/account-activation.component').then(
@@ -159,7 +167,7 @@ export const routes: Routes = [
     ],
   },
   {
-    path: 'guardian',
+    path: 'responsavel',
     canActivate: [authGuard, guardianGuard],
     loadComponent: () =>
       import('./features/guardian/pages/portal/guardian-portal.component').then(

@@ -19,6 +19,9 @@ import { StudentService } from '../../../../core/students/student.service';
 import { GuardianStudent, StudentAccessRecord } from '../../../../core/students/student.models';
 
 type PortalView = 'home' | 'history';
+type PortalFilter = 'period' | 'event' | null;
+type PeriodOption = 'current_month' | 'previous_month' | 'last_30_days';
+type EventFilter = 'all' | 'entry' | 'exit';
 type PortalEvent = {
   day: string;
   time: string;
@@ -64,7 +67,32 @@ export class GuardianPortalComponent implements OnInit {
   protected recordsLoading = false;
   protected errorMessage = '';
   protected recordsErrorMessage = '';
-  protected readonly periodLabel = this.formatCurrentMonth();
+  protected readonly periodOptions: { value: PeriodOption; label: string }[] = [
+    { value: 'current_month', label: this.formatCurrentMonth() },
+    { value: 'previous_month', label: 'Mês anterior' },
+    { value: 'last_30_days', label: 'Últimos 30 dias' },
+  ];
+  protected readonly eventOptions: { value: EventFilter; label: string }[] = [
+    { value: 'all', label: 'Todos os registros' },
+    { value: 'entry', label: 'Entradas' },
+    { value: 'exit', label: 'Saídas' },
+  ];
+  protected selectedPeriod: PeriodOption = 'current_month';
+  protected selectedEventFilter: EventFilter = 'all';
+  protected openFilter: PortalFilter = null;
+
+  protected get periodLabel(): string {
+    return this.periodOptions.find((option) => option.value === this.selectedPeriod)?.label ?? '';
+  }
+
+  protected get eventFilterLabel(): string {
+    return this.eventOptions.find((option) => option.value === this.selectedEventFilter)?.label ?? '';
+  }
+
+  protected get visibleEvents(): PortalEvent[] {
+    if (this.selectedEventFilter === 'all') return this.events;
+    return this.events.filter((event) => event.variant === this.selectedEventFilter);
+  }
 
   ngOnInit(): void {
     this.loadStudents();
@@ -123,6 +151,21 @@ export class GuardianPortalComponent implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  protected toggleFilter(filter: Exclude<PortalFilter, null>): void {
+    this.openFilter = this.openFilter === filter ? null : filter;
+  }
+
+  protected selectPeriod(period: PeriodOption): void {
+    this.selectedPeriod = period;
+    this.openFilter = null;
+    this.loadAccessRecords();
+  }
+
+  protected selectEventFilter(filter: EventFilter): void {
+    this.selectedEventFilter = filter;
+    this.openFilter = null;
+  }
+
   protected selectNextStudent(): void {
     if (this.students.length < 2 || !this.selectedStudent) return;
     const currentIndex = this.students.findIndex((student) => student.id === this.selectedStudent?.id);
@@ -133,8 +176,8 @@ export class GuardianPortalComponent implements OnInit {
 
   protected signOut(): void {
     this.auth.logout().subscribe({
-      next: () => this.router.navigateByUrl('/login'),
-      error: () => this.router.navigateByUrl('/login'),
+      next: () => this.router.navigateByUrl('/responsavel/login'),
+      error: () => this.router.navigateByUrl('/responsavel/login'),
     });
   }
 
@@ -162,7 +205,7 @@ export class GuardianPortalComponent implements OnInit {
     this.recordsLoading = true;
     this.recordsErrorMessage = '';
     this.studentService
-      .guardianAccessRecords(this.selectedStudent.id, this.monthStart(), this.dateInRecife(new Date()))
+      .guardianAccessRecords(this.selectedStudent.id, this.periodStart(), this.periodEnd())
       .subscribe({
         next: (response) => {
           this.records = response.data;
@@ -239,9 +282,26 @@ export class GuardianPortalComponent implements OnInit {
     }).format(new Date());
   }
 
-  private monthStart(): string {
+  private periodStart(): string {
     const today = this.dateInRecife(new Date());
-    return `${today.slice(0, 8)}01`;
+    if (this.selectedPeriod === 'last_30_days') {
+      const date = new Date(`${today}T12:00:00-03:00`);
+      date.setDate(date.getDate() - 29);
+      return this.dateInRecife(date);
+    }
+
+    const date = new Date(`${today.slice(0, 7)}-01T12:00:00-03:00`);
+    if (this.selectedPeriod === 'previous_month') date.setMonth(date.getMonth() - 1);
+    return this.dateInRecife(date);
+  }
+
+  private periodEnd(): string {
+    const today = this.dateInRecife(new Date());
+    if (this.selectedPeriod !== 'previous_month') return today;
+
+    const date = new Date(`${today.slice(0, 7)}-01T12:00:00-03:00`);
+    date.setDate(date.getDate() - 1);
+    return this.dateInRecife(date);
   }
 
   private dateInRecife(value: Date): string {

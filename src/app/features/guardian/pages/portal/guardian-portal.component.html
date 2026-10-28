@@ -26,18 +26,31 @@
 
       @if (loading) {
         <article class="current-status">
-          <div class="status-header"><span><small>Alunos vinculados</small><strong>Carregando informações...</strong></span></div>
+          <div class="status-header">
+            <span><small>Alunos vinculados</small><strong>Carregando informações...</strong></span>
+          </div>
         </article>
       } @else if (errorMessage) {
         <article class="current-status">
-          <div class="status-header"><span><small>Alunos vinculados</small><strong>{{ errorMessage }}</strong></span></div>
+          <div class="status-header">
+            <span
+              ><small>Alunos vinculados</small><strong>{{ errorMessage }}</strong></span
+            >
+          </div>
         </article>
       } @else if (!selectedStudent) {
         <article class="current-status">
-          <div class="status-header"><span><small>Alunos vinculados</small><strong>Nenhum aluno vinculado.</strong></span></div>
+          <div class="status-header">
+            <span><small>Alunos vinculados</small><strong>Nenhum aluno vinculado.</strong></span>
+          </div>
         </article>
       } @else {
-        <button class="student-selector" type="button" (click)="selectNextStudent()" [disabled]="students.length < 2">
+        <button
+          class="student-selector"
+          type="button"
+          (click)="selectNextStudent()"
+          [disabled]="students.length < 2"
+        >
           <span class="avatar">{{ studentInitials }}</span>
           <span>
             <small>Aluno acompanhado</small><strong>{{ selectedStudent.full_name }}</strong>
@@ -49,7 +62,12 @@
         <article class="current-status">
           <div class="status-header">
             <span class="status-icon"><svg [lucideIcon]="icons.confirmed" size="24"></svg></span>
-            <span><small>Situação atual</small><strong>{{ selectedStudent.full_name.split(' ')[0] }} {{ currentStatus }}</strong></span>
+            <span
+              ><small>Situação atual</small
+              ><strong
+                >{{ selectedStudent.full_name.split(' ')[0] }} {{ currentStatus }}</strong
+              ></span
+            >
           </div>
           <div class="last-event">
             <span><svg [lucideIcon]="icons.clock" size="17"></svg></span>
@@ -78,17 +96,34 @@
         <button type="button" (click)="open('history')">Ver todos</button>
       </div>
       @if (recordsLoading) {
-        <div class="event-list"><article><div><small>Carregando registros...</small></div></article></div>
+        <div class="event-list">
+          <article>
+            <div><small>Carregando registros...</small></div>
+          </article>
+        </div>
       } @else if (recordsErrorMessage) {
-        <div class="event-list"><article><div><small>{{ recordsErrorMessage }}</small></div></article></div>
+        <div class="event-list">
+          <article>
+            <div>
+              <small>{{ recordsErrorMessage }}</small>
+            </div>
+          </article>
+        </div>
       } @else if (!events.length) {
-        <div class="event-list"><article><div><small>Nenhum registro no período.</small></div></article></div>
+        <div class="event-list">
+          <article>
+            <div><small>Nenhum registro no período.</small></div>
+          </article>
+        </div>
       } @else {
         <div class="event-list">
           @for (event of events.slice(0, 3); track event.day + event.time + event.type) {
             <article>
               <span class="marker" [class]="event.variant"></span>
-              <div><strong>{{ event.type }}</strong><small>{{ event.day }} · {{ event.location }}</small></div>
+              <div>
+                <strong>{{ event.type }}</strong
+                ><small>{{ event.day }} · {{ event.location }}</small>
+              </div>
               <time>{{ event.time }}</time>
             </article>
           }
@@ -98,7 +133,10 @@
       <article class="attendance">
         <div>
           <span><svg [lucideIcon]="icons.protected" size="19"></svg></span>
-          <div><strong>Registros em {{ periodLabel }}</strong><small>{{ recordDays }} dia(s) com acesso registrado</small></div>
+          <div>
+            <strong>Registros em {{ periodLabel }}</strong
+            ><small>{{ recordDays }} dia(s) com acesso registrado</small>
+          </div>
         </div>
         <strong>{{ entryCount }}</strong>
       </article>
@@ -110,25 +148,98 @@
         <h1>Histórico de acessos</h1>
       </div>
       <div class="mobile-filters">
-        <button type="button"><svg [lucideIcon]="icons.calendar" size="16"></svg>{{ periodLabel }}<svg [lucideIcon]="icons.expand" size="15"></svg></button>
-        <button type="button">Todos os registros <svg [lucideIcon]="icons.expand" size="15"></svg></button>
+        <div class="portal-filter" [class.open]="openFilter === 'period'">
+          <button
+            type="button"
+            aria-label="Selecionar período"
+            [attr.aria-expanded]="openFilter === 'period'"
+            (click)="toggleFilter('period')"
+          >
+            <svg [lucideIcon]="icons.calendar" size="16"></svg>
+            <span>{{ periodLabel }}</span>
+            <svg [lucideIcon]="icons.expand" size="15"></svg>
+          </button>
+          @if (openFilter === 'period') {
+            <div class="portal-filter-menu" role="listbox" aria-label="Período">
+              @for (option of periodOptions; track option.value) {
+                <button
+                  type="button"
+                  role="option"
+                  [attr.aria-selected]="selectedPeriod === option.value"
+                  [class.selected]="selectedPeriod === option.value"
+                  (click)="selectPeriod(option.value)"
+                >
+                  {{ option.label }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+        <div class="portal-filter" [class.open]="openFilter === 'event'">
+          <button
+            type="button"
+            aria-label="Filtrar registros"
+            [attr.aria-expanded]="openFilter === 'event'"
+            (click)="toggleFilter('event')"
+          >
+            <svg [lucideIcon]="icons.history" size="16"></svg>
+            <span>{{ eventFilterLabel }}</span>
+            <svg [lucideIcon]="icons.expand" size="15"></svg>
+          </button>
+          @if (openFilter === 'event') {
+            <div class="portal-filter-menu" role="listbox" aria-label="Tipo de registro">
+              @for (option of eventOptions; track option.value) {
+                <button
+                  type="button"
+                  role="option"
+                  [attr.aria-selected]="selectedEventFilter === option.value"
+                  [class.selected]="selectedEventFilter === option.value"
+                  (click)="selectEventFilter(option.value)"
+                >
+                  {{ option.label }}
+                </button>
+              }
+            </div>
+          }
+        </div>
       </div>
       <div class="month-summary">
-        <article><small>Entradas</small><strong>{{ entryCount }}</strong></article>
-        <article><small>Saídas</small><strong>{{ exitCount }}</strong></article>
-        <article><small>Dias registrados</small><strong>{{ recordDays }}</strong></article>
+        <article>
+          <small>Entradas</small><strong>{{ entryCount }}</strong>
+        </article>
+        <article>
+          <small>Saídas</small><strong>{{ exitCount }}</strong>
+        </article>
+        <article>
+          <small>Dias registrados</small><strong>{{ recordDays }}</strong>
+        </article>
       </div>
       @if (recordsLoading) {
-        <div class="timeline"><article><div class="event"><small>Carregando histórico...</small></div></article></div>
-      } @else if (!events.length) {
-        <div class="timeline"><article><div class="event"><small>Nenhum acesso registrado no período.</small></div></article></div>
+        <div class="timeline empty-state">
+          <article>
+            <div class="event"><small>Carregando histórico...</small></div>
+          </article>
+        </div>
+      } @else if (!visibleEvents.length) {
+        <div class="timeline empty-state">
+          <article>
+            <div class="event"><small>Nenhum acesso registrado no período.</small></div>
+          </article>
+        </div>
       } @else {
         <div class="timeline">
-          @for (event of events; track event.day + event.time + event.type) {
+          @for (event of visibleEvents; track event.day + event.time + event.type) {
             <article>
-              <div class="date"><strong>{{ event.day }}</strong><small>{{ event.time }}</small></div>
+              <div class="date">
+                <strong>{{ event.day }}</strong
+                ><small>{{ event.time }}</small>
+              </div>
               <span class="point" [class]="event.variant"></span>
-              <div class="event"><strong>{{ event.type }}</strong><small>{{ event.location }}</small><em>Confirmado por biometria</em></div>
+              <div class="event">
+                <strong>{{ event.type }}</strong
+                ><small>{{ event.location }}</small
+                ><em>Confirmado por biometria</em>
+              </div>
             </article>
           }
         </div>
@@ -137,9 +248,17 @@
   }
 
   <nav class="navigation" aria-label="Navegação do responsável">
-    <button type="button" [class.active]="view() === 'home'" (click)="open('home')"><svg [lucideIcon]="icons.home" size="20"></svg><span>Início</span></button>
-    <button type="button" [class.active]="view() === 'history'" (click)="open('history')"><svg [lucideIcon]="icons.history" size="20"></svg><span>Histórico</span></button>
-    <button type="button"><svg [lucideIcon]="icons.bell" size="20"></svg><span>Avisos</span></button>
-    <button type="button"><svg [lucideIcon]="icons.profile" size="20"></svg><span>Perfil</span></button>
+    <button type="button" [class.active]="view() === 'home'" (click)="open('home')">
+      <svg [lucideIcon]="icons.home" size="20"></svg><span>Início</span>
+    </button>
+    <button type="button" [class.active]="view() === 'history'" (click)="open('history')">
+      <svg [lucideIcon]="icons.history" size="20"></svg><span>Histórico</span>
+    </button>
+    <button type="button">
+      <svg [lucideIcon]="icons.bell" size="20"></svg><span>Avisos</span>
+    </button>
+    <button type="button">
+      <svg [lucideIcon]="icons.profile" size="20"></svg><span>Perfil</span>
+    </button>
   </nav>
 </main>

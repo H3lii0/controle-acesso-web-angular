@@ -61,7 +61,7 @@ describe('Session restoration', () => {
   });
 
   it('restores a guardian session before evaluating the guardian guard', async () => {
-    const result = runGuards(guardianGuard, '/guardian');
+    const result = runGuards(guardianGuard, '/responsavel');
     respondAs('guardian');
     expect(await result).toEqual([true, true]);
   });

@@ -2,9 +2,12 @@
   <header class="public-bar">
     <div class="brand">
       <span class="brand-icon"><svg [lucideIcon]="icons.shield" size="21"></svg></span>
-      <div><strong>Colégio Horizonte</strong><small>Controle de acesso escolar</small></div>
+      <div>
+        <strong>Colégio Horizonte</strong
+        ><small>{{ isGuardianActivation ? 'Portal do responsável' : 'Controle de acesso escolar' }}</small>
+      </div>
     </div>
-    <a routerLink="/login">Voltar para o login</a>
+    <a [routerLink]="isGuardianActivation ? '/responsavel/login' : '/login'">Voltar para o login</a>
   </header>
   <section class="activation-area">
     <div class="activation-card">

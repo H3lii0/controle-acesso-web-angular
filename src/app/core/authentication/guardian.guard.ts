@@ -10,6 +10,6 @@ export const guardianGuard: CanActivateFn = () => {
   return auth.initialize().pipe(
     map((session) => session?.user.account_type === 'guardian'
       ? true
-      : router.parseUrl('/login')),
+      : router.parseUrl('/responsavel/login')),
   );
 };

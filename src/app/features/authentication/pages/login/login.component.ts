@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
+import { Input } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
@@ -22,6 +23,8 @@ import { ErrorMessageService } from '../../../../core/errors/error-message.servi
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
+  @Input() mode: 'school' | 'guardian' = 'school';
+
   private readonly auth = inject(AuthService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
@@ -47,7 +50,28 @@ export class LoginComponent {
     password: ['password', [Validators.required]],
   });
 
+  protected get isGuardianLogin(): boolean {
+    return this.mode === 'guardian';
+  }
+
+  protected get loginTitle(): string {
+    return this.isGuardianLogin ? 'Acesso do responsável' : 'Acesso ao sistema';
+  }
+
+  protected get loginSubtitle(): string {
+    return this.isGuardianLogin
+      ? 'Entre para acompanhar os acessos do seu aluno.'
+      : 'Entre com suas credenciais para continuar.';
+  }
+
+  protected get brandSubtitle(): string {
+    return this.isGuardianLogin ? 'Portal do responsável' : 'Controle de acesso escolar';
+  }
+
   ngOnInit(): void {
+    if (this.isGuardianLogin) {
+      this.form.reset({ email: '', password: '' });
+    }
     this.auth.prepareCsrfCookie().subscribe({
       error: (error: unknown) => {
         this.errorMessage = this.errorMessageService.getLoginMessage(error);
@@ -84,7 +108,7 @@ export class LoginComponent {
       )
       .subscribe({
         next: (session) => {
-          const destination = session.user.account_type === 'guardian' ? '/guardian' : '/admin';
+          const destination = session.user.account_type === 'guardian' ? '/responsavel' : '/admin';
           this.router.navigateByUrl(destination);
         },
         error: (error: unknown) => {
