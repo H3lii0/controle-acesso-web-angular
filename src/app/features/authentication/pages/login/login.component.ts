@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
@@ -14,6 +13,7 @@ import {
 } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../../../core/authentication/auth.service';
+import { ErrorMessageService } from '../../../../core/errors/error-message.service';
 
 @Component({
   selector: 'app-login',
@@ -26,6 +26,8 @@ export class LoginComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly errorMessageService = inject(ErrorMessageService);
 
   protected submitting = false;
   protected errorMessage = '';
@@ -46,7 +48,12 @@ export class LoginComponent {
   });
 
   ngOnInit(): void {
-    this.auth.prepareCsrfCookie().subscribe();
+    this.auth.prepareCsrfCookie().subscribe({
+      error: (error: unknown) => {
+        this.errorMessage = this.errorMessageService.getLoginMessage(error);
+        this.changeDetector.markForCheck();
+      },
+    });
     const token = this.route.snapshot.queryParamMap.get('token');
     if (token) this.router.navigate(['/ativar-conta'], { queryParams: { token } });
     if (this.route.snapshot.queryParamMap.get('activated') === '1') {
@@ -65,32 +72,25 @@ export class LoginComponent {
 
     this.submitting = true;
     this.errorMessage = '';
+    this.changeDetector.markForCheck();
 
     this.auth
       .login(this.form.getRawValue())
-      .pipe(finalize(() => (this.submitting = false)))
+      .pipe(
+        finalize(() => {
+          this.submitting = false;
+          this.changeDetector.markForCheck();
+        }),
+      )
       .subscribe({
         next: (session) => {
           const destination = session.user.account_type === 'guardian' ? '/guardian' : '/admin';
           this.router.navigateByUrl(destination);
         },
         error: (error: unknown) => {
-          this.errorMessage = this.resolveErrorMessage(error);
+          this.errorMessage = this.errorMessageService.getLoginMessage(error);
+          this.changeDetector.markForCheck();
         },
       });
   }
-
-  private resolveErrorMessage(error: unknown): string {
-    if (error instanceof HttpErrorResponse && error.status === 401) {
-      return 'E-mail ou senha inválidos.';
-    }
-
-    if (error instanceof HttpErrorResponse && error.status === 0) {
-      return 'Não foi possível conectar com a API. Verifique se o Laravel está rodando.';
-    }
-
-    return 'Não foi possível entrar agora. Tente novamente em alguns instantes.';
-  }
 }
-
-
