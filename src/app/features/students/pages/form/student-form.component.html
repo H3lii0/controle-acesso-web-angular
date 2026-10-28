@@ -10,30 +10,12 @@
   @if (errorMessage()) {
     <p class="form-error">{{ errorMessage() }}</p>
   }
-  @if (loading()) {
-    <div class="message" role="status">Carregando turmas...</div>
-  } @else if (classOptionsError()) {
+  @if (classOptionsError()) {
     <div class="message warning class-feedback" role="alert">
       <span>{{ classOptionsError() }}</span
       ><button class="button secondary" type="button" (click)="loadClasses()">
         Tentar novamente
       </button>
-    </div>
-  } @else if (schoolClasses().length === 0) {
-    <div class="message warning class-feedback" role="status">
-      <div>
-        <strong>Nenhuma turma ativa disponível</strong>
-        <p>
-          {{
-            canManageSchoolClasses
-              ? 'Cadastre ou ative uma turma para iniciar o cadastro do aluno.'
-              : 'Solicite ao administrador o cadastro ou a ativação de uma turma para continuar.'
-          }}
-        </p>
-      </div>
-      @if (canManageSchoolClasses) {
-        <a class="button secondary" routerLink="/admin/school-classes">Gerenciar turmas</a>
-      }
     </div>
   }
   <ol class="steps">
@@ -134,6 +116,40 @@
                         ›
                       </button>
                     </div>
+                  } @else if (birthDateCalendarView() === 'months') {
+                    <div>
+                      <button
+                        type="button"
+                        aria-label="Ano anterior"
+                        (click)="moveBirthDateCalendarYears(-1)"
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Próximo ano"
+                        (click)="moveBirthDateCalendarYears(1)"
+                      >
+                        ›
+                      </button>
+                    </div>
+                  } @else {
+                    <div>
+                      <button
+                        type="button"
+                        aria-label="Anos anteriores"
+                        (click)="moveBirthDateCalendarYears(-12)"
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Próximos anos"
+                        (click)="moveBirthDateCalendarYears(12)"
+                      >
+                        ›
+                      </button>
+                    </div>
                   }
                 </div>
                 @if (birthDateCalendarView() === 'days') {
@@ -202,20 +218,6 @@
             (valueChange)="selectClass($event)"
           />
         </label>
-        <fieldset class="status">
-          <legend>Situação de acesso inicial</legend>
-          <label
-            ><input type="radio" name="status" value="Ativo" [(ngModel)]="student.status" /><span
-              ><strong>Ativo e liberado</strong
-              ><small>Aluno pode utilizar o controle de acesso.</small></span
-            ></label
-          ><label
-            ><input type="radio" name="status" value="Inativo" [(ngModel)]="student.status" /><span
-              ><strong>Inativo ou bloqueado</strong
-              ><small>Aluno não poderá registrar acessos.</small></span
-            ></label
-          >
-        </fieldset>
       </div>
     </section>
   }
@@ -252,26 +254,28 @@
               <svg [lucideIcon]="icons.search" size="17"></svg
               ><input
                 class="control"
-                [(ngModel)]="guardianSearch"
+                [ngModel]="guardianSearch"
                 placeholder="Nome ou e-mail"
+                (ngModelChange)="onGuardianSearchChange($event)"
                 (keyup.enter)="searchExistingGuardian()"
-              /><button
-                type="button"
-                class="icon-button"
-                title="Buscar responsável"
-                (click)="searchExistingGuardian()"
-              >
-                <svg [lucideIcon]="icons.search" size="16"></svg>
-              </button>
+              />
             </div>
-            <div
-              *ngFor="let result of guardianResults()"
-              class="guardian-result"
-              (click)="chooseGuardian(result)"
-            >
-              <strong>{{ result.full_name }}</strong
-              ><small>{{ result.email }}</small>
-            </div>
+            @if (guardianResults().length > 0) {
+              <div class="guardian-results" aria-label="Responsáveis encontrados">
+                @for (result of guardianResults(); track result.id) {
+                  <button type="button" class="guardian-result" (click)="chooseGuardian(result)">
+                    <span class="avatar">{{ result.full_name.slice(0, 2).toUpperCase() }}</span>
+                    <span>
+                      <strong>{{ result.full_name }}</strong>
+                      <small>{{ result.email }}</small>
+                    </span>
+                    <svg [lucideIcon]="icons.next" size="16"></svg>
+                  </button>
+                }
+              </div>
+            } @else if (guardianSearch.trim().length >= 2) {
+              <p class="guardian-empty">Nenhum responsável encontrado.</p>
+            }
             @if (selectedGuardian) {
               <div class="selected-guardian">
                 <span class="avatar large">{{

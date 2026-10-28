@@ -202,6 +202,15 @@ export class AccessHistoryComponent {
     );
   }
 
+  protected moveCalendarYears(years: number): void {
+    this.calendarMonth = new Date(
+      this.calendarMonth.getFullYear() + years,
+      this.calendarMonth.getMonth(),
+      1,
+      12,
+    );
+  }
+
   protected showCalendarView(view: 'months' | 'years'): void {
     this.calendarView.set(view);
   }

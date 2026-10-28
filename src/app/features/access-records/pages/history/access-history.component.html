@@ -108,6 +108,32 @@
                       ›
                     </button>
                   </div>
+                } @else if (calendarView() === 'months') {
+                  <div>
+                    <button type="button" aria-label="Ano anterior" (click)="moveCalendarYears(-1)">
+                      ‹
+                    </button>
+                    <button type="button" aria-label="Próximo ano" (click)="moveCalendarYears(1)">
+                      ›
+                    </button>
+                  </div>
+                } @else {
+                  <div>
+                    <button
+                      type="button"
+                      aria-label="Anos anteriores"
+                      (click)="moveCalendarYears(-12)"
+                    >
+                      ‹
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Próximos anos"
+                      (click)="moveCalendarYears(12)"
+                    >
+                      ›
+                    </button>
+                  </div>
                 }
               </div>
               @if (calendarView() === 'days') {
@@ -202,6 +228,32 @@
                     <button type="button" aria-label="Mês anterior" (click)="moveCalendar(-1)">
                       ‹</button
                     ><button type="button" aria-label="Próximo mês" (click)="moveCalendar(1)">
+                      ›
+                    </button>
+                  </div>
+                } @else if (calendarView() === 'months') {
+                  <div>
+                    <button type="button" aria-label="Ano anterior" (click)="moveCalendarYears(-1)">
+                      ‹
+                    </button>
+                    <button type="button" aria-label="Próximo ano" (click)="moveCalendarYears(1)">
+                      ›
+                    </button>
+                  </div>
+                } @else {
+                  <div>
+                    <button
+                      type="button"
+                      aria-label="Anos anteriores"
+                      (click)="moveCalendarYears(-12)"
+                    >
+                      ‹
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Próximos anos"
+                      (click)="moveCalendarYears(12)"
+                    >
                       ›
                     </button>
                   </div>

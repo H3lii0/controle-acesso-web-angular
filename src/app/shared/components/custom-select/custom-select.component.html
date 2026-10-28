@@ -2,6 +2,7 @@
   class="custom-select"
   [class.large]="size === 'large'"
   [class.open]="open"
+  [class.loading]="loading"
   [class.disabled]="disabled || loading || options.length === 0"
   (click)="stopClick($event)"
 >
@@ -15,7 +16,11 @@
     @if (label) {
       <small>{{ label }}</small>
     }
-    <strong>{{ selectionLabel }}</strong>
+    @if (loading) {
+      <span class="custom-select-skeleton"></span>
+    } @else {
+      <strong>{{ selectionLabel }}</strong>
+    }
   </span>
 
   <button

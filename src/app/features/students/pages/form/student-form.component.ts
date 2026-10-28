@@ -178,6 +178,15 @@ export class StudentFormComponent implements OnInit, OnDestroy {
       12,
     );
   }
+
+  protected moveBirthDateCalendarYears(years: number): void {
+    this.birthDateCalendarMonth = new Date(
+      this.birthDateCalendarMonth.getFullYear() + years,
+      this.birthDateCalendarMonth.getMonth(),
+      1,
+      12,
+    );
+  }
   protected birthDateCalendarLabel(): string {
     return new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(
       this.birthDateCalendarMonth,
@@ -259,6 +268,15 @@ export class StudentFormComponent implements OnInit, OnDestroy {
       },
       error: () => this.errorMessage.set('Não foi possível buscar os responsáveis.'),
     });
+  }
+
+  protected onGuardianSearchChange(value: string): void {
+    this.guardianSearch = value;
+    if (value.trim().length < 2) {
+      this.guardianResults.set([]);
+      return;
+    }
+    this.searchExistingGuardian();
   }
   protected chooseGuardian(guardian: GuardianSummary): void {
     this.selectedGuardian = guardian;
