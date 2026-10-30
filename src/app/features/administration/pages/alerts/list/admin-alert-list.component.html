@@ -1,0 +1,51 @@
+<main class="page admin-alert-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Monitoramento</p>
+      <h1>Alertas</h1>
+      <p>Eventos autorizados e tentativas de acesso negadas.</p>
+    </div>
+  </header>
+
+  <section class="card alert-filter-card">
+    <div class="card-header">
+      <div><h2>Filtro de eventos</h2><p>Exibindo os registros dos últimos 30 dias.</p></div>
+      <app-custom-select
+        [options]="typeOptions"
+        [value]="selectedType"
+        ariaLabel="Filtrar alertas"
+        (valueChange)="selectType($event)"
+      />
+    </div>
+  </section>
+
+  @if (loading) {
+    <app-loading-skeleton variant="table" [rows]="5" />
+  } @else if (error) {
+    <div class="feedback error">{{ error }}</div>
+  } @else if (!alerts.length) {
+    <div class="feedback">Nenhum alerta encontrado no período.</div>
+  } @else {
+    <section class="alert-list card">
+      @for (alert of alerts; track alert.id) {
+        <article [class.denied]="alert.type === 'denied'">
+          <span class="alert-icon">
+            <svg [lucideIcon]="alert.type === 'success' ? icons.success : icons.denied" size="18"></svg>
+          </span>
+          <div class="alert-copy">
+            <strong>{{ alert.title }}</strong>
+            <p>{{ alert.message }}</p>
+            <small>
+              {{ alert.occurred_at | date:'dd/MM/yyyy HH:mm' }}
+              @if (alert.class_name) { · {{ alert.class_name }} }
+              @if (alert.enrollment) { · Matrícula {{ alert.enrollment }} }
+            </small>
+          </div>
+          <span class="alert-status" [class.denied]="alert.type === 'denied'">
+            {{ alert.type === 'success' ? 'Autorizado' : 'Negado' }}
+          </span>
+        </article>
+      }
+    </section>
+  }
+</main>

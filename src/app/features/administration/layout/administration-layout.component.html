@@ -38,6 +38,11 @@
           ><svg [lucideIcon]="icons.accessRecords" size="17"></svg><span>Acessos</span></a
         >
       }
+      @if (isCentralAdministrator()) {
+        <a routerLink="/admin/alerts" routerLinkActive="active"
+          ><svg [lucideIcon]="icons.alerts" size="17"></svg><span>Alertas</span></a
+        >
+      }
       @if (can('students.create')) {
         <a routerLink="/admin/guardians" routerLinkActive="active">
           <svg [lucideIcon]="icons.guardians" size="17"></svg><span>Responsáveis</span>
@@ -55,6 +60,17 @@
       </a>
     </nav>
   </aside>
+  <section class="mobile-access-block" role="alert">
+    <div class="mobile-access-card">
+      <span class="mobile-access-icon"><svg [lucideIcon]="icons.info" size="24"></svg></span>
+      <h1>Painel administrativo</h1>
+      <p>Esta área foi projetada para telas maiores. Acesse o painel em um computador ou tablet para visualizar o dashboard corretamente.</p>
+      <button type="button" class="button secondary" (click)="signOut()">
+        <svg [lucideIcon]="icons.signOut" size="16"></svg>
+        Sair da conta
+      </button>
+    </div>
+  </section>
   <section class="admin-workspace">
     <header class="admin-topbar">
       <div class="admin-context">

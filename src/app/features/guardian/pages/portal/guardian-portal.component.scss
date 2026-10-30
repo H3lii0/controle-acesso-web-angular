@@ -66,16 +66,6 @@
   background: transparent;
   cursor: pointer;
 }
-.top-actions i {
-  width: 6px;
-  height: 6px;
-  position: absolute;
-  top: 7px;
-  right: 7px;
-  border: 1px solid #fff;
-  border-radius: 50%;
-  background: var(--color-danger);
-}
 .content {
   display: grid;
   gap: 16px;
@@ -104,6 +94,35 @@
   text-align: left;
   cursor: pointer;
   box-shadow: var(--shadow-1);
+}
+.student-selector-wrap {
+  position: relative;
+}
+.student-selector-wrap.open .student-selector {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+.student-selector:disabled {
+  cursor: default;
+}
+.student-dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.student-dropdown button > span:last-child {
+  display: grid;
+}
+.student-dropdown strong,
+.student-dropdown small {
+  display: block;
+}
+.student-dropdown strong {
+  font-size: 11px;
+}
+.student-dropdown small {
+  overflow: hidden;
+  color: var(--color-text-muted);
 }
 .student-selector span:nth-child(2) > * {
   display: block;
@@ -288,6 +307,78 @@
 }
 .notification-state.error {
   color: var(--color-danger);
+}
+.profile-card,
+.profile-students {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  padding: 14px;
+  background: var(--color-surface);
+}
+.profile-card-header,
+.profile-students article {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.profile-avatar {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius);
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  font-size: 12px;
+  font-weight: 700;
+}
+.profile-card-header strong,
+.profile-card-header small,
+.profile-fields small,
+.profile-fields strong,
+.profile-students strong,
+.profile-students small {
+  display: block;
+}
+.profile-card-header small,
+.profile-fields small,
+.profile-students small {
+  margin-top: 3px;
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+.profile-card-header strong,
+.profile-fields strong,
+.profile-students strong {
+  font-size: 12px;
+}
+.profile-fields {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+}
+.profile-students {
+  gap: 0;
+  padding: 0;
+}
+.profile-students article {
+  padding: 12px;
+}
+.profile-students article + article {
+  border-top: 1px solid var(--color-border);
+}
+.profile-students article > div {
+  min-width: 0;
+  flex: 1;
+}
+.profile-students em {
+  color: var(--color-success);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 600;
 }
 .section-title button {
   border: 0;
@@ -524,6 +615,7 @@
 }
 .timeline {
   display: grid;
+  row-gap: 8px;
 }
 .timeline.empty-state {
   border: 1px solid var(--color-border);

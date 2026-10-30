@@ -94,7 +94,8 @@ export class AuthService {
   }
 
   logout(): Observable<void> {
-    return this.http.post<void>(`${API_BASE_URL}/auth/logout`, {}).pipe(
+    return this.prepareCsrfCookie().pipe(
+      switchMap(() => this.http.post<void>(`${API_BASE_URL}/auth/logout`, {})),
       finalize(() => this.clearSession()),
       map(() => undefined),
     );

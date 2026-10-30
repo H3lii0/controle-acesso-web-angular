@@ -3,6 +3,7 @@
 }
 .dashboard-overview {
   max-width: 1500px;
+  gap: 30px;
   margin: 0 auto;
 }
 .dashboard-filters {
@@ -22,6 +23,10 @@
 }
 .dashboard-loaded-content.is-loading {
   display: none;
+}
+.dashboard-sections {
+  display: grid;
+  gap: 20px;
 }
 .warning-tone {
   color: var(--color-warning);

@@ -10,7 +10,9 @@
     <div class="top-actions">
       <button type="button" aria-label="Avisos" (click)="open('notifications')">
         <svg [lucideIcon]="icons.bell" size="19"></svg>
-        @if (unreadNotificationCount > 0) { <i></i> }
+        @if (unreadNotificationCount > 0) {
+          <i class="portal-notification-count">{{ unreadNotificationLabel }}</i>
+        }
       </button>
       <button type="button" aria-label="Sair" (click)="signOut()">
         <svg [lucideIcon]="icons.signOut" size="19"></svg>
@@ -26,11 +28,7 @@
       </div>
 
       @if (loading) {
-        <article class="current-status">
-          <div class="status-header">
-            <span><small>Alunos vinculados</small><strong>Carregando informações...</strong></span>
-          </div>
-        </article>
+        <app-loading-skeleton variant="detail" />
       } @else if (errorMessage) {
         <article class="current-status">
           <div class="status-header">
@@ -46,19 +44,44 @@
           </div>
         </article>
       } @else {
-        <button
-          class="student-selector"
-          type="button"
-          (click)="selectNextStudent()"
-          [disabled]="students.length < 2"
-        >
-          <span class="avatar">{{ studentInitials }}</span>
-          <span>
-            <small>Aluno acompanhado</small><strong>{{ selectedStudent.full_name }}</strong>
-            <em>{{ studentPeriod }}</em>
-          </span>
-          <svg [lucideIcon]="icons.expand" size="18"></svg>
-        </button>
+        <div class="student-selector-wrap" [class.open]="studentDropdownOpen">
+          <button
+            class="student-selector"
+            type="button"
+            (click)="toggleStudentDropdown()"
+            [disabled]="students.length < 2"
+            [attr.aria-expanded]="studentDropdownOpen"
+            aria-label="Selecionar aluno acompanhado"
+          >
+            <span class="avatar">{{ studentInitials }}</span>
+            <span>
+              <small>Aluno acompanhado</small><strong>{{ selectedStudent.full_name }}</strong>
+              <em>{{ studentPeriod }}</em>
+            </span>
+            @if (students.length > 1) {
+              <svg [lucideIcon]="icons.expand" size="18"></svg>
+            }
+          </button>
+          @if (studentDropdownOpen) {
+            <div class="student-dropdown portal-filter-menu" role="listbox" aria-label="Alunos vinculados">
+              @for (student of students; track student.id) {
+                <button
+                  type="button"
+                  role="option"
+                  [attr.aria-selected]="selectedStudent.id === student.id"
+                  [class.selected]="selectedStudent.id === student.id"
+                  (click)="selectStudent(student)"
+                >
+                  <span class="avatar">{{ initials(student.full_name) }}</span>
+                  <span>
+                    <strong>{{ student.full_name }}</strong>
+                    <small>{{ student.enrollment_number }} · {{ student.school_class.name }}</small>
+                  </span>
+                </button>
+              }
+            </div>
+          }
+        </div>
 
         <article class="current-status">
           <div class="status-header">
@@ -66,7 +89,7 @@
             <span
               ><small>Situação atual</small
               ><strong
-                >{{ selectedStudent.full_name.split(' ')[0] }} {{ currentStatus }}</strong
+                >{{ currentStatus }}</strong
               ></span
             >
           </div>
@@ -93,11 +116,7 @@
         <button type="button" (click)="open('history')">Ver todos</button>
       </div>
       @if (recordsLoading) {
-        <div class="event-list">
-          <article>
-            <div><small>Carregando registros...</small></div>
-          </article>
-        </div>
+        <app-loading-skeleton variant="detail" />
       } @else if (recordsErrorMessage) {
         <div class="event-list">
           <article>
@@ -196,11 +215,7 @@
         </article>
       </div>
       @if (recordsLoading) {
-        <div class="timeline empty-state">
-          <article>
-            <div class="event"><small>Carregando histórico...</small></div>
-          </article>
-        </div>
+        <app-loading-skeleton variant="detail" />
       } @else if (!visibleEvents.length) {
         <div class="timeline empty-state">
           <article>
@@ -226,7 +241,7 @@
         </div>
       }
     </section>
-  } @else {
+  } @else if (view() === 'notifications') {
     <section class="content notifications-view">
       <div class="section-title">
         <div>
@@ -244,7 +259,7 @@
       </div>
 
       @if (notificationsLoading) {
-        <div class="notification-state">Carregando avisos...</div>
+        <app-loading-skeleton variant="detail" />
       } @else if (notificationsError) {
         <div class="notification-state error">{{ notificationsError }}</div>
       } @else if (!notifications.length) {
@@ -277,6 +292,46 @@
         </div>
       }
     </section>
+  } @else {
+    <section class="content profile-view">
+      <div class="greeting">
+        <p>Minha conta</p>
+        <h1>Perfil</h1>
+      </div>
+
+      <article class="profile-card">
+        <div class="profile-card-header">
+          <span class="profile-avatar">{{ initials(profileUser?.full_name ?? '') }}</span>
+          <div>
+            <strong>{{ profileUser?.full_name }}</strong>
+            <small>Responsável</small>
+          </div>
+        </div>
+        <div class="profile-fields">
+          <div><small>E-mail</small><strong>{{ profileUser?.email }}</strong></div>
+          <div><small>Telefone</small><strong>{{ (profileUser?.phone | phone) || 'Não informado' }}</strong></div>
+        </div>
+      </article>
+
+      <div class="section-title"><h2>Alunos vinculados</h2><span>{{ students.length }}</span></div>
+      @if (!students.length) {
+        <div class="notification-state">Nenhum aluno vinculado.</div>
+      } @else {
+        <div class="profile-students">
+          @for (student of students; track student.id) {
+            <article>
+              <span class="avatar">{{ initials(student.full_name) }}</span>
+              <div>
+                <strong>Nome: {{ student.full_name }}</strong>
+                <small>Matrícula: {{ student.enrollment_number }}</small>
+                <small>Turma: {{ student.school_class.name }}</small>
+              </div>
+              <em>{{ student.is_active ? 'Ativo' : 'Inativo' }}</em>
+            </article>
+          }
+        </div>
+      }
+    </section>
   }
 
   <nav class="navigation" aria-label="Navegação do responsável">
@@ -287,9 +342,15 @@
       <svg [lucideIcon]="icons.history" size="20"></svg><span>Histórico</span>
     </button>
     <button type="button" [class.active]="view() === 'notifications'" (click)="open('notifications')">
-      <svg [lucideIcon]="icons.bell" size="20"></svg><span>Avisos</span>
+      <span class="navigation-icon">
+        <svg [lucideIcon]="icons.bell" size="20"></svg>
+        @if (unreadNotificationCount > 0) {
+          <i class="portal-notification-count">{{ unreadNotificationLabel }}</i>
+        }
+      </span>
+      <span>Avisos</span>
     </button>
-    <button type="button">
+    <button type="button" [class.active]="view() === 'profile'" (click)="open('profile')">
       <svg [lucideIcon]="icons.profile" size="20"></svg><span>Perfil</span>
     </button>
   </nav>

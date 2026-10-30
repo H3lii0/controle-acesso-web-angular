@@ -203,9 +203,13 @@ footer {
 }
 @media (max-width: 520px) {
   .public-bar a {
-    width: 36px;
-    overflow: hidden;
-    white-space: nowrap;
+    width: 34px;
+    height: 34px;
+    justify-content: center;
+    font-size: 0;
+  }
+  .public-bar a svg {
+    flex: 0 0 auto;
   }
   .login-card {
     padding: 24px 20px;

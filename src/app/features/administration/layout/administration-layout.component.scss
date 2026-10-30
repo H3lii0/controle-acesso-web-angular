@@ -178,6 +178,10 @@ nav a.active {
   min-width: 0;
 }
 
+.mobile-access-block {
+  display: none;
+}
+
 .admin-topbar {
   min-height: 58px;
   display: flex;
@@ -252,5 +256,58 @@ nav a.active {
   .admin-topbar {
     justify-content: flex-end;
     padding-inline: 14px;
+  }
+
+  .mobile-access-block {
+    position: fixed;
+    z-index: 100;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: var(--color-background);
+  }
+
+  .mobile-access-card {
+    width: min(100%, 360px);
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-large);
+    padding: 28px 22px;
+    background: var(--color-surface);
+    box-shadow: var(--shadow-2);
+    text-align: center;
+  }
+
+  .mobile-access-icon {
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--color-warning);
+    background: var(--color-warning-background);
+  }
+
+  .mobile-access-card h1,
+  .mobile-access-card p {
+    margin: 0;
+  }
+
+  .mobile-access-card h1 {
+    font-size: 18px;
+  }
+
+  .mobile-access-card p {
+    color: var(--color-text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .mobile-access-card .button {
+    margin-top: 4px;
   }
 }

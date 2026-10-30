@@ -16,7 +16,7 @@ export interface DashboardSummary {
   students: { total: number; inside: number; without_access: number };
   accesses: { readings: number; entries: number; exits: number; inside: number };
   delays: number | null;
-  denied: number | null;
+  denied: number;
   flow: Array<{ label: string; entries: number; exits: number }>;
   recent_events: Array<{
     student_id: number;

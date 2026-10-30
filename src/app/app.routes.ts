@@ -98,6 +98,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'alerts',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/administration/pages/alerts/list/admin-alert-list.component').then(
+            (m) => m.AdminAlertListComponent,
+          ),
+      },
+      {
         path: 'school-classes',
         canActivate: [adminGuard],
         loadComponent: () =>

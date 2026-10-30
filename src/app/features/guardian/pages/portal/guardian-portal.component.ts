@@ -20,8 +20,10 @@ import { GuardianStudent, StudentAccessRecord } from '../../../../core/students/
 import { NotificationService } from '../../../../core/notifications/notification.service';
 import { PortalNotification } from '../../../../core/notifications/notification.models';
 import { DatePickerComponent } from '../../../../shared/components/date-picker/date-picker.component';
+import { PhonePipe } from '../../../../shared/pipes/phone.pipe';
+import { LoadingSkeletonComponent } from '../../../../shared/components/loading-skeleton/loading-skeleton.component';
 
-type PortalView = 'home' | 'history' | 'notifications';
+type PortalView = 'home' | 'history' | 'notifications' | 'profile';
 type PortalFilter = 'event' | null;
 type EventFilter = 'all' | 'entry' | 'exit';
 type PortalEvent = {
@@ -35,7 +37,7 @@ type PortalEvent = {
 
 @Component({
   selector: 'app-guardian-portal',
-  imports: [LucideDynamicIcon, DatePickerComponent],
+  imports: [LucideDynamicIcon, DatePickerComponent, PhonePipe, LoadingSkeletonComponent],
   templateUrl: './guardian-portal.component.html',
   styleUrl: './guardian-portal.component.scss',
 })
@@ -64,6 +66,7 @@ export class GuardianPortalComponent implements OnInit {
 
   protected students: GuardianStudent[] = [];
   protected selectedStudent: GuardianStudent | null = null;
+  protected studentDropdownOpen = false;
   protected events: PortalEvent[] = [];
   protected records: StudentAccessRecord[] = [];
   protected loading = true;
@@ -104,6 +107,10 @@ export class GuardianPortalComponent implements OnInit {
 
   protected get guardianName(): string {
     return this.auth.sessionSnapshot?.user.full_name?.split(' ')[0] ?? 'responsável';
+  }
+
+  protected get unreadNotificationLabel(): string {
+    return this.unreadNotificationCount > 99 ? '99+' : String(this.unreadNotificationCount);
   }
 
   protected get studentInitials(): string {
@@ -206,11 +213,14 @@ export class GuardianPortalComponent implements OnInit {
     this.openFilter = null;
   }
 
-  protected selectNextStudent(): void {
-    if (this.students.length < 2 || !this.selectedStudent) return;
-    const currentIndex = this.students.findIndex((student) => student.id === this.selectedStudent?.id);
-    const nextIndex = (currentIndex + 1) % this.students.length;
-    this.selectedStudent = this.students[nextIndex];
+  protected toggleStudentDropdown(): void {
+    if (this.students.length < 2) return;
+    this.studentDropdownOpen = !this.studentDropdownOpen;
+  }
+
+  protected selectStudent(student: GuardianStudent): void {
+    this.selectedStudent = student;
+    this.studentDropdownOpen = false;
     this.loadAccessRecords();
   }
 
@@ -219,6 +229,10 @@ export class GuardianPortalComponent implements OnInit {
       next: () => this.router.navigateByUrl('/responsavel/login'),
       error: () => this.router.navigateByUrl('/responsavel/login'),
     });
+  }
+
+  protected get profileUser() {
+    return this.auth.sessionSnapshot?.user;
   }
 
   private loadStudents(): void {
@@ -359,7 +373,7 @@ export class GuardianPortalComponent implements OnInit {
     return `${day}/${month}/${year}`;
   }
 
-  private initials(name: string): string {
+  protected initials(name: string): string {
     return name
       .split(' ')
       .filter(Boolean)

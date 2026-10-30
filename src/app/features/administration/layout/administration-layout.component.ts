@@ -3,6 +3,7 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import {
   LucideDynamicIcon,
   LucideGraduationCap,
+  LucideInfo,
   LucideLayoutDashboard,
   LucideLogOut,
   LucidePanelLeftClose,
@@ -11,6 +12,7 @@ import {
   LucideSchool,
   LucideSettings,
   LucideShieldCheck,
+  LucideTriangleAlert,
   LucideUsers,
 } from '@lucide/angular';
 import { AuthService } from '../../../core/authentication/auth.service';
@@ -38,11 +40,13 @@ export class AdministrationLayoutComponent implements OnDestroy {
     schoolClasses: LucideSchool,
     accessRecords: LucideScanLine,
     guardians: LucideUsers,
+    alerts: LucideTriangleAlert,
     settings: LucideSettings,
     team: LucideShieldCheck,
     signOut: LucideLogOut,
     panelClose: LucidePanelLeftClose,
     panelOpen: LucidePanelLeftOpen,
+    info: LucideInfo,
   };
 
   constructor() {
