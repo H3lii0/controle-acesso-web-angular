@@ -8,8 +8,9 @@
       </div>
     </div>
     <div class="top-actions">
-      <button type="button" aria-label="Notificações">
-        <svg [lucideIcon]="icons.bell" size="19"></svg><i></i>
+      <button type="button" aria-label="Avisos" (click)="open('notifications')">
+        <svg [lucideIcon]="icons.bell" size="19"></svg>
+        @if (unreadNotificationCount > 0) { <i></i> }
       </button>
       <button type="button" aria-label="Sair" (click)="signOut()">
         <svg [lucideIcon]="icons.signOut" size="19"></svg>
@@ -83,11 +84,7 @@
       <div class="shortcuts">
         <button type="button" (click)="open('history')">
           <span><svg [lucideIcon]="icons.history" size="21"></svg></span>
-          <strong>Ver histórico</strong><small>Entradas e saídas</small>
-        </button>
-        <button type="button" (click)="open('history')">
-          <span><svg [lucideIcon]="icons.calendar" size="21"></svg></span>
-          <strong>Frequência</strong><small>Resumo do mês</small>
+          <div><strong>Ver histórico</strong><small>Entradas e saídas</small></div>
         </button>
       </div>
 
@@ -141,41 +138,25 @@
         <strong>{{ entryCount }}</strong>
       </article>
     </section>
-  } @else {
+  } @else if (view() === 'history') {
     <section class="content history">
       <div class="greeting">
         <p>{{ selectedStudent?.full_name ?? 'Aluno acompanhado' }}</p>
         <h1>Histórico de acessos</h1>
       </div>
       <div class="mobile-filters">
-        <div class="portal-filter" [class.open]="openFilter === 'period'">
-          <button
-            type="button"
-            aria-label="Selecionar período"
-            [attr.aria-expanded]="openFilter === 'period'"
-            (click)="toggleFilter('period')"
-          >
-            <svg [lucideIcon]="icons.calendar" size="16"></svg>
-            <span>{{ periodLabel }}</span>
-            <svg [lucideIcon]="icons.expand" size="15"></svg>
-          </button>
-          @if (openFilter === 'period') {
-            <div class="portal-filter-menu" role="listbox" aria-label="Período">
-              @for (option of periodOptions; track option.value) {
-                <button
-                  type="button"
-                  role="option"
-                  [attr.aria-selected]="selectedPeriod === option.value"
-                  [class.selected]="selectedPeriod === option.value"
-                  (click)="selectPeriod(option.value)"
-                >
-                  {{ option.label }}
-                </button>
-              }
-            </div>
-          }
-        </div>
-        <div class="portal-filter" [class.open]="openFilter === 'event'">
+        <app-date-picker
+          ariaLabel="Selecionar data inicial do histórico"
+          [value]="dateFrom"
+          (valueChange)="selectDateRange('from', $event)"
+        />
+        <app-date-picker
+          ariaLabel="Selecionar data final do histórico"
+          popupAlign="right"
+          [value]="dateTo"
+          (valueChange)="selectDateRange('to', $event)"
+        />
+        <div class="portal-filter event-filter" [class.open]="openFilter === 'event'">
           <button
             type="button"
             aria-label="Filtrar registros"
@@ -245,6 +226,57 @@
         </div>
       }
     </section>
+  } @else {
+    <section class="content notifications-view">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Central de avisos</p>
+          <h1>Avisos</h1>
+        </div>
+        <button
+          type="button"
+          class="mark-all"
+          [disabled]="!unreadNotificationCount"
+          (click)="markAllNotificationsAsRead()"
+        >
+          Marcar todas como lidas
+        </button>
+      </div>
+
+      @if (notificationsLoading) {
+        <div class="notification-state">Carregando avisos...</div>
+      } @else if (notificationsError) {
+        <div class="notification-state error">{{ notificationsError }}</div>
+      } @else if (!notifications.length) {
+        <div class="notification-state">Nenhum aviso recebido.</div>
+      } @else {
+        <div class="notification-list">
+          @for (notification of notifications; track notification.id) {
+            <button
+              type="button"
+              class="notification-item"
+              [class.unread]="!notification.read_at"
+              (click)="openNotification(notification)"
+            >
+              <span class="notification-icon">
+                <svg [lucideIcon]="icons.bell" size="17"></svg>
+              </span>
+              <span class="notification-copy">
+                <strong>{{ notification.data.title }}</strong>
+                <small>
+                  O aluno {{ notification.data.student_name }}
+                  {{ notification.data.message }}
+                </small>
+                <em>{{ notification.data.occurred_at }}</em>
+              </span>
+              @if (!notification.read_at) {
+                <span class="unread-dot"></span>
+              }
+            </button>
+          }
+        </div>
+      }
+    </section>
   }
 
   <nav class="navigation" aria-label="Navegação do responsável">
@@ -254,7 +286,7 @@
     <button type="button" [class.active]="view() === 'history'" (click)="open('history')">
       <svg [lucideIcon]="icons.history" size="20"></svg><span>Histórico</span>
     </button>
-    <button type="button">
+    <button type="button" [class.active]="view() === 'notifications'" (click)="open('notifications')">
       <svg [lucideIcon]="icons.bell" size="20"></svg><span>Avisos</span>
     </button>
     <button type="button">

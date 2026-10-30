@@ -269,10 +269,25 @@ footer {
   background: rgba(3, 12, 14, 0.82);
   backdrop-filter: blur(12px);
 }
-.simulator span {
+.simulator-field {
+  display: grid;
+  gap: 3px;
+  min-width: 190px;
   padding: 0 7px;
+}
+.simulator-field span {
   color: #7f8c9b;
   font-size: 9px;
+}
+.simulator-field select {
+  min-height: 27px;
+  max-width: 230px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  padding: 0 7px;
+  color: #dbe5ec;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 10px;
 }
 .simulator button {
   min-height: 27px;
@@ -283,6 +298,11 @@ footer {
   background: rgba(255, 255, 255, 0.06);
   font-size: 9px;
   cursor: pointer;
+}
+.simulator button:disabled,
+.simulator-field select:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 .simulator button:hover {
   color: #fff;
@@ -318,9 +338,14 @@ footer {
     justify-content: center;
     bottom: 74px;
   }
-  .simulator span {
+  .simulator-field {
     width: 100%;
-    text-align: center;
+    min-width: 0;
+    text-align: left;
+  }
+  .simulator-field select {
+    width: 100%;
+    max-width: none;
   }
   .connection small {
     display: none;

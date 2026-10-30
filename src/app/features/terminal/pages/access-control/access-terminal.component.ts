@@ -35,6 +35,7 @@ export class AccessTerminalComponent implements OnDestroy {
   protected readonly currentTime = signal(this.formatTime());
   protected readonly state = signal<TerminalState>('waiting');
   protected readonly currentSchoolName = 'Colégio Horizonte';
+  protected readonly testStudents = signal<Student[]>([]);
   protected readonly testStudent = signal<Student | null>(null);
   protected readonly errorMessage = signal('');
   protected readonly icons = {
@@ -62,7 +63,12 @@ export class AccessTerminalComponent implements OnDestroy {
 
   constructor() {
     this.studentService.list({ per_page: 100 }).subscribe({
-      next: (response) => this.testStudent.set(response.data.find((student) => student.biometric.captured) ?? response.data[0] ?? null),
+      next: (response) => {
+        this.testStudents.set(response.data);
+        this.testStudent.set(
+          response.data.find((student) => student.biometric.captured) ?? response.data[0] ?? null,
+        );
+      },
       error: () => this.errorMessage.set('Não foi possível carregar o aluno de teste.'),
     });
   }
@@ -82,6 +88,12 @@ export class AccessTerminalComponent implements OnDestroy {
 
     this.state.set(state);
     this.errorMessage.set('');
+  }
+
+  protected selectTestStudent(value: string): void {
+    const student = this.testStudents().find((item) => String(item.id) === value) ?? null;
+    this.testStudent.set(student);
+    this.selectState('waiting');
   }
 
   protected simulateReading(): void {
@@ -115,6 +127,15 @@ export class AccessTerminalComponent implements OnDestroy {
       offline: this.icons.offline,
       maintenance: this.icons.maintenance,
     }[this.state()];
+  }
+
+  protected currentMessage(): string {
+    const studentName = this.testStudent()?.full_name ?? 'o aluno';
+
+    if (this.state() === 'entry') return `Olá, ${studentName}. Tenha um ótimo dia!`;
+    if (this.state() === 'exit') return `Até logo, ${studentName}. Registro confirmado.`;
+
+    return this.messages[this.state()].text;
   }
 
   protected signOut(): void {

@@ -35,7 +35,7 @@
         {{ state() === 'waiting' ? 'Terminal pronto' : 'Processando acesso' }}
       </p>
       <h1>{{ messages[state()].title }}</h1>
-      <p>{{ errorMessage() || messages[state()].text }}</p>
+      <p>{{ errorMessage() || currentMessage() }}</p>
     </div>
 
     @if (state() === 'entry' || state() === 'exit') {
@@ -69,7 +69,23 @@
   </footer>
 
   <aside class="simulator" aria-label="Terminal de acesso">
-    <span>Leitura biométrica</span>
-    <button type="button" (click)="simulateReading()">Iniciar leitura</button>
+    <label class="simulator-field">
+      <span>Aluno da leitura</span>
+      <select
+        [value]="testStudent()?.id ?? ''"
+        [disabled]="!testStudents().length || state() === 'reading'"
+        (change)="selectTestStudent($any($event.target).value)"
+      >
+        @if (!testStudents().length) {
+          <option value="">Carregando alunos...</option>
+        }
+        @for (student of testStudents(); track student.id) {
+          <option [value]="student.id">{{ student.full_name }} · {{ student.enrollment_number }}</option>
+        }
+      </select>
+    </label>
+    <button type="button" [disabled]="!testStudent() || state() === 'reading'" (click)="simulateReading()">
+      Iniciar leitura
+    </button>
   </aside>
 </main>

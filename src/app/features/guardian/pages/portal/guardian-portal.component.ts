@@ -17,10 +17,12 @@ import {
 import { AuthService } from '../../../../core/authentication/auth.service';
 import { StudentService } from '../../../../core/students/student.service';
 import { GuardianStudent, StudentAccessRecord } from '../../../../core/students/student.models';
+import { NotificationService } from '../../../../core/notifications/notification.service';
+import { PortalNotification } from '../../../../core/notifications/notification.models';
+import { DatePickerComponent } from '../../../../shared/components/date-picker/date-picker.component';
 
-type PortalView = 'home' | 'history';
-type PortalFilter = 'period' | 'event' | null;
-type PeriodOption = 'current_month' | 'previous_month' | 'last_30_days';
+type PortalView = 'home' | 'history' | 'notifications';
+type PortalFilter = 'event' | null;
 type EventFilter = 'all' | 'entry' | 'exit';
 type PortalEvent = {
   day: string;
@@ -33,7 +35,7 @@ type PortalEvent = {
 
 @Component({
   selector: 'app-guardian-portal',
-  imports: [LucideDynamicIcon],
+  imports: [LucideDynamicIcon, DatePickerComponent],
   templateUrl: './guardian-portal.component.html',
   styleUrl: './guardian-portal.component.scss',
 })
@@ -42,6 +44,7 @@ export class GuardianPortalComponent implements OnInit {
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
   private readonly studentService = inject(StudentService);
+  private readonly notificationService = inject(NotificationService);
 
   protected readonly view = signal<PortalView>('home');
   protected readonly currentSchoolName = 'Colégio Horizonte';
@@ -67,22 +70,22 @@ export class GuardianPortalComponent implements OnInit {
   protected recordsLoading = false;
   protected errorMessage = '';
   protected recordsErrorMessage = '';
-  protected readonly periodOptions: { value: PeriodOption; label: string }[] = [
-    { value: 'current_month', label: this.formatCurrentMonth() },
-    { value: 'previous_month', label: 'Mês anterior' },
-    { value: 'last_30_days', label: 'Últimos 30 dias' },
-  ];
+  protected notifications: PortalNotification[] = [];
+  protected notificationsLoading = false;
+  protected notificationsError = '';
+  protected unreadNotificationCount = 0;
   protected readonly eventOptions: { value: EventFilter; label: string }[] = [
     { value: 'all', label: 'Todos os registros' },
     { value: 'entry', label: 'Entradas' },
     { value: 'exit', label: 'Saídas' },
   ];
-  protected selectedPeriod: PeriodOption = 'current_month';
+  protected dateFrom = this.currentMonthStart();
+  protected dateTo = this.dateInRecife(new Date());
   protected selectedEventFilter: EventFilter = 'all';
   protected openFilter: PortalFilter = null;
 
   protected get periodLabel(): string {
-    return this.periodOptions.find((option) => option.value === this.selectedPeriod)?.label ?? '';
+    return `${this.formatDateLabel(this.dateFrom)} a ${this.formatDateLabel(this.dateTo)}`;
   }
 
   protected get eventFilterLabel(): string {
@@ -96,6 +99,7 @@ export class GuardianPortalComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadStudents();
+    this.loadNotifications();
   }
 
   protected get guardianName(): string {
@@ -149,15 +153,51 @@ export class GuardianPortalComponent implements OnInit {
   protected open(view: PortalView): void {
     this.view.set(view);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (view === 'notifications') this.loadNotifications();
+  }
+
+  protected openNotification(notification: PortalNotification): void {
+    if (notification.read_at) return;
+
+    this.notificationService.markAsRead(notification.id).subscribe({
+      next: () => {
+        notification.read_at = new Date().toISOString();
+        this.unreadNotificationCount = Math.max(0, this.unreadNotificationCount - 1);
+        this.changeDetector.markForCheck();
+      },
+    });
+  }
+
+  protected markAllNotificationsAsRead(): void {
+    if (!this.unreadNotificationCount) return;
+
+    this.notificationService.markAllAsRead().subscribe({
+      next: () => {
+        this.notifications = this.notifications.map((notification) => ({
+          ...notification,
+          read_at: notification.read_at ?? new Date().toISOString(),
+        }));
+        this.unreadNotificationCount = 0;
+        this.changeDetector.markForCheck();
+      },
+    });
   }
 
   protected toggleFilter(filter: Exclude<PortalFilter, null>): void {
     this.openFilter = this.openFilter === filter ? null : filter;
   }
 
-  protected selectPeriod(period: PeriodOption): void {
-    this.selectedPeriod = period;
-    this.openFilter = null;
+  protected selectDateRange(boundary: 'from' | 'to', value: string): void {
+    if (!value) return;
+
+    if (boundary === 'from') {
+      this.dateFrom = value;
+      if (this.dateFrom > this.dateTo) this.dateTo = value;
+    } else {
+      this.dateTo = value;
+      if (this.dateTo < this.dateFrom) this.dateFrom = value;
+    }
+
     this.loadAccessRecords();
   }
 
@@ -195,6 +235,24 @@ export class GuardianPortalComponent implements OnInit {
       error: () => {
         this.loading = false;
         this.errorMessage = 'Não foi possível carregar os alunos vinculados.';
+        this.changeDetector.markForCheck();
+      },
+    });
+  }
+
+  private loadNotifications(): void {
+    this.notificationsLoading = true;
+    this.notificationsError = '';
+    this.notificationService.list().subscribe({
+      next: (response) => {
+        this.notifications = response.data;
+        this.unreadNotificationCount = response.meta.unread_count;
+        this.notificationsLoading = false;
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        this.notificationsLoading = false;
+        this.notificationsError = 'Não foi possível carregar os avisos.';
         this.changeDetector.markForCheck();
       },
     });
@@ -274,34 +332,17 @@ export class GuardianPortalComponent implements OnInit {
       .replace('.', '');
   }
 
-  private formatCurrentMonth(): string {
-    return new Intl.DateTimeFormat('pt-BR', {
-      month: 'long',
-      year: 'numeric',
-      timeZone: 'America/Recife',
-    }).format(new Date());
+  private currentMonthStart(): string {
+    const today = this.dateInRecife(new Date());
+    return `${today.slice(0, 7)}-01`;
   }
 
   private periodStart(): string {
-    const today = this.dateInRecife(new Date());
-    if (this.selectedPeriod === 'last_30_days') {
-      const date = new Date(`${today}T12:00:00-03:00`);
-      date.setDate(date.getDate() - 29);
-      return this.dateInRecife(date);
-    }
-
-    const date = new Date(`${today.slice(0, 7)}-01T12:00:00-03:00`);
-    if (this.selectedPeriod === 'previous_month') date.setMonth(date.getMonth() - 1);
-    return this.dateInRecife(date);
+    return this.dateFrom;
   }
 
   private periodEnd(): string {
-    const today = this.dateInRecife(new Date());
-    if (this.selectedPeriod !== 'previous_month') return today;
-
-    const date = new Date(`${today.slice(0, 7)}-01T12:00:00-03:00`);
-    date.setDate(date.getDate() - 1);
-    return this.dateInRecife(date);
+    return this.dateTo;
   }
 
   private dateInRecife(value: Date): string {
@@ -311,6 +352,11 @@ export class GuardianPortalComponent implements OnInit {
       day: '2-digit',
       timeZone: 'America/Recife',
     }).format(value);
+  }
+
+  private formatDateLabel(value: string): string {
+    const [year, month, day] = value.split('-');
+    return `${day}/${month}/${year}`;
   }
 
   private initials(name: string): string {

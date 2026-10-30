@@ -153,7 +153,7 @@
 .status-header strong {
   margin-top: 3px;
   color: #126b48;
-  font-size: 14px;
+  font-size: 11px;
 }
 .last-event {
   display: flex;
@@ -190,6 +190,105 @@
   margin: 0;
   font-size: 14px;
 }
+.section-title h1 {
+  margin: 0;
+  font-size: 21px;
+}
+.section-title > div {
+  display: grid;
+  gap: 3px;
+}
+.eyebrow {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+.mark-all {
+  border: 0;
+  padding: 0;
+  color: var(--color-primary);
+  background: transparent;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.mark-all:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+.notification-list {
+  display: grid;
+  gap: 8px;
+}
+.notification-item {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  padding: 12px;
+  color: var(--color-text);
+  background: var(--color-surface);
+  text-align: left;
+  cursor: pointer;
+}
+.notification-item.unread {
+  border-color: #b7ded8;
+  background: #f1fbf9;
+}
+.notification-icon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: var(--radius);
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+.notification-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.notification-copy strong,
+.notification-copy small,
+.notification-copy em {
+  display: block;
+  font-style: normal;
+}
+.notification-copy strong {
+  font-size: 12px;
+}
+.notification-copy small,
+.notification-copy em {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+.unread-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  margin: 5px 0 0 auto;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+.notification-state {
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  font-size: 11px;
+  text-align: center;
+}
+.notification-state.error {
+  color: var(--color-danger);
+}
 .section-title button {
   border: 0;
   padding: 0;
@@ -201,14 +300,13 @@
 }
 .shortcuts {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 .shortcuts button {
-  min-height: 112px;
-  display: grid;
-  align-content: center;
-  justify-items: start;
+  min-height: 78px;
+  display: flex;
+  align-items: center;
   gap: 4px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-large);
@@ -218,12 +316,16 @@
   text-align: left;
   cursor: pointer;
 }
+.shortcuts button > div {
+  display: grid;
+  gap: 4px;
+}
 .shortcuts button > span {
   width: 36px;
   height: 36px;
   display: grid;
   place-items: center;
-  margin-bottom: 5px;
+  margin-right: 8px;
   border-radius: var(--radius);
   color: var(--color-primary);
   background: var(--color-primary-light);
@@ -328,6 +430,12 @@
 .portal-filter {
   position: relative;
 }
+.mobile-filters > app-date-picker {
+  min-width: 0;
+}
+.mobile-filters > .event-filter {
+  grid-column: 1 / -1;
+}
 .mobile-filters > .portal-filter > button {
   min-height: 38px;
   width: 100%;
@@ -339,13 +447,23 @@
   border-radius: var(--radius);
   color: var(--color-text);
   background: var(--color-surface);
-  font-size: 9px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 400;
   cursor: pointer;
 }
 .mobile-filters > .portal-filter > button span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.mobile-filters > .portal-filter > button > svg:first-child {
+  flex: 0 0 auto;
+  color: var(--color-primary);
+}
+.mobile-filters > .portal-filter > button > svg:last-child {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
 }
 .portal-filter.open > button {
   border-color: var(--color-primary);
@@ -494,7 +612,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   position: fixed;
-  z-index: 8;
+  z-index: 40;
   right: 0;
   bottom: 0;
   left: 0;

@@ -12,8 +12,12 @@ type CalendarDay = { date: string; day: number; currentMonth: boolean };
   styleUrl: './date-picker.component.scss',
 })
 export class DatePickerComponent {
+  private static activePicker: DatePickerComponent | null = null;
+
   @Input() value = '';
   @Input() ariaLabel = 'Selecionar data';
+  @Input() displayMode: 'date' | 'month' = 'date';
+  @Input() popupAlign: 'left' | 'right' = 'left';
   @Output() valueChange = new EventEmitter<string>();
 
   protected open = false;
@@ -23,6 +27,13 @@ export class DatePickerComponent {
   protected readonly calendarIcon = LucideCalendarDays;
 
   protected toggle(): void {
+    if (!this.open) {
+      DatePickerComponent.activePicker?.closePicker();
+      DatePickerComponent.activePicker = this;
+    } else {
+      DatePickerComponent.activePicker = null;
+    }
+
     if (!this.open && this.value) {
       this.calendarMonth = new Date(`${this.value}T12:00:00`);
     }
@@ -85,7 +96,7 @@ export class DatePickerComponent {
 
   protected selectDate(value: string): void {
     this.valueChange.emit(value);
-    this.open = false;
+    this.closePicker();
   }
 
   protected selectYear(year: number): void {
@@ -100,12 +111,12 @@ export class DatePickerComponent {
 
   protected clear(): void {
     this.valueChange.emit('');
-    this.open = false;
+    this.closePicker();
   }
 
   protected selectToday(): void {
     this.valueChange.emit(this.toIsoDate(new Date()));
-    this.open = false;
+    this.closePicker();
   }
 
   protected isSelected(value: string): boolean {
@@ -118,6 +129,12 @@ export class DatePickerComponent {
 
   protected displayValue(): string {
     if (!this.value) return 'Selecione a data';
+    if (this.displayMode === 'month') {
+      return new Intl.DateTimeFormat('pt-BR', {
+        month: 'long',
+        year: 'numeric',
+      }).format(new Date(`${this.value}T12:00:00`));
+    }
     const [year, month, day] = this.value.split('-');
     return `${day}/${month}/${year}`;
   }
@@ -128,6 +145,13 @@ export class DatePickerComponent {
 
   @HostListener('document:click')
   protected close(): void {
+    this.closePicker();
+  }
+
+  private closePicker(): void {
     this.open = false;
+    if (DatePickerComponent.activePicker === this) {
+      DatePickerComponent.activePicker = null;
+    }
   }
 }

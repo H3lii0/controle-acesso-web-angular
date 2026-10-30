@@ -1,4 +1,9 @@
-<div class="date-picker" [class.open]="open" (click)="$event.stopPropagation()">
+<div
+  class="date-picker"
+  [class.open]="open"
+  [class.align-right]="popupAlign === 'right'"
+  (click)="$event.stopPropagation()"
+>
   <button
     class="control date-trigger"
     type="button"
